@@ -7,7 +7,7 @@
             <!-- Left Menu Start -->
             <ul class="left-menu list-unstyled" id="side-menu">
                 <li>
-                    <a href="#" class="">
+                    <a href="{{ route('dashboard') }}" class="">
                         <i class="fas fa-desktop"></i>
                         <span>Dashboard</span>
                     </a>
@@ -21,34 +21,7 @@
                         <span>Master Data</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="ui-accordions.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Accordions</a></li>
-                        <li><a href="ui-alerts.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Alerts</a></li>
-                        <li><a href="ui-badge.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Badges</a></li>
-                        <li><a href="ui-breadcrumb.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Breadcrumb</a></li>
-                        <li><a href="ui-buttons.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Buttons</a></li>
-                        <li><a href="ui-buttons-group.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Button Group</a></li>
-                        <li><a href="ui-cards.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Cards</a></li>
-                    </ul>
-                </li>
-
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow ">
-                        <i class="fa fa-adjust"></i>
-                        <span>Advanced</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="ui-avatar.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Avatar</a></li>
-                        <li><a href="ui-blockUI.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Block UI</a></li>
-                        <li><a href="ui-slick-carousel.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Carousel</a></li>
-                        <li><a href="ui-chat.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Chat</a></li>
-                        <li><a href="ui-context-menu.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Context menu</a></li>
-                        <li><a href="ui-grid-nav.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Grid nav</a></li>
-                        <li><a href="ui-rich-list.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Rich list</a></li>
-                        <li><a href="ui-sortable.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Sortable</a></li>
-                        <li><a href="ui-sweet-alert.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Sweetalert 2</a></li>
-                        <li><a href="ui-timeline.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Timeline</a></li>
-                        <li><a href="ui-toaster.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Toaster</a></li>
-                        <li><a href="ui-treeview.html"><i class="mdi mdi-checkbox-blank-circle align-middle"></i> Tree View</a></li>
+                        <li><a href="{{ route('unitproduk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Unit Produk</a></li>
                     </ul>
                 </li>
 

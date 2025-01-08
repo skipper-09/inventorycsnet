@@ -5,7 +5,7 @@
 
         <!-- Start Navbar-Brand -->
         <div class="navbar-logo-box">
-            <a href="index.html" class="logo logo-dark">
+            <a href="{{ route('dashboard') }}" class="logo logo-dark">
                 <span class="logo-sm">
                     <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-dark" height="20">
                 </span>
@@ -14,7 +14,7 @@
                 </span>
             </a>
 
-            <a href="index.html" class="logo logo-light">
+            <a href="{{ route('dashboard') }}" class="logo logo-light">
                 <span class="logo-sm">
                     <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-light" height="20">
                 </span>
