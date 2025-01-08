@@ -10,4 +10,9 @@ class Product extends Model
         'unit_id','name','description'
     ];
     protected $primaryKey = 'id';
+
+    public function unit()
+    {
+        return $this->belongsTo(UnitProduct::class);
+    }
 }

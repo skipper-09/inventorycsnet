@@ -10,4 +10,9 @@ class UnitProduct extends Model
         'name'
     ];
     protected $primaryKey = 'id';
+
+    public function product()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

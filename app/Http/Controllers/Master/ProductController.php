@@ -3,61 +3,52 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\UnitProduct;
+use App\Models\Product;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
-class UnitProductController extends Controller
+class ProductController extends Controller
 {
-    // Api
-    public function getUnitProducts()
-    {
-        $units = UnitProduct::all();
-        return response()->json($units);
-    }
-    
     public function index()
     {
         $data = [
-            'title' => 'Unit Produk',
+            'title' => 'Produk',
         ];
-        return view('pages.master.unit_product.index', $data);
+        return view('pages.master.product.index', $data);
     }
 
-    //getdata
     public function getData()
     {
-        $data = UnitProduct::orderByDesc('id')->get();
+        $data = Product::orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
             $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></a>';
 
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('unitproduk.delete',['id'=>$data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('produk.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->rawColumns(['action'])->make(true);
     }
 
-    //destroy data
     public function destroy($id)
     {
         try {
-            $unitproduct = UnitProduct::findOrFail($id);
-            $unitproduct->delete();
+            $product = Product::findOrFail($id);
+            $product->delete();
             //return response
             return response()->json([
                 'status' => 'success',
                 'success' => true,
-                'message' => 'Data Unit Produk Berhasil Dihapus!.',
+                'message' => 'Data Produk Berhasil Dihapus!.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Gagal Menghapus Data Unit Produk!',
+                'message' => 'Gagal Menghapus Data Produk!',
                 'trace' => $e->getTrace()
             ]);
         }
@@ -65,14 +56,17 @@ class UnitProductController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'unit_id' => 'required|exists:unit_products,id',
         ]);
 
-        $unit = new UnitProduct();
-        $unit->name = $request->name;
-        $unit->save();
+        $product = new Product();
+        $product->name = $request->name;
+        $product->description = $request->description;
+        $product->unit_id = $request->unit_id;
+        $product->save();
 
         // Mengirim response JSON untuk memberikan feedback
         return response()->json(['success' => true]);
