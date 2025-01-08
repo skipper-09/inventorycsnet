@@ -9,9 +9,6 @@ Route::get('/', function () {
     return redirect()->route('dashboard');
 });
 
-Route::get('/api/unit-produk', [UnitProductController::class, 'getUnitProducts'])->name('unit-produk.api');
-
-
 Route::prefix('admin')->group(function () {
     Route::get('', function () {
         return redirect()->route('dashboard');

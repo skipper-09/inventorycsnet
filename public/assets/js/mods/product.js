@@ -1,7 +1,6 @@
-
-$(document).ready(function() {
-    var route = $('#scroll-sidebar-datatable').data('route');
-    var table = $('#scroll-sidebar-datatable').DataTable({
+$(document).ready(function () {
+    var route = $("#scroll-sidebar-datatable").data("route");
+    var table = $("#scroll-sidebar-datatable").DataTable({
         scrollY: "350px",
         scrollCollapse: !0,
         paging: !0,
@@ -19,73 +18,48 @@ $(document).ready(function() {
         ajax: route,
         columns: [
             {
-            data: 'DT_RowIndex',
-            searchable: false,
-            width: '10px',
-            class: 'text-center'
+                data: "DT_RowIndex",
+                searchable: false,
+                width: "10px",
+                class: "text-center",
             },
             {
-                data: 'name',
-                name: 'name',
+                data: "name",
+                name: "name",
             },
             {
-                data: 'description',
-                name: 'description',
+                data: "description",
+                name: "description",
             },
             {
-                data: 'action',
-                name: 'action',
+                data: "action",
+                name: "action",
                 orderable: false,
                 searchable: false,
-            }
-        ]
+            },
+        ],
     });
 
-    // Mengambil data unit produk untuk dropdown
-    function loadUnitProducts() {
-        $.ajax({
-            url: "/api/unit-produk",
-            type: 'GET',
-            success: function (data) {
-                var unitSelect = $('#unit_id');
-                unitSelect.empty();
-                unitSelect.append('<option value="">Select Unit</option>');
-                data.forEach(function (unit) {
-                    unitSelect.append('<option value="' + unit.id + '">' + unit.name + '</option>');
-                });
-            },
-            error: function (xhr) {
-                console.error('Failed to load unit products:', xhr);
-            }
-        });
-    }
-
-    // Panggil fungsi untuk memuat unit produk saat dokumen siap
-    loadUnitProducts();
-
-    $('#addProductForm').on('submit', function(e) {
+    $("#addProductForm").on("submit", function (e) {
         e.preventDefault();
 
         // Ambil data form
-        var formData = $(this).serialize(); 
+        var formData = $(this).serialize();
 
         $.ajax({
-            url: $(this).attr('action'),
-            type: 'POST', 
-            data: formData, 
-            success: function(response) {
+            url: $(this).attr("action"),
+            type: "POST",
+            data: formData,
+            success: function (response) {
                 if (response.success) {
-                    $('#modal8').modal('hide'); 
-                    $('#addProductForm')[0].reset();
+                    $("#modal8").modal("hide");
+                    $("#addProductForm")[0].reset();
                     table.ajax.reload();
-                } else {
-                    alert('Gagal menambahkan unit');
                 }
             },
-            error: function(xhr, status, error) {
-                console.log(xhr,error);
-                
-            }
+            error: function (xhr, status, error) {
+                console.log(xhr, error);
+            },
         });
     });
 });

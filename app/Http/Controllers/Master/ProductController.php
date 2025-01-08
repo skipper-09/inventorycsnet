@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\UnitProduct;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class ProductController extends Controller
     {
         $data = [
             'title' => 'Produk',
+            'unit' => UnitProduct::all(),
         ];
         return view('pages.master.product.index', $data);
     }

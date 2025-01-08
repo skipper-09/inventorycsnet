@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
-                <h5 class="modal-title">Tambah {{ $title }}</h5>
+                <h5 class="modal-title"></h5>
                 <button type="button" class="btn btn-sm btn-label-danger btn-icon" data-bs-dismiss="modal">
                     <i class="mdi mdi-close"></i>
                 </button>
@@ -13,7 +13,8 @@
                 <div class="modal-body">
                     <div>
                         <label class="form-label" for="name">Nama Unit</label>
-                        <input class="form-control" type="text" name="name" id="name" placeholder="Nama Unit" required>
+                        <input class="form-control" type="text" name="name" id="name" placeholder="Nama Unit"
+                            required>
                     </div>
                 </div>
                 <div class="modal-footer">

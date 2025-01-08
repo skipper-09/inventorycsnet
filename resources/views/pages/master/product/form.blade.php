@@ -11,19 +11,26 @@
             <form id="addProductForm" action="{{ route('produk.store') }}" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
-                    <div>
-                        <label class="form-label" for="name">Nama Produk</label>
-                        <input class="form-control" type="text" name="name" id="name" placeholder="Nama Produk" required>
-                    </div>
-                    <div>
-                        <label class="form-label" for="description">Deskripsi</label>
-                        <textarea class="form-control" name="description" id="description" placeholder="Deskripsi" required></textarea>
-                    </div>
-                    <div>
-                        <label class="form-label" for="unit_id">Unit Product</label>
-                        <select name="unit_id" id="unit_id" class="form-control" required>
-                            <option value="">Select Unit</option>
-                        </select>
+                    <div class="row">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="name">Nama Produk</label>
+                            <input class="form-control" type="text" name="name" id="name"
+                                placeholder="Nama Produk" required>
+                        </div>
+                        <div class="form-group mb-3 ">
+                            <label class="form-label w-100" for="unit_id">Unit Product</label>
+                            <select name="unit_id" class="form-control select2">
+                                <option value="">PIlih Unit</option>
+                                @foreach ($unit as $item)
+                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                @endforeach
+                            </select>
+
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="description">Deskripsi</label>
+                            <textarea class="form-control" name="description" id="description" placeholder="Deskripsi" required></textarea>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
