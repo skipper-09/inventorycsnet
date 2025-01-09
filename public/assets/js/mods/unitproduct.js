@@ -17,6 +17,11 @@ $(document).ready(function () {
         var proses = button.data("proses");
         var form = $("#addUnitForm");
 
+        // Reset form errors
+        $(".is-invalid").removeClass("is-invalid");
+        $(".invalid-feedback").remove();
+        $("#errorMessages").addClass("d-none");
+
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
