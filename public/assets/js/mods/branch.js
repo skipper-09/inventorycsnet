@@ -15,7 +15,12 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addUnitForm");
+        var form = $("#addBranchForm");
+
+        // Reset form errors
+        $(".is-invalid").removeClass("is-invalid");
+        $(".invalid-feedback").remove();
+        $("#errorMessages").addClass("d-none");
 
         if (action === "create") {
             modalTitle.text("Tambah " + title);
@@ -31,8 +36,11 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.unit) {
-                        $("#addUnitForm #name").val(response.unit.name);
+                    if (response.branch) {
+                        $("#addBranchForm #name").val(response.branch.name);
+                        $("#addBranchForm #address").val(
+                            response.branch.address
+                        );
                     }
                 },
                 error: function (xhr, status, error) {
@@ -83,7 +91,7 @@ $(document).ready(function () {
         ],
     });
 
-    $("#addUnitForm").on("submit", function (e) {
+    $("#addBranchForm").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -94,7 +102,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addUnitForm")[0].reset();
+                    $("#addBranchForm")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",

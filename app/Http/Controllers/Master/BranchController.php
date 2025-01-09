@@ -37,11 +37,74 @@ class BranchController extends Controller
         })->rawColumns(['action'])->make(true);
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama cabang harus diisi.',
+            'address.required' => 'Alamat harus diisi.',
+        ]);
 
+        try {
+            $branch = new Branch();
+            $branch->name = $request->name;
+            $branch->address = $request->address;
+            $branch->save();
 
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Cabang Berhasil dibuat.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
 
+    public function show($id)
+    {
+        $branch = Branch::findOrFail($id);
+        return response()->json([
+            'branch'  => $branch,
+        ], 200);
+    }
 
-    //destroy data
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:255',
+        ], [
+            'name.required' => 'Nama cabang harus diisi.',
+            'address.required' => 'Alamat harus diisi.',
+        ]);
+
+        try {
+            $branch = Branch::findOrFail($id);
+            $branch->name = $request->name;
+            $branch->address = $request->address;
+            $branch->save();
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Cabang Berhasil diupdate.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     public function destroy($id)
     {
         try {

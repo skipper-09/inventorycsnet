@@ -8,27 +8,18 @@
                 </button>
             </div>
             <!-- Form untuk pengiriman data -->
-            <form id="addProductForm" action="" method="POST">
+            <form id="addBranchForm" action="" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
-                        <label class="form-label" for="name">Nama Produk</label>
+                        <label class="form-label" for="name">Nama Cabang</label>
                         <input class="form-control" type="text" name="name" id="name"
-                            placeholder="Nama Produk">
+                            placeholder="Nama Cabang">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label w-100" for="unit_id">Unit Product</label>
-                        <select name="unit_id" id="unit_id" class="form-control select2">
-                            <option value="">PIlih Unit</option>
-                            @foreach ($unit as $item)
-                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="description">Deskripsi</label>
-                        <textarea class="form-control" name="description" id="description" placeholder="Deskripsi"></textarea>
+                        <label class="form-label" for="address">Alamat</label>
+                        <textarea class="form-control" name="address" id="address" placeholder="Alamat"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

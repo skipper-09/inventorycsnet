@@ -17,6 +17,11 @@ $(document).ready(function () {
         var proses = button.data("proses");
         var form = $("#addProductForm");
 
+        // Reset form errors
+        $(".is-invalid").removeClass("is-invalid");
+        $(".invalid-feedback").remove();
+        $("#errorMessages").addClass("d-none");
+
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
@@ -32,9 +37,15 @@ $(document).ready(function () {
                 type: "GET",
                 success: function (response) {
                     if (response.product) {
-                        $("#addProductForm #name").val(response.product.name);
-                        $("#addProductForm #description").val(response.product.description);
-                        $("#addProductForm #unit_id").val(response.product.unit_id);
+                        $("#addProductForm #name").val(
+                            response.product.name
+                        );
+                        $("#addProductForm #description").val(
+                            response.product.description
+                        );
+                        $("#addProductForm select[name='unit_id'] #unit_id")
+                            .val(response.product.unit_id)
+                            .trigger("change");
                     }
                 },
                 error: function (xhr, status, error) {
