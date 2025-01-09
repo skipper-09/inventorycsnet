@@ -43,9 +43,7 @@ $(document).ready(function () {
                         $("#addProductForm #description").val(
                             response.product.description
                         );
-                        $("#addProductForm select[name='unit_id'] #unit_id")
-                            .val(response.product.unit_id)
-                            .trigger("change");
+                        $("#addProductForm select[name='unit_id']").val(response.product.unit_id).trigger('change').select2();
                     }
                 },
                 error: function (xhr, status, error) {
