@@ -43,7 +43,7 @@ $(document).ready(function () {
                         $("#addProductForm #description").val(
                             response.product.description
                         );
-                        $("#addProductForm select[name='unit_id']").val(response.product.unit_id).trigger('change').select2();
+                        $("#addProductForm #unit_id").val(response.product.unit_id).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {
