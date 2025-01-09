@@ -40,11 +40,12 @@
                 <div class="card-body">
                     <table id="scroll-sidebar-datatable"
                         class="table dt-responsive nowrap w-100 table-hover table-striped"
-                        data-route="{{ route('unitproduk.getdata') }}">
+                        data-route="{{ route('branch.getdata') }}">
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>Name</th>
+                                <th>Nama Cabang</th>
+                                <th>Alamat</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -69,6 +70,6 @@
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 
 {{-- route datatable init and js definition --}}
-<script src="{{ asset('assets/js/mods/unitproduct.js') }}"></script>
+<script src="{{ asset('assets/js/mods/branch.js') }}"></script>
 
 @endpush

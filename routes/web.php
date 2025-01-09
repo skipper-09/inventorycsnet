@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\UnitProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -37,6 +38,16 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [ProductController::class, 'show'])->name('produk.edit');
             Route::put('/update/{id}', [ProductController::class, 'update'])->name('produk.update');
             Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('produk.delete');
+        });
+
+        // branch
+        Route::prefix('cabang')->group(function () {
+            Route::get('', [BranchController::class, 'index'])->name('branch');
+            Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
+            Route::post('store', [BranchController::class, 'store'])->name('branch.store');
+            Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit');
+            Route::put('/update/{id}', [BranchController::class, 'update'])->name('branch.update');
+            Route::delete('/delete/{id}', [BranchController::class, 'destroy'])->name('branch.delete');
         });
     });
 });
