@@ -8,39 +8,39 @@ $(document).ready(function () {
         },
         buttonsStyling: !1,
     });
-    $("#modal8").on("show.bs.modal", function (event) {
-        var button = $(event.relatedTarget);
-        var action = button.data("action");
-        var title = button.data("title");
-        var modalTitle = $("#modal8 .modal-header .modal-title");
-        var route = button.data("route");
-        var proses = button.data("proses");
-        var form = $("#addUnitForm");
+    // $("#modal8").on("show.bs.modal", function (event) {
+    //     var button = $(event.relatedTarget);
+    //     var action = button.data("action");
+    //     var title = button.data("title");
+    //     var modalTitle = $("#modal8 .modal-header .modal-title");
+    //     var route = button.data("route");
+    //     var proses = button.data("proses");
+    //     var form = $("#addUnitForm");
 
-        if (action === "create") {
-            modalTitle.text("Tambah " + title);
-            form[0].reset();
-            form.attr("action", proses);
-            form.attr("method", "POST");
-        } else if (action === "edit") {
-            modalTitle.text("Edit " + title);
-            form.attr("action", proses);
-            form.attr("method", "PUT");
-            //get data ajax
-            $.ajax({
-                url: route,
-                type: "GET",
-                success: function (response) {
-                    if (response.unit) {
-                        $("#addUnitForm #name").val(response.unit.name);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr, error);
-                },
-            });
-        }
-    });
+    //     if (action === "create") {
+    //         modalTitle.text("Tambah " + title);
+    //         form[0].reset();
+    //         form.attr("action", proses);
+    //         form.attr("method", "POST");
+    //     } else if (action === "edit") {
+    //         modalTitle.text("Edit " + title);
+    //         form.attr("action", proses);
+    //         form.attr("method", "PUT");
+    //         //get data ajax
+    //         $.ajax({
+    //             url: route,
+    //             type: "GET",
+    //             success: function (response) {
+    //                 if (response.unit) {
+    //                     $("#addUnitForm #name").val(response.unit.name);
+    //                 }
+    //             },
+    //             error: function (xhr, status, error) {
+    //                 console.log(xhr, error);
+    //             },
+    //         });
+    //     }
+    // });
 
     var route = $("#scroll-sidebar-datatable").data("route");
     var table = $("#scroll-sidebar-datatable").DataTable({
@@ -79,53 +79,40 @@ $(document).ready(function () {
         ],
     });
 
-    $("#addUnitForm").on("submit", function (e) {
-        e.preventDefault();
-        var formData = $(this).serialize();
+    $("#SyncData").on("click", function (e) {
+        const swalLoading = n.fire({
+            title: "Loading...",
+            text: "Processing your request...",
+            icon: "info",
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
         $.ajax({
-            url: $(this).attr("action"),
-            type: $(this).attr("method"),
-            data: formData,
-            processData: false,
+            url: $(this).data("route"),
+            type: "GET",
             success: function (response) {
-                if (response.success) {
-                    $("#modal8").modal("hide");
-                    $("#addUnitForm")[0].reset();
-                    table.ajax.reload();
-                    n.fire({
-                        position: "center",
-                        icon: "success",
-                        title: response.status,
-                        text: response.message,
-                        showConfirmButton: !1,
-                        timer: 1500,
-                    });
-                }
+                swalLoading.close();
+
+                table.ajax.reload();
+                n.fire({
+                    position: "center",
+                    icon: "success",
+                    title: response.status,
+                    text: response.message,
+                    showConfirmButton: !1,
+                    timer: 1500,
+                });
             },
             error: function (response) {
-                $(".is-invalid").removeClass("is-invalid");
-                $(".invalid-feedback").remove();
-                $("#errorMessages").addClass("d-none");
-
-                if (response.responseJSON.errors) {
-                    $.each(
-                        response.responseJSON.errors,
-                        function (field, messages) {
-                            var inputField = $("#" + field);
-                            inputField.addClass("is-invalid");
-                            inputField.after(
-                                '<div class="invalid-feedback">' +
-                                    messages.join(", ") +
-                                    "</div>"
-                            );
-                        }
-                    );
-                } else {
-                    $("#errorMessages").removeClass("d-none");
-                    $("#errorMessages").html(
-                        "Something went wrong. Please try again."
-                    );
-                }
+                swalLoading.close();
+                n.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Something went wrong! " + response.responseJSON.message,
+                });
             },
         });
     });

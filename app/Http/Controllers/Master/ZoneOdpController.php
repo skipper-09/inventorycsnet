@@ -95,6 +95,7 @@ class ZoneOdpController extends Controller
                 }
 
                 return response()->json([
+                    'status' =>'Success',
                     'message' => 'Data synced successfully',
                 ]);
             }
