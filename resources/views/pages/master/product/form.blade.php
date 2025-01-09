@@ -8,7 +8,7 @@
                 </button>
             </div>
             <!-- Form untuk pengiriman data -->
-            <form id="addProductForm" action="{{ route('produk.store') }}" method="POST">
+            <form id="addProductForm" action="" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div class="row">
@@ -25,7 +25,6 @@
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @endforeach
                             </select>
-
                         </div>
                         <div class="form-group mb-3">
                             <label class="form-label" for="description">Deskripsi</label>

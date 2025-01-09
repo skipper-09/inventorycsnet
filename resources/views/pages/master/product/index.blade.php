@@ -36,8 +36,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8">Tambah
-                            {{ $title }}</button>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                            data-action="create" data-proses="{{ route('produk.store') }}" data-title="{{ $title }}">Tambah {{ $title }}</button>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
@@ -48,6 +48,7 @@
                                     <th>No</th>
                                     <th>Nama</th>
                                     <th>Deskripsi</th>
+                                    <th>Unit</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
