@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UnitProductSeeder::class,
             ProductSeeder::class,
-            BranchSeeder::class
+            BranchSeeder::class,
+            // ZoneOdpSeeder::class,
         ]);
         // User::factory(10)->create();
         // User::factory()->create([

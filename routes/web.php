@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\UnitProductController;
+use App\Http\Controllers\Master\ZoneOdpController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\ProductController;
@@ -48,6 +49,17 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit');
             Route::put('/update/{id}', [BranchController::class, 'update'])->name('branch.update');
             Route::delete('/delete/{id}', [BranchController::class, 'destroy'])->name('branch.delete');
+        });
+
+        // zoneodp
+        Route::prefix('jalur')->group(function () {
+            Route::get('', [ZoneOdpController::class, 'index'])->name('zone');
+            Route::get('getdata', [ZoneOdpController::class, 'getData'])->name('zone.getdata');
+            Route::get('syncdata', [ZoneOdpController::class, 'SyncData'])->name('zone.syncdata');
+            Route::post('store', [ZoneOdpController::class, 'store'])->name('zone.store');
+            Route::get('/edit/{id}', [ZoneOdpController::class, 'show'])->name('zone.edit');
+            Route::put('/update/{id}', [ZoneOdpController::class, 'update'])->name('zone.update');
+            Route::delete('/delete/{id}', [ZoneOdpController::class, 'destroy'])->name('zone.delete');
         });
     });
 });
