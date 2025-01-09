@@ -32,9 +32,15 @@ $(document).ready(function () {
                 type: "GET",
                 success: function (response) {
                     if (response.product) {
-                        $("#addProductForm #name").val(response.product.name);
-                        $("#addProductForm #description").val(response.product.description);
-                        $("#addProductForm #unit_id").val(response.product.unit_id);
+                        $("#addProductForm #name").val(
+                            response.product.name
+                        );
+                        $("#addProductForm #description").val(
+                            response.product.description
+                        );
+                        $("#addProductForm select[name='unit_id'] #unit_id")
+                            .val(response.product.unit_id)
+                            .trigger("change");
                     }
                 },
                 error: function (xhr, status, error) {

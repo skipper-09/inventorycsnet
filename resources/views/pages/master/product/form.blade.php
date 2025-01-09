@@ -11,25 +11,24 @@
             <form id="addProductForm" action="" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="form-group mb-3">
-                            <label class="form-label" for="name">Nama Produk</label>
-                            <input class="form-control" type="text" name="name" id="name"
-                                placeholder="Nama Produk" required>
-                        </div>
-                        <div class="form-group mb-3 ">
-                            <label class="form-label w-100" for="unit_id">Unit Product</label>
-                            <select name="unit_id" class="form-control select2">
-                                <option value="">PIlih Unit</option>
-                                @foreach ($unit as $item)
-                                    <option value="{{ $item->id }}">{{ $item->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label class="form-label" for="description">Deskripsi</label>
-                            <textarea class="form-control" name="description" id="description" placeholder="Deskripsi" required></textarea>
-                        </div>
+                    <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
+                    <div class="mb-3">
+                        <label class="form-label" for="name">Nama Produk</label>
+                        <input class="form-control" type="text" name="name" id="name"
+                            placeholder="Nama Produk">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label w-100" for="unit_id">Unit Product</label>
+                        <select name="unit_id" id="unit_id" class="form-control select2">
+                            <option value="">PIlih Unit</option>
+                            @foreach ($unit as $item)
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="description">Deskripsi</label>
+                        <textarea class="form-control" name="description" id="description" placeholder="Deskripsi"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
