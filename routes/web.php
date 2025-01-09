@@ -5,6 +5,7 @@ use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
 
 Route::get('/', function () {
@@ -60,6 +61,16 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [ZoneOdpController::class, 'show'])->name('zone.edit');
             Route::put('/update/{id}', [ZoneOdpController::class, 'update'])->name('zone.update');
             Route::delete('/delete/{id}', [ZoneOdpController::class, 'destroy'])->name('zone.delete');
+        });
+
+        Route::prefix('odp')->group(function () {
+            Route::get('', [OdpController::class, 'index'])->name('odp');
+            Route::get('getdata', [OdpController::class, 'getData'])->name('odp.getdata');
+            Route::get('syncdata', [OdpController::class, 'SyncData'])->name('odp.syncdata');
+            Route::post('store', [OdpController::class, 'store'])->name('odp.store');
+            Route::get('/edit/{id}', [OdpController::class, 'show'])->name('odp.edit');
+            Route::put('/update/{id}', [OdpController::class, 'update'])->name('odp.update');
+            Route::delete('/delete/{id}', [OdpController::class, 'destroy'])->name('odp.delete');
         });
     });
 });

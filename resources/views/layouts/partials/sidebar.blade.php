@@ -25,6 +25,7 @@
                         <li><a href="{{ route('unitproduk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Unit Produk</a></li>
                         <li><a href="{{ route('produk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Produk</a></li>
                         <li><a href="{{ route('zone') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Jalur</a></li>
+                        <li><a href="{{ route('odp') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
                     </ul>
                 </li>
 

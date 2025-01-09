@@ -10,4 +10,9 @@ class ZoneOdp extends Model
         'name','zone_id'
     ];
     protected $primaryKey = 'id';
+
+    public function odps()
+    {
+        return $this->hasMany(Odp::class, 'zone_id', 'id');
+    }
 }
