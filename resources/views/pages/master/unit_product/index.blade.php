@@ -29,13 +29,12 @@
             </div>
         </div>
         <!-- end page title -->
-
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-title="{{ $title }}">Tambah {{ $title }}</button>
+                            data-action="create" data-proses="{{ route('unitproduk.store') }}" data-title="{{ $title }}">Tambah {{ $title }}</button>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
@@ -70,9 +69,4 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/unitproduct.js') }}"></script>
-    <script>
-        $(document).ready(function() {
-
-        });
-    </script>
 @endpush

@@ -5,11 +5,32 @@ $(document).ready(function () {
         var action = button.data("action");
         var title = button.data("title");
         var modalTitle = $("#modal8 .modal-header .modal-title");
+        var route = button.data("route");
+        var proses = button.data("proses");
+        var form = $("#addUnitForm");
 
         if (action === "create") {
             modalTitle.text("Tambah " + title);
+            form[0].reset();
+            form.attr("action", proses);
+            form.attr("method", "POST");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
+            form.attr("action", proses);
+            form.attr("method", "PUT");
+            //get data ajax
+            $.ajax({
+                url: route,
+                type: "GET",
+                success: function (response) {
+                    if (response.unit) {
+                        $("#addUnitForm #name").val(response.unit.name);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(xhr, error);
+                },
+            });
         }
     });
 
@@ -53,12 +74,11 @@ $(document).ready(function () {
     $("#addUnitForm").on("submit", function (e) {
         e.preventDefault();
 
-        // Ambil data form
         var formData = $(this).serialize();
 
         $.ajax({
             url: $(this).attr("action"),
-            type: "POST",
+            type: $(this).attr("method"),
             data: formData,
             success: function (response) {
                 if (response.success) {

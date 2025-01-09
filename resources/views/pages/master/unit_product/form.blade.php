@@ -8,12 +8,12 @@
                 </button>
             </div>
             <!-- Form untuk pengiriman data -->
-            <form id="addUnitForm" action="{{ route('unitproduk.store') }}" method="POST">
+            <form id="addUnitForm" action="" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div>
                         <label class="form-label" for="name">Nama Unit</label>
-                        <input class="form-control" type="text" name="name" id="name" placeholder="Nama Unit"
+                        <input class="form-control" type="text" name="name" id="name"  placeholder="Nama Unit"
                             required>
                     </div>
                 </div>

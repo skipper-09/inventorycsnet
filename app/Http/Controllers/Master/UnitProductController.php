@@ -12,13 +12,6 @@ use Yajra\DataTables\Facades\DataTables;
 
 class UnitProductController extends Controller
 {
-    // // Api
-    // public function getUnitProducts()
-    // {
-    //     $units = UnitProduct::all();
-    //     return response()->json($units);
-    // }
-
     public function index()
     {
         $data = [
@@ -37,7 +30,7 @@ class UnitProductController extends Controller
             // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                             class="fas fa-pen "></i></a>';
 
-            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
 
@@ -47,25 +40,7 @@ class UnitProductController extends Controller
         })->rawColumns(['action'])->make(true);
     }
 
-    //destroy data
-    public function destroy($id)
-    {
-        try {
-            $unitproduct = UnitProduct::findOrFail($id);
-            $unitproduct->delete();
-            //return response
-            return response()->json([
-                'status' => 'success',
-                'success' => true,
-                'message' => 'Data Unit Produk Berhasil Dihapus!.',
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Gagal Menghapus Data Unit Produk!',
-                'trace' => $e->getTrace()
-            ]);
-        }
-    }
+  
 
     public function store(Request $request)
     {
@@ -73,12 +48,50 @@ class UnitProductController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
-
         $unit = new UnitProduct();
-        $unit->name = $request->name;
-        $unit->save();
-
+        $unit->create($request->all());
         // Mengirim response JSON untuk memberikan feedback
         return response()->json(['success' => true]);
     }
+
+
+    public function show($id)
+    {
+        $unit = UnitProduct::findOrFail($id);
+        return response()->json([
+            'unit'  => $unit,
+        ],200);
+    }
+
+    public function update(Request $request,$id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+        $unit = UnitProduct::findOrFail($id);
+        $unit->update($request->all());
+        // Mengirim response JSON untuk memberikan feedback
+        return response()->json(['success' => true]);
+    }
+
+
+      //destroy data
+      public function destroy($id)
+      {
+          try {
+              $unitproduct = UnitProduct::findOrFail($id);
+              $unitproduct->delete();
+              //return response
+              return response()->json([
+                  'status' => 'success',
+                  'success' => true,
+                  'message' => 'Data Unit Produk Berhasil Dihapus!.',
+              ]);
+          } catch (Exception $e) {
+              return response()->json([
+                  'message' => 'Gagal Menghapus Data Unit Produk!',
+                  'trace' => $e->getTrace()
+              ]);
+          }
+      }
 }
