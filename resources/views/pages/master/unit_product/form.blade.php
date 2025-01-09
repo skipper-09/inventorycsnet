@@ -9,12 +9,13 @@
             </div>
             <!-- Form untuk pengiriman data -->
             <form id="addUnitForm" action="" method="POST">
-                @csrf <!-- CSRF Token untuk keamanan -->
+                @csrf
+                <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
+                    <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
                     <div>
                         <label class="form-label" for="name">Nama Unit</label>
-                        <input class="form-control" type="text" name="name" id="name"  placeholder="Nama Unit"
-                            required>
+                        <input class="form-control" type="text" name="name" id="name" placeholder="Nama Unit">
                     </div>
                 </div>
                 <div class="modal-footer">

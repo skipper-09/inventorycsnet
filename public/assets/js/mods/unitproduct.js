@@ -1,5 +1,13 @@
 $(document).ready(function () {
     //modal title dinamis
+    var n = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-label-info btn-wide mx-1",
+            denyButton: "btn btn-label-secondary btn-wide mx-1",
+            cancelButton: "btn btn-label-danger btn-wide mx-1",
+        },
+        buttonsStyling: !1,
+    });
     $("#modal8").on("show.bs.modal", function (event) {
         var button = $(event.relatedTarget);
         var action = button.data("action");
@@ -73,22 +81,51 @@ $(document).ready(function () {
 
     $("#addUnitForm").on("submit", function (e) {
         e.preventDefault();
-
         var formData = $(this).serialize();
-
         $.ajax({
             url: $(this).attr("action"),
             type: $(this).attr("method"),
             data: formData,
+            processData: false,
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
                     $("#addUnitForm")[0].reset();
                     table.ajax.reload();
+                    n.fire({
+                        position: "center",
+                        icon: "success",
+                        title: response.status,
+                        text: response.message,
+                        showConfirmButton: !1,
+                        timer: 1500,
+                    });
                 }
             },
-            error: function (xhr, status, error) {
-                console.log(xhr, error);
+            error: function (response) {
+                $(".is-invalid").removeClass("is-invalid");
+                $(".invalid-feedback").remove();
+                $("#errorMessages").addClass("d-none");
+
+                if (response.responseJSON.errors) {
+                    $.each(
+                        response.responseJSON.errors,
+                        function (field, messages) {
+                            var inputField = $("#" + field);
+                            inputField.addClass("is-invalid");
+                            inputField.after(
+                                '<div class="invalid-feedback">' +
+                                    messages.join(", ") +
+                                    "</div>"
+                            );
+                        }
+                    );
+                } else {
+                    $("#errorMessages").removeClass("d-none");
+                    $("#errorMessages").html(
+                        "Something went wrong. Please try again."
+                    );
+                }
             },
         });
     });

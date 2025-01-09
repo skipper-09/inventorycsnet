@@ -40,58 +40,87 @@ class UnitProductController extends Controller
         })->rawColumns(['action'])->make(true);
     }
 
-  
+
 
     public function store(Request $request)
     {
-
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required',
+        ], [
+            'name.required' => 'Nama unit harus diisi.',
         ]);
-        $unit = new UnitProduct();
-        $unit->create($request->all());
-        // Mengirim response JSON untuk memberikan feedback
-        return response()->json(['success' => true]);
+
+        try {
+            $unit = new UnitProduct();
+            $unit->create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Unit Produk Berhasil dibuat.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
     }
+
 
 
     public function show($id)
     {
         $unit = UnitProduct::findOrFail($id);
         return response()->json([
-            'unit'  => $unit,
-        ],200);
+            'unit' => $unit,
+        ], 200);
     }
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required',
+        ], [
+            'name.required' => 'Nama unit harus diisi.',
         ]);
-        $unit = UnitProduct::findOrFail($id);
-        $unit->update($request->all());
-        // Mengirim response JSON untuk memberikan feedback
-        return response()->json(['success' => true]);
+        try {
+            $unit = UnitProduct::findOrFail($id);
+            $unit->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Unit Produk Berhasil diupdate.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
     }
 
 
-      //destroy data
-      public function destroy($id)
-      {
-          try {
-              $unitproduct = UnitProduct::findOrFail($id);
-              $unitproduct->delete();
-              //return response
-              return response()->json([
-                  'status' => 'success',
-                  'success' => true,
-                  'message' => 'Data Unit Produk Berhasil Dihapus!.',
-              ]);
-          } catch (Exception $e) {
-              return response()->json([
-                  'message' => 'Gagal Menghapus Data Unit Produk!',
-                  'trace' => $e->getTrace()
-              ]);
-          }
-      }
+    //destroy data
+    public function destroy($id)
+    {
+        try {
+            $unitproduct = UnitProduct::findOrFail($id);
+            $unitproduct->delete();
+            //return response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Data Unit Produk Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Data Unit Produk!',
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
 }
