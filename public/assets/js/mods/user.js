@@ -23,6 +23,10 @@ $(document).ready(function () {
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
 
+        // Reset select2
+        $("#addUserForm #role").val(null).trigger('change');
+        $("#addUserForm #is_block").val(null).trigger('change');
+
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
@@ -42,10 +46,12 @@ $(document).ready(function () {
                         $("#addUserForm #username").val(response.user.username);
                         $("#addUserForm #name").val(response.user.name);
                         $("#addUserForm #email").val(response.user.email);
+                        
                         if (response.roles) {
                             var roleSelect = $("#addUserForm #role");
+
                             // Clear any existing selections
-                            roleSelect.val(null);
+                            roleSelect.val(null).trigger('change');
                             
                             // Handle both single role and multiple roles
                             if (Array.isArray(response.roles)) {
@@ -54,6 +60,7 @@ $(document).ready(function () {
                                 roleSelect.val([response.roles]).trigger('change');
                             }
                         }
+
                         $("#addUserForm #is_block").val(response.user.is_block ? "1" : "0").trigger('change');
 
                         // Set image preview
@@ -117,12 +124,18 @@ $(document).ready(function () {
         ],
     });
 
+    // Inisialisasi Select2 setelah modal terbuka atau setelah data dimuat
+    $("#role").select2({
+        placeholder: "Pilih Role",
+        allowClear: true,
+    });
+
     // Form submit handler
     $("#addUserForm").on("submit", function (e) {
         e.preventDefault();
         var form = $(this);
         var formData = new FormData(this);
-    
+
         // Tambahkan CSRF token
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
         
@@ -130,7 +143,7 @@ $(document).ready(function () {
         if (form.attr("method").toLowerCase() === "put") {
             formData.append('_method', 'PUT');
         }
-    
+
         $.ajax({
             url: form.attr("action"),
             type: 'POST',  // Selalu gunakan POST untuk FormData
@@ -157,12 +170,12 @@ $(document).ready(function () {
                 $(".is-invalid").removeClass("is-invalid");
                 $(".invalid-feedback").remove();
                 $("#errorMessages").addClass("d-none");
-    
+
                 if (xhr.status === 419) {
                     location.reload();
                     return;
                 }
-    
+
                 if (xhr.responseJSON && xhr.responseJSON.errors) {
                     $.each(xhr.responseJSON.errors, function (field, messages) {
                         var inputField = $("#" + field);
@@ -201,4 +214,5 @@ $(document).ready(function () {
             }
         }
     });
+
 });
