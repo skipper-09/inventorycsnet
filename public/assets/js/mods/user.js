@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    //modal title dinamis
+    // Modal title dinamis
     var n = Swal.mixin({
         customClass: {
             confirmButton: "btn btn-label-info btn-wide mx-1",
@@ -8,6 +8,7 @@ $(document).ready(function () {
         },
         buttonsStyling: !1,
     });
+
     $("#modal8").on("show.bs.modal", function (event) {
         var button = $(event.relatedTarget);
         var action = button.data("action");
@@ -27,23 +28,44 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
+            $("#imagePreview").addClass("d-none");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
             form.attr("method", "PUT");
-            //get data ajax
+            
             $.ajax({
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.product) {
-                        $("#addUserForm #name").val(
-                            response.product.name
-                        );
-                        $("#addUserForm #description").val(
-                            response.product.description
-                        );
-                        $("#addUserForm #unit_id").val(response.product.unit_id).trigger('change');
+                    if (response.user) {
+                        $("#addUserForm #username").val(response.user.username);
+                        $("#addUserForm #name").val(response.user.name);
+                        $("#addUserForm #email").val(response.user.email);
+                        if (response.roles) {
+                            var roleSelect = $("#addUserForm #role");
+                            // Clear any existing selections
+                            roleSelect.val(null);
+                            
+                            // Handle both single role and multiple roles
+                            if (Array.isArray(response.roles)) {
+                                roleSelect.val(response.roles).trigger('change');
+                            } else if (typeof response.roles === 'string' || typeof response.roles === 'number') {
+                                roleSelect.val([response.roles]).trigger('change');
+                            }
+                        }
+                        $("#addUserForm #is_block").val(response.user.is_block ? "1" : "0").trigger('change');
+
+                        // Set image preview
+                        if (response.user.picture) {
+                            $("#imagePreview")
+                                .attr("src", "/storage/images/user/" + response.user.picture)
+                                .removeClass("d-none");
+                        } else {
+                            $("#imagePreview")
+                                .attr("src", "/assets/images/users/avatar-1.png")
+                                .removeClass("d-none");
+                        }
                     }
                 },
                 error: function (xhr, status, error) {
@@ -78,17 +100,14 @@ $(document).ready(function () {
                 class: "text-center",
             },
             {
-                data: "name",
-                name: "name",
+                data: "picture",
+                name: "picture",
+                orderable: false,
+                searchable: false,
             },
-            {
-                data: "description",
-                name: "description",
-            },
-            {
-                data: "unit",
-                name: "unit",
-            },
+            { data: "username", name: "username" },
+            { data: "name", name: "name" },
+            { data: "role", name: "role" },
             {
                 data: "action",
                 name: "action",
@@ -98,54 +117,88 @@ $(document).ready(function () {
         ],
     });
 
+    // Form submit handler
     $("#addUserForm").on("submit", function (e) {
         e.preventDefault();
-        var formData = $(this).serialize();
+        var form = $(this);
+        var formData = new FormData(this);
+    
+        // Tambahkan CSRF token
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+        
+        // Tambahkan _method field jika methodnya PUT
+        if (form.attr("method").toLowerCase() === "put") {
+            formData.append('_method', 'PUT');
+        }
+    
         $.ajax({
-            url: $(this).attr("action"),
-            type: $(this).attr("method"),
+            url: form.attr("action"),
+            type: 'POST',  // Selalu gunakan POST untuk FormData
             data: formData,
             processData: false,
+            contentType: false,
+            cache: false,
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addUserForm")[0].reset();
+                    form[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",
                         icon: "success",
                         title: response.status,
                         text: response.message,
-                        showConfirmButton: !1,
+                        showConfirmButton: false,
                         timer: 1500,
                     });
                 }
             },
-            error: function (response) {
+            error: function (xhr) {
                 $(".is-invalid").removeClass("is-invalid");
                 $(".invalid-feedback").remove();
                 $("#errorMessages").addClass("d-none");
-
-                if (response.responseJSON.errors) {
-                    $.each(
-                        response.responseJSON.errors,
-                        function (field, messages) {
-                            var inputField = $("#" + field);
-                            inputField.addClass("is-invalid");
-                            inputField.after(
-                                '<div class="invalid-feedback">' +
-                                    messages.join(", ") +
-                                    "</div>"
-                            );
-                        }
-                    );
+    
+                if (xhr.status === 419) {
+                    location.reload();
+                    return;
+                }
+    
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    $.each(xhr.responseJSON.errors, function (field, messages) {
+                        var inputField = $("#" + field);
+                        inputField.addClass("is-invalid");
+                        inputField.after(
+                            '<div class="invalid-feedback">' +
+                            messages.join(", ") +
+                            "</div>"
+                        );
+                    });
                 } else {
                     $("#errorMessages").removeClass("d-none");
-                    $("#errorMessages").html(
-                        "Something went wrong. Please try again."
-                    );
+                    $("#errorMessages").html("Something went wrong. Please try again.");
                 }
-            },
+            }
         });
+    });
+
+    // Preview gambar
+    $("#picture").on("change", function (event) {
+        var input = this;
+        var reader = new FileReader();
+
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+            if (file.type.match("image.*")) {
+                reader.onload = function (e) {
+                    $("#imagePreview")
+                        .attr("src", e.target.result)
+                        .removeClass("d-none");
+                };
+                reader.readAsDataURL(file);
+            } else {
+                $("#imagePreview").addClass("d-none");
+                alert("Silakan pilih file gambar.");
+            }
+        }
     });
 });
