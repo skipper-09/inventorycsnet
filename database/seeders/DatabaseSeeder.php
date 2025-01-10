@@ -14,16 +14,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            UserSeeder::class,
             UnitProductSeeder::class,
             ProductSeeder::class,
             BranchSeeder::class,
             // ZoneOdpSeeder::class,
             // OdpSeeder::class
         ]);
-        // User::factory(10)->create();
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
     }
 }
