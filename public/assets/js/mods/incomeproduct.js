@@ -15,7 +15,7 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addProductForm");
+        var form = $("#Form");
 
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
@@ -27,7 +27,8 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addProductForm #unit_id").val('').trigger('change');
+            $("#Form #branch_id").val('').trigger('change');
+            $("#Form #product_id").val('').trigger('change');
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -37,14 +38,8 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.product) {
-                        $("#addProductForm #name").val(
-                            response.product.name
-                        );
-                        $("#addProductForm #description").val(
-                            response.product.description
-                        );
-                        $("#addProductForm #unit_id").val(response.product.unit_id).trigger('change');
+                    if (response.unit) {
+                        $("#Form #qty").val(response.unit.name);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -79,16 +74,20 @@ $(document).ready(function () {
                 class: "text-center",
             },
             {
-                data: "name",
-                name: "name",
+                data: "branch",
+                name: "brach",
             },
             {
-                data: "description",
-                name: "description",
+                data: "product",
+                name: "product",
             },
             {
-                data: "unit",
-                name: "unit",
+                data: "quantity",
+                name: "quantity",
+            },
+            {
+                data: "created_at",
+                name: "created_at",
             },
             {
                 data: "action",
@@ -99,7 +98,7 @@ $(document).ready(function () {
         ],
     });
 
-    $("#addProductForm").on("submit", function (e) {
+    $("#Form").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -110,7 +109,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addProductForm")[0].reset();
+                    $("#Form")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",

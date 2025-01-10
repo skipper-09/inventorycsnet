@@ -13,10 +13,10 @@ class TransactionProduct extends Model
 
 
     public function transaksi(){
-        $this->belongsTo(TransactionTechnition::class,'transaction_id');
+        return  $this->belongsTo(Transaction::class,'transaction_id','id');
     }
 
     public function product(){
-        $this->belongsTo(Product::class,'product_id');
+        return  $this->belongsTo(Product::class,'product_id','id');
     }
 }

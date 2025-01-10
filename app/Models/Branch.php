@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Branch extends Model
 {
     protected $fillable = [
-        'name','address'
+        'name',
+        'address'
     ];
     protected $primaryKey = 'id';
+
+    public function transaction()
+    {
+        return $this->hasMany(Branch::class);
+    }
 }

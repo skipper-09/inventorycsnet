@@ -13,10 +13,10 @@ class TransactionTechnition extends Model
 
 
     public function transaksi(){
-        $this->belongsTo(TransactionTechnition::class,'transaction_id');
+        return $this->belongsTo(TransactionTechnition::class,'transaction_id');
     }
 
     public function user(){
-        $this->belongsTo(User::class,'user_id');
+        return $this->belongsTo(User::class,'user_id');
     }
 }

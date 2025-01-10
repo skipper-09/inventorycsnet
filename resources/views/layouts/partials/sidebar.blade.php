@@ -29,6 +29,14 @@
                     </ul>
                 </li>
 
+                <li class="menu-title">Transaksi</li>
+                <li>
+                    <a href="{{ route('incomeproduct') }}" class="">
+                        <i class="fas fa-grip-horizontal"></i>
+                        <span>Barang Masuk</span>
+                    </a>
+                </li>
+
                 <li class="menu-title">Laporan</li>
 
                 <li>
