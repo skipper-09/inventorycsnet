@@ -9,7 +9,7 @@
             </div>
             <!-- Form untuk pengiriman data -->
             <form id="addUserForm" action="" method="POST" enctype="multipart/form-data">
-                @csrf <!-- CSRF Token untuk keamanan -->
+                @csrf
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
                     <!-- Input Username -->
@@ -51,7 +51,7 @@
                         <select class="form-control select2" name="role" id="role">
                             <option value="">Pilih Role</option>
                             @foreach ($roles as $item)
-                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                <option value="{{ $item->name }}">{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -61,8 +61,8 @@
                         <label class="form-label" for="is_block">Status Akun</label>
                         <select class="form-control select2" id="is_block" name="is_block">
                             <option value="">Pilih Status</option>
-                            <option value="1">Blokir Akun</option>
                             <option value="0">Aktifkan Akun</option>
+                            <option value="1">Blokir Akun</option>
                         </select>
                     </div>
 

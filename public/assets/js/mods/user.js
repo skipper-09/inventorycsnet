@@ -23,21 +23,19 @@ $(document).ready(function () {
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
 
-        // Reset select2
-        $("#addUserForm #role").val(null).trigger('change');
-        $("#addUserForm #is_block").val(null).trigger('change');
-
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
             $("#imagePreview").addClass("d-none");
+            $("#addUserForm #role").val("").trigger("change");
+            $("#addUserForm #is_block").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
             form.attr("method", "PUT");
-            
+
             $.ajax({
                 url: route,
                 type: "GET",
@@ -46,31 +44,29 @@ $(document).ready(function () {
                         $("#addUserForm #username").val(response.user.username);
                         $("#addUserForm #name").val(response.user.name);
                         $("#addUserForm #email").val(response.user.email);
-                        
-                        if (response.roles) {
-                            var roleSelect = $("#addUserForm #role");
+                        $("#addUserForm #role")
+                            .val(response.user.roles[0].name)
+                            .trigger("change");
 
-                            // Clear any existing selections
-                            roleSelect.val(null).trigger('change');
-                            
-                            // Handle both single role and multiple roles
-                            if (Array.isArray(response.roles)) {
-                                roleSelect.val(response.roles).trigger('change');
-                            } else if (typeof response.roles === 'string' || typeof response.roles === 'number') {
-                                roleSelect.val([response.roles]).trigger('change');
-                            }
-                        }
-
-                        $("#addUserForm #is_block").val(response.user.is_block ? "1" : "0").trigger('change');
+                        $("#addUserForm #is_block")
+                            .val(response.user.is_block)
+                            .trigger("change");
 
                         // Set image preview
                         if (response.user.picture) {
                             $("#imagePreview")
-                                .attr("src", "/storage/images/user/" + response.user.picture)
+                                .attr(
+                                    "src",
+                                    "/storage/images/user/" +
+                                        response.user.picture
+                                )
                                 .removeClass("d-none");
                         } else {
                             $("#imagePreview")
-                                .attr("src", "/assets/images/users/avatar-1.png")
+                                .attr(
+                                    "src",
+                                    "/assets/images/users/avatar-1.png"
+                                )
                                 .removeClass("d-none");
                         }
                     }
@@ -115,6 +111,7 @@ $(document).ready(function () {
             { data: "username", name: "username" },
             { data: "name", name: "name" },
             { data: "role", name: "role" },
+            { data: "status", name: "status" },
             {
                 data: "action",
                 name: "action",
@@ -124,12 +121,6 @@ $(document).ready(function () {
         ],
     });
 
-    // Inisialisasi Select2 setelah modal terbuka atau setelah data dimuat
-    $("#role").select2({
-        placeholder: "Pilih Role",
-        allowClear: true,
-    });
-
     // Form submit handler
     $("#addUserForm").on("submit", function (e) {
         e.preventDefault();
@@ -137,16 +128,16 @@ $(document).ready(function () {
         var formData = new FormData(this);
 
         // Tambahkan CSRF token
-        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
-        
+        formData.append("_token", $('meta[name="csrf-token"]').attr("content"));
+
         // Tambahkan _method field jika methodnya PUT
         if (form.attr("method").toLowerCase() === "put") {
-            formData.append('_method', 'PUT');
+            formData.append("_method", "PUT");
         }
 
         $.ajax({
             url: form.attr("action"),
-            type: 'POST',  // Selalu gunakan POST untuk FormData
+            type: "POST",
             data: formData,
             processData: false,
             contentType: false,
@@ -182,15 +173,17 @@ $(document).ready(function () {
                         inputField.addClass("is-invalid");
                         inputField.after(
                             '<div class="invalid-feedback">' +
-                            messages.join(", ") +
-                            "</div>"
+                                messages.join(", ") +
+                                "</div>"
                         );
                     });
                 } else {
                     $("#errorMessages").removeClass("d-none");
-                    $("#errorMessages").html("Something went wrong. Please try again.");
+                    $("#errorMessages").html(
+                        "Something went wrong. Please try again."
+                    );
                 }
-            }
+            },
         });
     });
 
@@ -214,5 +207,4 @@ $(document).ready(function () {
             }
         }
     });
-
 });

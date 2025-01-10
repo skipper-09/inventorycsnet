@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -19,7 +20,7 @@ class UserController extends Controller
     {
         $data = [
             'title' => 'User',
-            'roles' => Role::all(),
+            'roles' => Role::where('name', '!=', 'Developer')->get(),
         ];
 
         return view('pages.settings.user.index', $data);
@@ -27,7 +28,7 @@ class UserController extends Controller
 
     public function getData()
     {
-        $user = User::orderByDesc('id')->get();
+        $user = User::with('roles')->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
 
         return DataTables::of($user)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
@@ -43,49 +44,51 @@ class UserController extends Controller
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
             return $data->roles[0]->name;
+        })->addColumn('status', function ($data) {
+            return $data->is_block == 0 ? '<span class="badge badge-label-primary">Aktif</span>' : '<span class="badge badge-label-danger">Blokir</span>';
         })->editColumn('picture', function ($data) {
             return $data->picture == null ? '<img src="' . asset('assets/images/users/avatar-1.png') . '" alt="Profile Image" class="rounded-circle header-profile-user">' : '<img src="' . asset("storage/images/user/$data->picture") . '" alt="Profile Image" class="rounded-circle header-profile-user">';
-        })->rawColumns(['action', 'role', 'picture'])->make(true);
+        })->rawColumns(['action', 'role', 'picture', 'status'])->make(true);
     }
 
 
     public function store(Request $request)
     {
+        $request->validate([
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'username' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|unique:users,email|max:255',
+            'password' => 'required|string|min:6|max:255|confirmed',
+            'password_confirmation' => 'required|string|min:6|max:255',
+            'is_block' => 'required|boolean',
+            'role' => 'required'
+        ], [
+            'picture.image' => 'File harus berupa gambar.',
+            'picture.mimes' => 'Format gambar tidak valid.',
+            'picture.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
+            'username.required' => 'Username wajib diisi.',
+            'username.string' => 'Username harus berupa teks.',
+            'username.max' => 'Username maksimal 255 karakter.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.string' => 'Email harus berupa teks.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'email.unique' => 'Email sudah digunakan.',
+            'password.required' => 'Password wajib diisi.',
+            'password.string' => 'Password harus berupa teks.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'password.max' => 'Password maksimal 255 karakter.',
+            'password_confirmation.required' => 'Konfirmasi password wajib diisi.',
+            'password_confirmation.string' => 'Konfirmasi password harus berupa teks.',
+            'password_confirmation.min' => 'Konfirmasi password minimal 6 karakter.',
+            'password_confirmation.max' => 'Konfirmasi password maksimal 255 karakter.',
+            'is_block.required' => 'Status wajib diisi.',
+            'role.required' => 'Role wajib diisi.',
+        ]);
         try {
-            $request->validate([
-                'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'username' => 'required|string|max:255',
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|unique:users,email|max:255',
-                'password' => 'required|string|min:6|max:255|confirmed',
-                'password_confirmation' => 'required|string|min:6|max:255',
-                'is_block' => 'required|boolean',
-                'role' => 'required'
-            ], [
-                'picture.image' => 'File harus berupa gambar.',
-                'picture.mimes' => 'Format gambar tidak valid.',
-                'picture.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
-                'username.required' => 'Username wajib diisi.',
-                'username.string' => 'Username harus berupa teks.',
-                'username.max' => 'Username maksimal 255 karakter.',
-                'name.required' => 'Nama wajib diisi.',
-                'name.string' => 'Nama harus berupa teks.',
-                'name.max' => 'Nama maksimal 255 karakter.',
-                'email.required' => 'Email wajib diisi.',
-                'email.string' => 'Email harus berupa teks.',
-                'email.max' => 'Email maksimal 255 karakter.',
-                'email.unique' => 'Email sudah digunakan.',
-                'password.required' => 'Password wajib diisi.',
-                'password.string' => 'Password harus berupa teks.',
-                'password.min' => 'Password minimal 6 karakter.',
-                'password.max' => 'Password maksimal 255 karakter.',
-                'password_confirmation.required' => 'Konfirmasi password wajib diisi.',
-                'password_confirmation.string' => 'Konfirmasi password harus berupa teks.',
-                'password_confirmation.min' => 'Konfirmasi password minimal 6 karakter.',
-                'password_confirmation.max' => 'Konfirmasi password maksimal 255 karakter.',
-                'is_block.required' => 'Status wajib diisi.',
-                'role.required' => 'Role wajib diisi.',
-            ]);
 
             $filename = '';
             if ($request->hasFile('picture')) {
@@ -111,7 +114,6 @@ class UserController extends Controller
                 'message' => 'User Berhasil dibuat.'
             ]);
         } catch (Exception $e) {
-            Log::error($e);
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -122,67 +124,60 @@ class UserController extends Controller
 
     public function show($id)
     {
-        // Memuat relasi 'roles' bersama data user
         $user = User::with('roles')->findOrFail($id);
-
-        // Mengubah roles menjadi array id role (bukan nama)
-        $userRoles = $user->roles->pluck('id')->toArray(); // Mengambil ID peran
-
-        return response()->json(['user' => $user, 'roles' => $userRoles], 200);
+        return response()->json(['user' => $user], 200);
     }
 
     public function update(Request $request, $id)
     {
+        $validationRules = [
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'username' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|max:255|unique:users,email,' . $id,
+            'is_block' => 'required|boolean',
+            'role' => 'required'
+        ];
+
+        // Only validate password if it's being updated
+        if ($request->filled('password')) {
+            $validationRules['password'] = 'required|string|min:6|max:255|confirmed';
+            $validationRules['password_confirmation'] = 'required|string|min:6|max:255';
+        }
+
+        $validationMessages = [
+            'picture.image' => 'File harus berupa gambar.',
+            'picture.mimes' => 'Format gambar tidak valid.',
+            'picture.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
+            'username.required' => 'Username wajib diisi.',
+            'username.string' => 'Username harus berupa teks.',
+            'username.max' => 'Username maksimal 255 karakter.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'name.max' => 'Nama maksimal 255 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.string' => 'Email harus berupa teks.',
+            'email.max' => 'Email maksimal 255 karakter.',
+            'email.unique' => 'Email sudah digunakan.',
+            'is_block.required' => 'Status wajib diisi.',
+            'role.required' => 'Role wajib diisi.',
+        ];
+
+        if ($request->filled('password')) {
+            $validationMessages['password.required'] = 'Password wajib diisi.';
+            $validationMessages['password.string'] = 'Password harus berupa teks.';
+            $validationMessages['password.min'] = 'Password minimal 6 karakter.';
+            $validationMessages['password.max'] = 'Password maksimal 255 karakter.';
+            $validationMessages['password.confirmed'] = 'Konfirmasi password tidak cocok.';
+            $validationMessages['password_confirmation.required'] = 'Konfirmasi password wajib diisi.';
+            $validationMessages['password_confirmation.string'] = 'Konfirmasi password harus berupa teks.';
+            $validationMessages['password_confirmation.min'] = 'Konfirmasi password minimal 6 karakter.';
+            $validationMessages['password_confirmation.max'] = 'Konfirmasi password maksimal 255 karakter.';
+        }
+
+        $request->validate($validationRules, $validationMessages);
         try {
             $user = User::findOrFail($id);
-
-            $validationRules = [
-                'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'username' => 'required|string|max:255',
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|max:255|unique:users,email,' . $id,
-                'is_block' => 'required|boolean',
-                'role' => 'required'
-            ];
-
-            // Only validate password if it's being updated
-            if ($request->filled('password')) {
-                $validationRules['password'] = 'required|string|min:6|max:255|confirmed';
-                $validationRules['password_confirmation'] = 'required|string|min:6|max:255';
-            }
-
-            $validationMessages = [
-                'picture.image' => 'File harus berupa gambar.',
-                'picture.mimes' => 'Format gambar tidak valid.',
-                'picture.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
-                'username.required' => 'Username wajib diisi.',
-                'username.string' => 'Username harus berupa teks.',
-                'username.max' => 'Username maksimal 255 karakter.',
-                'name.required' => 'Nama wajib diisi.',
-                'name.string' => 'Nama harus berupa teks.',
-                'name.max' => 'Nama maksimal 255 karakter.',
-                'email.required' => 'Email wajib diisi.',
-                'email.string' => 'Email harus berupa teks.',
-                'email.max' => 'Email maksimal 255 karakter.',
-                'email.unique' => 'Email sudah digunakan.',
-                'is_block.required' => 'Status wajib diisi.',
-                'role.required' => 'Role wajib diisi.',
-            ];
-
-            if ($request->filled('password')) {
-                $validationMessages['password.required'] = 'Password wajib diisi.';
-                $validationMessages['password.string'] = 'Password harus berupa teks.';
-                $validationMessages['password.min'] = 'Password minimal 6 karakter.';
-                $validationMessages['password.max'] = 'Password maksimal 255 karakter.';
-                $validationMessages['password.confirmed'] = 'Konfirmasi password tidak cocok.';
-                $validationMessages['password_confirmation.required'] = 'Konfirmasi password wajib diisi.';
-                $validationMessages['password_confirmation.string'] = 'Konfirmasi password harus berupa teks.';
-                $validationMessages['password_confirmation.min'] = 'Konfirmasi password minimal 6 karakter.';
-                $validationMessages['password_confirmation.max'] = 'Konfirmasi password maksimal 255 karakter.';
-            }
-
-            $request->validate($validationRules, $validationMessages);
-
             // Handle file upload
             if ($request->hasFile('picture')) {
                 // Delete old picture if exists
@@ -209,13 +204,8 @@ class UserController extends Controller
 
             $user->save();
 
-            // Update roles
-            $role = Role::findById($request->role);  // Gunakan findById dari Spatie
-            if (!$role) {
-                throw new Exception("Role tidak ditemukan");
-            }
-
-            $user->syncRoles($role->name);  // Gunakan nama role, bukan ID
+            DB::table('model_has_roles')->where('model_id', $id)->delete();
+            $user->assignRole($request->role);
 
             return response()->json([
                 'success' => true,
@@ -236,6 +226,9 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
+            if (file_exists(public_path('storage/images/user/' . $user->picture))) {
+                File::delete(public_path('storage/images/user/' . $user->picture));
+            }
             $user->delete();
             //return response
             return response()->json([
