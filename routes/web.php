@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
+use App\Http\Controllers\Settings\UserController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -71,6 +72,19 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [OdpController::class, 'show'])->name('odp.edit');
             Route::put('/update/{id}', [OdpController::class, 'update'])->name('odp.update');
             Route::delete('/delete/{id}', [OdpController::class, 'destroy'])->name('odp.delete');
+        });
+
+        Route::prefix('settings')->group(function () {
+
+            Route::prefix('user')->group(function () {
+                Route::get('', [UserController::class, 'index'])->name('user');
+                Route::get('getdata', [UserController::class, 'getData'])->name('user.getdata');
+                Route::post('store', [UserController::class, 'store'])->name('user.store');
+                Route::get('/edit/{id}', [UserController::class, 'show'])->name('user.edit');
+                Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update');
+                Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('user.delete');
+            });
+
         });
     });
 });
