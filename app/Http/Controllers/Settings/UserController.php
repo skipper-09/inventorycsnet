@@ -10,6 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -32,20 +33,21 @@ class UserController extends Controller
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
 
-            $button .= ' <a href="' . route('user.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                class="fas fa-pencil-alt"></i></a>';
+            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('user.edit', ['id' => $data->id]) . '" data-proses="' . route('user.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            data-action="edit" data-title="User" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+                                        class="fas fa-pen "></i></button>';
 
-            $button .= ' <button  class="btn btn-sm btn-danger  action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('user.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                class="fas fa-trash-alt "></i></button>';
-                
+            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('user.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                                        class="fas fa-trash "></i></button>';
+
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
             return $data->roles[0]->name;
         })->editColumn('picture', function ($data) {
-            return $data->picture == null ? '<img src="' . asset('assets/images/avataaars.png') . '" alt="Profile Image" class="rounded-circle header-profile-user">' : '<img src="' . asset("storage/images/user/$data->picture") . '" alt="Profile Image" class="rounded-circle header-profile-user">';
+            return $data->picture == null ? '<img src="' . asset('assets/images/users/avatar-1.png') . '" alt="Profile Image" class="rounded-circle header-profile-user">' : '<img src="' . asset("storage/images/user/$data->picture") . '" alt="Profile Image" class="rounded-circle header-profile-user">';
         })->rawColumns(['action', 'role', 'picture'])->make(true);
     }
-    
+
 
     public function store(Request $request)
     {
@@ -84,14 +86,14 @@ class UserController extends Controller
                 'is_block.required' => 'Status wajib diisi.',
                 'role.required' => 'Role wajib diisi.',
             ]);
-    
+
             $filename = '';
             if ($request->hasFile('picture')) {
                 $file = $request->file('picture');
                 $filename = 'user_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('storage/images/user/'), $filename);
             }
-    
+
             $user = User::create([
                 'picture' => $filename,
                 'username' => $request->username,
@@ -100,15 +102,16 @@ class UserController extends Controller
                 'password' => Hash::make($request->password),
                 'is_block' => $request->is_block,
             ]);
-    
+
             $user->assignRole($request->role);
-    
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
                 'message' => 'User Berhasil dibuat.'
             ]);
         } catch (Exception $e) {
+            Log::error($e);
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -119,25 +122,36 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::findOrFail($id);
-        return response()->json([
-            'user'  => $user,
-        ], 200);
+        // Memuat relasi 'roles' bersama data user
+        $user = User::with('roles')->findOrFail($id);
+
+        // Mengubah roles menjadi array id role (bukan nama)
+        $userRoles = $user->roles->pluck('id')->toArray(); // Mengambil ID peran
+
+        return response()->json(['user' => $user, 'roles' => $userRoles], 200);
     }
 
     public function update(Request $request, $id)
     {
         try {
-            $request->validate([
+            $user = User::findOrFail($id);
+
+            $validationRules = [
                 'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
                 'username' => 'required|string|max:255',
                 'name' => 'required|string|max:255',
-                'email' => 'required|string|unique:users,email|max:255',
-                'password' => 'required|string|min:6|max:255|confirmed',
-                'password_confirmation' => 'required|string|min:6|max:255',
+                'email' => 'required|string|max:255|unique:users,email,' . $id,
                 'is_block' => 'required|boolean',
                 'role' => 'required'
-            ], [
+            ];
+
+            // Only validate password if it's being updated
+            if ($request->filled('password')) {
+                $validationRules['password'] = 'required|string|min:6|max:255|confirmed';
+                $validationRules['password_confirmation'] = 'required|string|min:6|max:255';
+            }
+
+            $validationMessages = [
                 'picture.image' => 'File harus berupa gambar.',
                 'picture.mimes' => 'Format gambar tidak valid.',
                 'picture.max' => 'Ukuran gambar tidak boleh lebih dari 2MB.',
@@ -151,50 +165,65 @@ class UserController extends Controller
                 'email.string' => 'Email harus berupa teks.',
                 'email.max' => 'Email maksimal 255 karakter.',
                 'email.unique' => 'Email sudah digunakan.',
-                'password.required' => 'Password wajib diisi.',
-                'password.string' => 'Password harus berupa teks.',
-                'password.min' => 'Password minimal 6 karakter.',
-                'password.max' => 'Password maksimal 255 karakter.',
-                'password_confirmation.required' => 'Konfirmasi password wajib diisi.',
-                'password_confirmation.string' => 'Konfirmasi password harus berupa teks.',
-                'password_confirmation.min' => 'Konfirmasi password minimal 6 karakter.',
-                'password_confirmation.max' => 'Konfirmasi password maksimal 255 karakter.',
                 'is_block.required' => 'Status wajib diisi.',
                 'role.required' => 'Role wajib diisi.',
-            ]);
-    
-            $user = User::findOrFail($id);
-    
-            $filename = $user->picture;
-    
+            ];
+
+            if ($request->filled('password')) {
+                $validationMessages['password.required'] = 'Password wajib diisi.';
+                $validationMessages['password.string'] = 'Password harus berupa teks.';
+                $validationMessages['password.min'] = 'Password minimal 6 karakter.';
+                $validationMessages['password.max'] = 'Password maksimal 255 karakter.';
+                $validationMessages['password.confirmed'] = 'Konfirmasi password tidak cocok.';
+                $validationMessages['password_confirmation.required'] = 'Konfirmasi password wajib diisi.';
+                $validationMessages['password_confirmation.string'] = 'Konfirmasi password harus berupa teks.';
+                $validationMessages['password_confirmation.min'] = 'Konfirmasi password minimal 6 karakter.';
+                $validationMessages['password_confirmation.max'] = 'Konfirmasi password maksimal 255 karakter.';
+            }
+
+            $request->validate($validationRules, $validationMessages);
+
+            // Handle file upload
             if ($request->hasFile('picture')) {
+                // Delete old picture if exists
+                if ($user->picture && file_exists(public_path('storage/images/user/' . $user->picture))) {
+                    unlink(public_path('storage/images/user/' . $user->picture));
+                }
+
                 $file = $request->file('picture');
                 $filename = 'user_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('storage/images/user/'), $filename);
-    
-                // Hapus gambar lama jika ada
-                if ($user->picture && File::exists(public_path('storage/images/user/' . $user->picture))) {
-                    File::delete(public_path('storage/images/user/' . $user->picture));
-                }
+                $user->picture = $filename;
             }
-    
-            $user->update([
-                'picture' => $filename,
-                'username' => $request->username,
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'is_block' => $request->is_block,
-            ]);
-    
-            $user->syncRoles([$request->role]);
-    
+
+            // Update user data
+            $user->username = $request->username;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->is_block = $request->is_block;
+
+            // Only update password if provided
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->save();
+
+            // Update roles
+            $role = Role::findById($request->role);  // Gunakan findById dari Spatie
+            if (!$role) {
+                throw new Exception("Role tidak ditemukan");
+            }
+
+            $user->syncRoles($role->name);  // Gunakan nama role, bukan ID
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
                 'message' => 'User Berhasil diupdate.'
             ]);
         } catch (Exception $e) {
+            Log::error('Error updating user: ' . $e->getMessage()); // Log error
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -208,16 +237,16 @@ class UserController extends Controller
         try {
             $user = User::findOrFail($id);
             $user->delete();
+            //return response
             return response()->json([
+                'status' => 'success',
                 'success' => true,
-                'status' => "Berhasil",
-                'message' => 'User Berhasil dihapus.'
+                'message' => 'Data Produk Berhasil Dihapus!.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+                'message' => 'Gagal Menghapus Data Produk!',
+                'trace' => $e->getTrace()
             ]);
         }
     }

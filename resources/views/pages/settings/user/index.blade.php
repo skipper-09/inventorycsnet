@@ -9,6 +9,10 @@
     <!-- Responsive datatable examples -->
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
+
+
+    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 @section('content')
     <div class="container-fluid">
@@ -34,7 +38,8 @@
                 <div class="card">
                     <div class="card-header">
                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('user.store') }}" data-title="{{ $title }}">Tambah {{ $title }}</button>
+                            data-action="create" data-proses="{{ route('user.store') }}"
+                            data-title="{{ $title }}">Tambah {{ $title }}</button>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
@@ -57,7 +62,7 @@
         </div>
     </div>
 
-    @include('pages.master.user.form')
+    @include('pages.settings.user.form')
 
 @endsection
 
@@ -72,4 +77,6 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/user.js') }}"></script>
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 @endpush

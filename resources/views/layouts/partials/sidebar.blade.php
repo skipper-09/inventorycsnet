@@ -54,9 +54,11 @@
                 <li class="menu-title">SETTINGS</li>
 
                 <li>
-                    <a href="apps-chat.html" class="">
-                        <i class="fas fa-comment"></i>
-                        <span>Chat</span>
+                    <a href={{ route('user') }} class="">
+                        <i class="fas fa-users"></i>
+                        <span>
+                            User Management
+                        </span>
                     </a>
                 </li>
 
