@@ -38,8 +38,10 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.unit) {
-                        $("#Form #qty").val(response.unit.name);
+                    if (response.transactionproduct) {
+                        $("#Form #qty").val(response.transactionproduct.quantity);
+                        $("#Form #branch_id").val(response.transactionproduct.transaksi.branch_id).trigger('change');
+                        $("#Form #product_id").val(response.transactionproduct.product_id).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {

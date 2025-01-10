@@ -34,7 +34,7 @@ class IncomeProductController extends Controller
             // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                             class="fas fa-pen "></i></a>';
 
-            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('incomeproduct.edit', ['id' => $data->id]) . '" data-proses="' . route('incomeproduct.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                              data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                          class="fas fa-pen "></i></button>';
 
@@ -92,6 +92,15 @@ class IncomeProductController extends Controller
                 'message' => 'An error occurred: ' . $e->getMessage()
             ]);
         }
+    }
+
+
+    public function show($id)
+    {
+        $transactionproduct = TransactionProduct::with('transaksi')->findOrFail($id);
+        return response()->json([
+            'transactionproduct' => $transactionproduct,
+        ], 200);
     }
 
 
