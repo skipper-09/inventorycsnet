@@ -43,32 +43,32 @@ class ZoneOdpController extends Controller
     {
         $client = new Client();
 
-        $csi = env('SUBDOMAIN') . 'system/get_zones';
-        $idnet = env('SUBDOMAINIDNET') . 'system/get_zones';
+        $subdomain = env('SUBDOMAIN');
+        $subdomainidnet = env('SUBDOMAINIDNET');
         $token = env('KEYSMARTOLT');
         $tokenIDNET = env('KEYSMARTOLTIDNET');
 
-        if (!$csi || !$token) {
+        if (!$subdomain || !$token) {
             return response()->json([
                 'error' => 'API URL or Token not falid.'
             ], 500);
         }
 
-        if (!$idnet || !$token) {
+        if (!$subdomainidnet || !$token) {
             return response()->json([
                 'error' => 'API URL or Token not falid.'
             ], 500);
         }
 
         try {
-        
+            $csi = "https://{$subdomain}.smartolt.com/api/system/get_zones";
             $response = $client->get($csi, [
                 'headers' => [
                     'X-Token' => $token,
                     'Accept' => 'application/json',
                 ],
             ]);
-
+            $idnet = "https://{$subdomainidnet}.smartolt.com/api/system/get_zones";
             $responseIDNET = $client->get($idnet, [
                 'headers' => [
                     'X-Token' => $tokenIDNET,
@@ -78,34 +78,41 @@ class ZoneOdpController extends Controller
 
             $data = json_decode($response->getBody()->getContents(), true);
             $dataIDNET = json_decode($responseIDNET->getBody()->getContents(), true);
-            $mergeData = array_merge($data['response'],$dataIDNET['response']);
+            foreach ($data['response'] as &$item) {
+                $item['type'] = 'csi';
+            }
 
-            if (is_array($mergeData) && isset($mergeData)) {
-                 // Misalnya, zona terletak di dalam key 'zones'
+            foreach ($dataIDNET['response'] as &$item) {
+                $item['type'] = 'idnet';
+            }
 
-                foreach ($mergeData as $zone) {
-                    ZoneOdp::updateOrInsert(
-                        ['zone_id' => $zone['id']], // Cek berdasarkan zone_id
-                        [
-                            'name' => $zone['name'] ?? null,
-                            'zone_id' => $zone['id'] ?? null,
-                            'created_at' => now(),
-                        ]
-                    );
-                }
-
+            if (isset($data['response']) && isset($dataIDNET['response'])) {
+                $mergeData = array_merge($data['response'], $dataIDNET['response']);
+            } else {
                 return response()->json([
-                    'status' =>'Success',
-                    'message' => 'Data synced successfully',
-                ]);
+                    'error' => 'Invalid data structure from API response.',
+                ], 500);
+            }
+
+
+            foreach ($mergeData as $zone) {
+                ZoneOdp::updateOrInsert(
+                    ['zone_id' => $zone['id']],
+                    [
+                        'name' => $zone['name'] ?? null,
+                        'zone_id' => $zone['id'] ?? null,
+                        'type' => $zone['type'],
+                        'created_at' => now(),
+                    ]
+                );
             }
 
             return response()->json([
-                'error' => 'Invalid data structure from API response.',
-            ], 500);
+                'status' => 'Success',
+                'message' => 'Data synced successfully',
+            ]);
 
         } catch (\Exception $e) {
-            // Menangani error jika terjadi masalah dengan API request
             return response()->json([
                 'error' => 'Unable to fetch data from Smart OLT API.',
                 'message' => $e->getMessage()

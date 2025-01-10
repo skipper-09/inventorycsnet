@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('zone_id');
+            $table->enum('type',['csi','idnet'])->default('csi');
             $table->timestamps();
         });
     }

@@ -33,9 +33,7 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('odp.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        <button class="btn btn-primary btn-sm" id="SyncData" data-route="{{ route('odp.syncdata') }}" >Sync Data</button>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"

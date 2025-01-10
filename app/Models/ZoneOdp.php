@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ZoneOdp extends Model
 {
     protected $fillable = [
-        'name','zone_id'
+        'name','zone_id','type'
     ];
     protected $primaryKey = 'id';
 
