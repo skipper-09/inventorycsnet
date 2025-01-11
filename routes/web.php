@@ -3,6 +3,7 @@
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
+use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Transaction\IncomeProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -110,6 +111,11 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [RoleController::class, 'show'])->name('role.edit');
             Route::put('/update/{id}', [RoleController::class, 'update'])->name('role.update');
             Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('role.delete');
+        });
+
+        Route::prefix('general')->group(function () {
+            Route::get('', [SettingController::class, 'index'])->name('setting');
+            Route::post('/update', [SettingController::class, 'update'])->name('setting.update');
         });
     });
 });

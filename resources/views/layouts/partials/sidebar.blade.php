@@ -70,9 +70,9 @@
                 </li>
 
                 <li>
-                    <a href="apps-contact.html" class="">
-                        <i class="fas fa-id-badge"></i>
-                        <span>Contacts</span>
+                    <a href="{{ route('setting') }}" class="">
+                        <i class="fas fa-cog"></i>
+                        <span>Setting Aplikasi</span>
                     </a>
                 </li>
             </ul>

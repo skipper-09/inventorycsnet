@@ -4,7 +4,7 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>@yield('title') | PT Cahaya Solusindo</title>
+    <title>@yield('title') | {{ Setting('name') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Inventory Apps PT Cahaya Solusindo" name="description" />
     <meta content="Csnet Developer" name="author" />
@@ -21,8 +21,6 @@
 <body>
 
     <div id="layout-wrapper">
-
-
         <!-- Start topbar -->
         @include('layouts.partials.topbar')
         <!-- End topbar -->
