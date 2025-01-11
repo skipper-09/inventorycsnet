@@ -33,16 +33,13 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <a href="#" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
-                    </div>
                     <div class="card-body">
                         <div class="d-flex flex-wrap gap-3 mb-5">
                             <!-- Filter Branch -->
                             <div class="col-12 col-md-4">
-                                <label for="FilterBranch">Filter Branch <span class="text-danger">*</span></label>
+                                <label class="form-label" for="FilterBranch">Filter Cabang <span class="text-danger">*</span></label>
                                 <select class="form-control select2 filter" id="FilterBranch" name="branch_id">
-                                    <option value="">Filter Branch</option>
+                                    <option value="">Pilih Cabang</option>
                                     @foreach ($branch as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                     @endforeach
@@ -50,9 +47,9 @@
                             </div>
                             <!-- Filter Product -->
                             <div class="col-12 col-md-4">
-                                <label for="FilterProduct">Filter Product <span class="text-danger">*</span></label>
+                                <label class="form-label" for="FilterProduct">Filter Barang <span class="text-danger">*</span></label>
                                 <select class="form-control select2 filter" id="FilterProduct" name="product_id">
-                                    <option value="">Filter Product</option>
+                                    <option value="">Pilih Barang</option>
                                     @foreach ($product as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                     @endforeach
@@ -65,8 +62,8 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Branch</th>
-                                    <th>Product</th>
+                                    <th>Cabang</th>
+                                    <th>Barang</th>
                                     <th>Stock</th>
                                 </tr>
                             </thead>

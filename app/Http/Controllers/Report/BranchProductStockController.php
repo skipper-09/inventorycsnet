@@ -40,37 +40,16 @@ class BranchProductStockController extends Controller
 
         return DataTables::of($data)
             ->addIndexColumn()
-            // ->addColumn('action', function ($data) {
-            //     $button = '';
-            //     $button .= '<a href="' . route('product-stock.edit', ['id' => $data->id]) . '"
-            //               class="btn btn-sm btn-success" 
-            //               data-id="' . $data->id . '" 
-            //               data-type="edit" 
-            //               data-toggle="tooltip" 
-            //               data-placement="bottom" 
-            //               title="Edit Data">
-            //                <i class="fas fa-pen"></i>
-            //            </a>';
-
-            //     $button .= ' <button class="btn btn-sm btn-danger action" 
-            //                    data-id="' . $data->id . '" 
-            //                    data-type="delete" 
-            //                    data-route="' . route('product-stock.delete', ['id' => $data->id]) . '" 
-            //                    data-toggle="tooltip" 
-            //                    data-placement="bottom" 
-            //                    title="Delete Data">
-            //                 <i class="fas fa-trash-alt"></i>
-            //             </button>';
-
-            //     return '<div class="d-flex gap-2">' . $button . '</div>';
-            // })
             ->editColumn('branch', function ($data) {
                 return $data->branch->name;
             })
             ->editColumn('product', function ($data) {
                 return $data->product->name;
             })
-            ->rawColumns(['branch', 'product'])
+            ->editColumn('stock', function ($data) {
+                return $data->stock .' '. $data->product->unit->name;
+            })
+            ->rawColumns(['branch', 'product','stock'])
             ->make(true);
     }
 }
