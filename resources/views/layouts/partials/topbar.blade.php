@@ -174,7 +174,7 @@
                 <div class="dropdown d-inline-block">
                     <button type="button" class="btn btn-sm top-icon p-0" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @if (Auth::user()->picture == null)
-                        <img class="rounded avatar-2xs p-0" src="{{ asset('assets/images/users/avatar-6.png') }}" alt="Header Avatar">
+                        <img class="rounded avatar-2xs p-0" src="{{ asset('assets/images/users/avatar-1.png') }}" alt="Header Avatar">
                         @else
                         <img class="rounded avatar-2xs p-0" src="{{ asset('storage/images/user/' . Auth::user()->picture) }}" alt="Header Avatar">
                         @endif
@@ -192,7 +192,7 @@
                                         <h3 class="rich-list-title text-white">{{ Auth::user()->name }}</h3>
                                         <span class="rich-list-subtitle text-white">{{ Auth::user()->email }}</span>
                                     </div>
-                                    <div class="rich-list-append"><span class="badge badge-label-light fs-6">6+</span></div>
+                                    {{-- <div class="rich-list-append"><span class="badge badge-label-light fs-6">6+</span></div> --}}
                                 </div>
                             </div>
                             <div class="card-body p-0">

@@ -13,18 +13,18 @@
                 </div>
                 <div class="logo logo-dark">
                     <span class="logo-sm">
-                        <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-dark" height="20">
+                        <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-sm-dark" height="20">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('assets/images/logo-dark.png') }}" alt="logo-dark" height="18">
+                        <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-dark" height="18">
                     </span>
                 </div>
                 <div class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-light" height="20">
+                        <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-sm-light" height="20">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('assets/images/logo-light.png') }}" alt="logo-light" height="18">
+                        <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-light" height="18">
                     </span>
                 </div>
                 <h4 class="text-danger mt-4">Reset Password</h4>
@@ -39,7 +39,7 @@
                     <p>©
                         <script>
                             document.write(new Date().getFullYear())
-                        </script> PT Cahaya Solusindo
+                        </script> {{ Setting('name') }}
                     </p>
                 </div>
             </div>

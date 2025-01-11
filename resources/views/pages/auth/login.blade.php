@@ -9,22 +9,22 @@
                 <div class="text-center">
                     <a href="{{ route('dashboard') }}" class="logo logo-dark">
                         <span class="logo-sm">
-                            <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-dark" height="20">
+                            <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-sm-dark" height="20">
                         </span>
                         <span class="logo-lg">
-                            <img src="{{ asset('assets/images/logo-dark.png') }}" alt="logo-dark" height="18">
+                            <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-dark" height="18">
                         </span>
                     </a>
                     <a href="{{ route('dashboard') }}" class="logo logo-light">
                         <span class="logo-sm">
-                            <img src="{{ asset('assets/images/logo-sm.png') }}" alt="logo-sm-light" height="20">
+                            <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-sm-light" height="20">
                         </span>
                         <span class="logo-lg">
-                            <img src="{{ asset('assets/images/logo-light.png') }}" alt="logo-light" height="18">
+                            <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="logo-light" height="18">
                         </span>
                     </a>
                     <h4 class="mt-2">Welcome Back !</h4>
-                    <p class="text-muted">Sign in to continue to Clivax.</p>
+                    <p class="text-muted">Sign in to continue to {{ Setting('name') }}.</p>
                 </div>
 
                 @if ($errors->any())
@@ -73,40 +73,13 @@
                         <div class="pt-3 text-center">
                             <button class="btn btn-primary w-xl waves-effect waves-light" type="submit">Log In</button>
                         </div>
-
-                        {{-- <div class="mt-3 text-center">
-                            <p class="mb-0">Don't have an account ? <a href="auth-register.html"
-                                    class="fw-medium text-primary"> Register </a> </p>
-                        </div> --}}
-
-                        {{-- <div class="mt-4 text-center">
-                            <div class="signin-other-title position-relative">
-                                <h5 class="mb-0 title">or</h5>
-                            </div>
-                            <div class="mt-4 pt-1 hstack gap-3">
-                                <div class="vstack gap-2">
-                                    <button type="button" class="btn btn-label-info d-block"><i
-                                            class="ri-facebook-fill fs-18 align-middle me-2"></i>Sign in with
-                                        facebook</button>
-                                    <button type="button" class="btn btn-label-danger d-block"><i
-                                            class="ri-google-fill fs-18 align-middle me-2"></i>Sign in with google</button>
-                                </div>
-                                <div class="vstack gap-2">
-                                    <button type="button" class="btn btn-label-dark d-block"><i
-                                            class="ri-github-fill fs-18 align-middle me-2"></i>Sign in with github</button>
-                                    <button type="button" class="btn btn-label-success d-block"><i
-                                            class="ri-twitter-fill fs-18 align-middle me-2"></i>Sign in with
-                                        twitter</button>
-                                </div>
-                            </div>
-                        </div> --}}
                     </form>
                 </div>
                 <div class="mt-5 text-center">
                     <p>©
                         <script>
                             document.write(new Date().getFullYear())
-                        </script> PT Cahaya Solusindo
+                        </script> {{ Setting('name') }}
                     </p>
                 </div>
             </div>
