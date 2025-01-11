@@ -19,6 +19,11 @@ use App\Http\Controllers\Settings\UserController;
 //     return redirect()->route('dashboard');
 // });
 
+Route::get('', function () {
+    return redirect()->route('login');
+});
+
+
 Route::prefix('auth')->group(function () {
     Route::get('login', [AuthController::class, 'index'])->name('login')->middleware('guest');
     Route::get('reset-password', [AuthController::class, 'ResetPassword'])->name('resetpassword')->middleware('guest');
