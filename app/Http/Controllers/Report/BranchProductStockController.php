@@ -14,7 +14,7 @@ class BranchProductStockController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Laporan Stok Produk',
+            'title' => 'Laporan Stok Barang',
             'branch' => Branch::all(),
             'product' => Product::all(),
         ];
