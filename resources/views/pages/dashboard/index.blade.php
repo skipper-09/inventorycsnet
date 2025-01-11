@@ -28,7 +28,7 @@
             <div class="row">
                 <div class="col-xl-4">
                     <div class="card bg-danger-subtle"
-                        style="background: url('assets/images/dashboard/dashboard-shape-1.png'); background-repeat: no-repeat; background-position: bottom center; ">
+                    style="background: url('{{ asset('assets/images/dashboard/dashboard-shape-1.png') }}'); background-repeat: no-repeat; background-position: bottom center;">
                         <div class="card-body">
                             <div class="d-flex">
                                 <div class="avatar avatar-sm avatar-label-danger">
@@ -48,7 +48,7 @@
                 </div>
                 <div class="col-xl-4">
                     <div class="card bg-success-subtle"
-                        style="background: url('assets/images/dashboard/dashboard-shape-2.png'); background-repeat: no-repeat; background-position: bottom center; ">
+                        style="background: url('{{ asset('assets/images/dashboard/dashboard-shape-2.png') }}'); background-repeat: no-repeat; background-position: bottom center; ">
                         <div class="card-body">
                             <div class="d-flex">
                                 <div class="avatar avatar-sm avatar-label-success">
@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-xl-4">
                     <div class="card bg-info-subtle"
-                        style="background: url('assets/images/dashboard/dashboard-shape-3.png'); background-repeat: no-repeat; background-position: bottom center; ">
+                        style="background: url('{{ asset('assets/images/dashboard/dashboard-shape-3.png') }}'); background-repeat: no-repeat; background-position: bottom center; ">
                         <div class="card-body">
                             <div class="d-flex">
                                 <div class="avatar avatar-sm avatar-label-info">
@@ -91,96 +91,14 @@
                 <div class="col-xl-8">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-hockey-puck fs-14 text-muted"></i>
-                            </div>
-                            <h4 class="card-title mb-0">Sales by product category</h4>
-                        </div>
+                            <h4 class="card-title mb-0">Stok Barang Per-Cabang</h4>
+                        </div><!-- end card header -->
+
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-brightness-5 text-primary me-2"></i>Clothes <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i
-                                                        class="mdi mdi-briefcase-variant-outline text-danger me-2"></i>Kids
-                                                    <span class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-cart-arrow-right text-info me-2"></i>Cosmetics
-                                                    <span class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-checkbox-multiple-blank text-warning me-2"></i>Men
-                                                    <span class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-chess-queen text-success me-2"></i>Kitchen <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-church text-info me-2"></i>Decor <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-city text-warning me-2"></i>Outdoor <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-currency-usd-circle text-primary me-2"></i>Lighting
-                                                    <span class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-gamepad-circle text-danger me-2"></i>Dining <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div>
-                                                <p><i class="mdi mdi-hexagon-multiple text-info me-2"></i>Women <span
-                                                        class="text-muted fs-14">-50%</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div>
-                                        <div id="gradient_chart"
-                                            data-colors='["--bs-primary", "--bs-success", "--bs-warning", "--bs-danger", "--bs-info", "--bs-dark", "--bs-purple", "--bs-orange"]'
-                                            class="apex-charts" dir="ltr"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            <div id="column_chart"
+                                class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
                 </div>
                 <div class="col-xl-4">
                     <div class="card" style="overflow-y: auto; height: 304px;" data-simplebar="">
@@ -201,15 +119,15 @@
                                             <span>Meeting with</span>
                                             <div class="avatar-group ms-2">
                                                 <div class="avatar avatar-circle">
-                                                    <img src="assets/images/users/avatar-1.png" alt="Avatar image"
+                                                    <img src="{{ asset('assets/images/users/avatar-1.png') }}" alt="Avatar image"
                                                         class="avatar-2xs" />
                                                 </div>
                                                 <div class="avatar avatar-circle">
-                                                    <img src="assets/images/users/avatar-2.png" alt="Avatar image"
+                                                    <img src="{{ asset('assets/images/users/avatar-2.png') }}" alt="Avatar image"
                                                         class="avatar-2xs" />
                                                 </div>
                                                 <div class="avatar avatar-circle">
-                                                    <img src="assets/images/users/avatar-3.png" alt="Avatar image"
+                                                    <img src="{{ asset('assets/images/users/avatar-3.png') }}" alt="Avatar image"
                                                         class="avatar-2xs" />
                                                 </div>
                                             </div>
@@ -246,129 +164,65 @@
             </div>
         </div>
     </div>
-    <!-- end row -->
-
-    <div class="row">
-        <div class="col-xxl-8 col-xl-6">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-layer-group fs-14 text-muted"></i>
-                    </div>
-                    <h4 class="card-title mb-0">Top Selling</h4>
-                </div><!-- end card header -->
-
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-sm-8">
-                            <div id="products" data-colors='["--bs-primary"]' class="apex-charts" dir="ltr"></div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="d-grid gap-2">
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">48%</span>
-                                        <span class="text-muted">Sunday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
-                                            style="width: 48%;"></div>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">100%</span>
-                                        <span class="text-muted">Monday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-secondary"
-                                            style="width: 100%;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">40%</span>
-                                        <span class="text-muted">Tuesday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-danger"
-                                            style="width: 40%;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">68%</span>
-                                        <span class="text-muted">Wednesday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-info"
-                                            style="width: 68%;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">56%</span>
-                                        <span class="text-muted">Thursday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
-                                            style="width: 56%;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">80%</span>
-                                        <span class="text-muted">Friday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning"
-                                            style="width: 80%;"></div>
-                                    </div>
-                                </div>
-
-                                <div class="">
-                                    <div class="d-flex justify-content-between">
-                                        <span class="text-muted">80%</span>
-                                        <span class="text-muted">Saturday</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-dark"
-                                            style="width: 92%;"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div><!-- end card-body -->
-            </div>
-            <!-- end card -->
-        </div>
-        <!-- end col -->
-        <div class="col-xxl-4 col-xl-6">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-user-friends fs-14 text-muted"></i>
-                    </div>
-                    <h4 class="card-title mb-0">User by traffic</h4>
-                </div><!-- end card header -->
-
-                <div class="card-body">
-                    <div id="user_traffic" data-colors='["--bs-info", "--bs-primary"]' class="apex-charts" dir="ltr">
-                    </div>
-                </div><!-- end card-body -->
-            </div>
-            <!-- end card -->
-        </div>
-        <!-- end col -->
-    </div>
-    <!-- end row -->
-
 
 </div>
 <!-- end container-fluid -->
 @endsection
+
+@push('js')
+<!-- apexcharts -->
+<script src="{{ asset('assets/libs/apexcharts/apexcharts.min.js') }}"></script>
+
+<script>
+    var productStocks = @json($productStocks); 
+    var productNames = @json($productNames);
+    var branchNames = @json($branchNames);
+
+    var options = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        plotOptions: {
+            bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+        },
+        xaxis: {
+            categories: productNames,
+        },
+        yaxis: {
+            title: {
+                text: 'Total Stock'
+            }
+        },
+        fill: {
+            opacity: 1
+        },
+        title: {
+            text: 'Stok Barang',
+            align: 'center'
+        },
+        series: productStocks.map(function(stock, index) {
+            return {
+                name: branchNames[index],
+                data: stock
+            };
+        })
+    };
+    var chart = new ApexCharts(document.querySelector("#column_chart"), options);
+    chart.render();
+</script>
+
+
+@endpush

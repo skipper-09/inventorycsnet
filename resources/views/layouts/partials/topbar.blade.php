@@ -37,16 +37,16 @@
 
             <div class="d-flex align-items-center gap-2">
                 <!--Start App Search-->
-                <form class="app-search d-none d-lg-block">
+                {{-- <form class="app-search d-none d-lg-block">
                     <div class="position-relative">
                         <input type="text" class="form-control" placeholder="Search...">
                         <span class="fab fa-sistrix fs-17 align-middle"></span>
                     </div>
-                </form>
+                </form> --}}
                 <!--End App Search-->
 
                 <!-- Start Notification -->
-                <div class="dropdown d-inline-block">
+                {{-- <div class="dropdown d-inline-block">
                     <button type="button" class="btn btn-sm top-icon" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell align-middle"></i>
                         <span class="btn-marker"><i class="marker marker-dot text-danger"></i><span>
@@ -168,7 +168,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- End Notification -->
                 <!-- Start Profile -->
                 <div class="dropdown d-inline-block">
@@ -179,16 +179,16 @@
                         <img class="rounded avatar-2xs p-0" src="{{ asset('storage/images/user/' . Auth::user()->picture) }}" alt="Header Avatar">
                         @endif
                     </button>
-                    <div class="dropdown-menu dropdown-menu-wide dropdown-menu-end dropdown-menu-animated overflow-hidden py-0">
+                    <div class="dropdown-menu dropdown-menu-md dropdown-menu-end dropdown-menu-animated overflow-hidden py-0">
                         <div class="card border-0">
                             <div class="card-header bg-primary rounded-0">
-                                <div class="rich-list-item w-100 p-0">
+                                <div class="rich-list-item w-50 p-0">
                                     <div class="rich-list-prepend">
                                         <div class="avatar avatar-label-light avatar-circle">
                                             <div class="avatar-display"><i class="fa fa-user-alt"></i></div>
                                         </div>
                                     </div>
-                                    <div class="rich-list-content">
+                                    <div class="">
                                         <h3 class="rich-list-title text-white">{{ Auth::user()->name }}</h3>
                                         <span class="rich-list-subtitle text-white">{{ Auth::user()->email }}</span>
                                     </div>
@@ -196,36 +196,18 @@
                                 </div>
                             </div>
                             <div class="card-body p-0">
-                                <div class="grid-nav grid-nav-flush grid-nav-action grid-nav-no-rounded">
-                                    <div class="grid-nav-row">
-                                        <a href="{{ route('setting.profile', ['id'=>Auth()->user()->id]) }}" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-address-card"></i></div>
-                                            <span class="grid-nav-content">Profile</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-comments"></i></div>
-                                            <span class="grid-nav-content">Messages</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-clone"></i></div>
-                                            <span class="grid-nav-content">Activities</span>
-                                        </a>
+                                <a href="" class="text-reset notification-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-xs avatar-label-primary me-3">
+                                            <span class="rounded fs-16">
+                                                <i class="fas fa-user-alt"></i>
+                                            </span>
+                                        </div>
+                                        <div class="flex">
+                                            <h6 class="mb-1">Profile</h6>
+                                        </div>
                                     </div>
-                                    <div class="grid-nav-row">
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-calendar-check"></i></div>
-                                            <span class="grid-nav-content">Tasks</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-sticky-note"></i></div>
-                                            <span class="grid-nav-content">Notes</span>
-                                        </a>
-                                        <a href="#!" class="grid-nav-item">
-                                            <div class="grid-nav-icon"><i class="far fa-bell"></i></div>
-                                            <span class="grid-nav-content">Notification</span>
-                                        </a>
-                                    </div>
-                                </div>
+                                </a>
                             </div>
                             <div class="card-footer card-footer-bordered rounded-0"><a href="{{ route('auth.signout') }}" class="btn btn-label-danger">Sign out</a></div>
                         </div>
