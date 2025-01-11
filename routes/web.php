@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
+use App\Http\Controllers\Report\BranchProductStockController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
@@ -96,6 +97,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::get('/edit/{id}', [IncomeProductController::class, 'show'])->name('incomeproduct.edit');
         Route::put('/update/{id}', [IncomeProductController::class, 'update'])->name('incomeproduct.update');
         Route::delete('/delete/{id}', [IncomeProductController::class, 'destroy'])->name('incomeproduct.delete');
+    });
+
+    // report
+    Route::prefix('report')->group(function () {
+        Route::prefix('product-stock')->group(function () {
+            Route::get('', [BranchProductStockController::class, 'index'])->name('product-stock');
+            Route::get('getdata', [BranchProductStockController::class, 'getData'])->name('product-stock.getdata');
+        });
     });
 
 

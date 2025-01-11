@@ -38,6 +38,14 @@
                 </li>
 
                 <li class="menu-title">Laporan</li>
+                <li>
+                    <a href="{{ route('product-stock') }}" class="">
+                        <i class="fas fa-box"></i>
+                        <span>Stok Barang</span>
+                    </a>
+                </li>
+
+                {{-- <li class="menu-title">Laporan</li>
 
                 <li>
                     <a href="javascript: void(0);" class="has-arrow "><i class="fa fa-chart-pie align-middle"></i> Apexcharts</a>
@@ -49,7 +57,7 @@
                         <li><a href="charts-apex-mixed.html"><i class="mdi mdi-checkbox-blank-circle"></i> Mixed/Combo</a></li>
                         <li><a href="charts-apex-range.html"><i class="mdi mdi-checkbox-blank-circle"></i> Range Area</a></li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <li class="menu-title">SETTINGS</li>
 
