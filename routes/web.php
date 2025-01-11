@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
+use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
 
 Route::get('/', function () {
@@ -99,6 +100,16 @@ Route::prefix('admin')->group(function () {
             Route::get('/edit/{id}', [UserController::class, 'show'])->name('user.edit');
             Route::put('/update/{id}', [UserController::class, 'update'])->name('user.update');
             Route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('user.delete');
+        });
+
+        Route::prefix('role')->group(function () {
+            Route::get('', [RoleController::class, 'index'])->name('role');
+            Route::get('getdata', [RoleController::class, 'getData'])->name('role.getdata');
+            Route::get('add', [RoleController::class, 'create'])->name('role.add');
+            Route::post('store', [RoleController::class, 'store'])->name('role.store');
+            Route::get('/edit/{id}', [RoleController::class, 'show'])->name('role.edit');
+            Route::put('/update/{id}', [RoleController::class, 'update'])->name('role.update');
+            Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('role.delete');
         });
     });
 });

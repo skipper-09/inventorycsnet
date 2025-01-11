@@ -54,7 +54,7 @@
                 <li class="menu-title">SETTINGS</li>
 
                 <li>
-                    <a href={{ route('user') }} class="">
+                    <a href="{{ route('user') }}" class="">
                         <i class="fas fa-users"></i>
                         <span>
                             User Management
@@ -63,9 +63,9 @@
                 </li>
 
                 <li>
-                    <a href="apps-kanban.html" class="">
-                        <i class="fas fa-grip-horizontal"></i>
-                        <span>Kanban Board</span>
+                    <a href="{{ route('role') }}" class="">
+                        <i class="fas fa-user-tag"></i>
+                        <span>Role</span>
                     </a>
                 </li>
 
