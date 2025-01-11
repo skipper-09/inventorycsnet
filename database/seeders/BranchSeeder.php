@@ -14,8 +14,22 @@ class BranchSeeder extends Seeder
     public function run(): void
     {
         Branch::insert([
-            'name'=>'Banyuwangi',
-            'address'=> 'Jl. Letjen S Parman No.58, Sumberrejo, Pakis, Kec. Banyuwangi, Kabupaten Banyuwangi, Jawa Timur 68419',
+            [
+                'name' => 'Banyuwangi',
+                'address' => 'Jl. Letjen S Parman No.58, Sumberrejo, Pakis, Kec. Banyuwangi, Kabupaten Banyuwangi, Jawa Timur 68419',
+            ],
+            [
+                'name' => 'SRONO',
+                'address' => 'SRONO',
+            ],
+            [
+                'name' => 'JAJAG',
+                'address' => 'JAJAG',
+            ],
+            [
+                'name' => 'GENTENG',
+                'address' => 'GENTENG',
+            ],
         ]);
     }
 }
