@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -8,14 +9,22 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
+use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+// Route::get('/', function () {
+//     return redirect()->route('dashboard');
+// });
+
+Route::prefix('auth')->group(function () {
+    Route::get('login', [AuthController::class, 'index'])->name('login')->middleware('guest');
+    Route::get('reset-password', [AuthController::class, 'ResetPassword'])->name('resetpassword')->middleware('guest');
+    Route::post('signin', [AuthController::class, 'signin'])->name('auth.signin');
+    Route::get('signout', [AuthController::class, 'signout'])->name('auth.signout');
 });
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('', function () {
         return redirect()->route('dashboard');
     });
@@ -77,7 +86,7 @@ Route::prefix('admin')->group(function () {
             Route::delete('/delete/{id}', [OdpController::class, 'destroy'])->name('odp.delete');
         });
     });
-    
+
     //income product
     Route::prefix('pemasukan-barang')->group(function () {
         Route::get('', [IncomeProductController::class, 'index'])->name('incomeproduct');
@@ -93,6 +102,11 @@ Route::prefix('admin')->group(function () {
 
     //settings
     Route::prefix('settings')->group(function () {
+        Route::prefix('profile')->group(function () {
+            Route::get('/{id}', [ProfileController::class, 'index'])->name('setting.profile');
+            Route::put('/update/{id}', [ProfileController::class, 'update'])->name('setting.profile.update');
+        });
+
         Route::prefix('user')->group(function () {
             Route::get('', [UserController::class, 'index'])->name('user');
             Route::get('getdata', [UserController::class, 'getData'])->name('user.getdata');

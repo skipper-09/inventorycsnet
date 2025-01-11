@@ -173,7 +173,11 @@
                 <!-- Start Profile -->
                 <div class="dropdown d-inline-block">
                     <button type="button" class="btn btn-sm top-icon p-0" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        @if (Auth::user()->picture == null)
                         <img class="rounded avatar-2xs p-0" src="{{ asset('assets/images/users/avatar-6.png') }}" alt="Header Avatar">
+                        @else
+                        <img class="rounded avatar-2xs p-0" src="{{ asset('storage/images/user/' . Auth::user()->picture) }}" alt="Header Avatar">
+                        @endif
                     </button>
                     <div class="dropdown-menu dropdown-menu-wide dropdown-menu-end dropdown-menu-animated overflow-hidden py-0">
                         <div class="card border-0">
@@ -185,8 +189,8 @@
                                         </div>
                                     </div>
                                     <div class="rich-list-content">
-                                        <h3 class="rich-list-title text-white">Charlie Stone</h3>
-                                        <span class="rich-list-subtitle text-white">admin@codubucks.in</span>
+                                        <h3 class="rich-list-title text-white">{{ Auth::user()->name }}</h3>
+                                        <span class="rich-list-subtitle text-white">{{ Auth::user()->email }}</span>
                                     </div>
                                     <div class="rich-list-append"><span class="badge badge-label-light fs-6">6+</span></div>
                                 </div>
@@ -194,7 +198,7 @@
                             <div class="card-body p-0">
                                 <div class="grid-nav grid-nav-flush grid-nav-action grid-nav-no-rounded">
                                     <div class="grid-nav-row">
-                                        <a href="apps-contact.html" class="grid-nav-item">
+                                        <a href="{{ route('setting.profile', ['id'=>Auth()->user()->id]) }}" class="grid-nav-item">
                                             <div class="grid-nav-icon"><i class="far fa-address-card"></i></div>
                                             <span class="grid-nav-content">Profile</span>
                                         </a>
@@ -223,7 +227,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="card-footer card-footer-bordered rounded-0"><a href="auth-login.html" class="btn btn-label-danger">Sign out</a></div>
+                            <div class="card-footer card-footer-bordered rounded-0"><a href="{{ route('auth.signout') }}" class="btn btn-label-danger">Sign out</a></div>
                         </div>
                     </div>
                 </div>
