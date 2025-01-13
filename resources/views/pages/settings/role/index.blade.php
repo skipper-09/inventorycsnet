@@ -73,9 +73,9 @@
             Swal.fire({
                 title: `{{ Session::get('status') }}`,
                 text: `{{ Session::get('message') }}`,
-                icon: "success",
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
                 showConfirmButton: false,
-                timer: 3000
+                timer: 1500
             });
         @endif
     </script>

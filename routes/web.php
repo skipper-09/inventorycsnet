@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\BranchController;
+use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Settings\SettingController;
@@ -91,6 +92,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('/edit/{id}', [OdpController::class, 'show'])->name('odp.edit');
             // Route::put('/update/{id}', [OdpController::class, 'update'])->name('odp.update');
             Route::delete('/delete/{id}', [OdpController::class, 'destroy'])->name('odp.delete');
+        });
+
+        //customer
+        Route::prefix('customer')->group(function () {
+            Route::get('', [CustomerController::class, 'index'])->name('customer');
+            Route::get('getdata', [CustomerController::class, 'getData'])->name('customer.getdata');
+            Route::get('add', [CustomerController::class, 'create'])->name('customer.add');
+            Route::post('store', [CustomerController::class, 'store'])->name('customer.store');
+            // Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');
+            // Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
+            Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
+            Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
     });
 

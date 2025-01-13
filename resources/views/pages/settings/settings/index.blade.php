@@ -84,18 +84,10 @@
 
 <script>
     $(document).ready(function() {
-        var n = Swal.mixin({
-        customClass: {
-            confirmButton: "btn btn-label-info btn-wide mx-1",
-            denyButton: "btn btn-label-secondary btn-wide mx-1",
-            cancelButton: "btn btn-label-danger btn-wide mx-1",
-        },
-        buttonsStyling: !1,
-        });
         @if(session('status'))
-            n.fire({
+            Swal.fire({
                 position: "center",
-                icon: "success",
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
                 title: "{{ session('status') }}", 
                 text: "{{ session('message') }}", 
                 showConfirmButton: false,

@@ -28,6 +28,12 @@
                         <li><a href="{{ route('odp') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
                     </ul>
                 </li>
+                <li>
+                    <a href="{{ route('customer') }}" class="">
+                        <i class="fas fa-user-alt"></i>
+                        <span>Customer</span>
+                    </a>
+                </li>
 
                 <li class="menu-title">Transaksi</li>
                 <li>

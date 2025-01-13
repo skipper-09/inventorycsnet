@@ -88,15 +88,4 @@
 
     <script src="{{ asset('assets/js/mods/product-stock.js') }}"></script>
 
-    <script>
-        @if (Session::has('message'))
-            Swal.fire({
-                title: `{{ Session::get('status') }}`,
-                text: `{{ Session::get('message') }}`,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 3000
-            });
-        @endif
-    </script>
 @endpush

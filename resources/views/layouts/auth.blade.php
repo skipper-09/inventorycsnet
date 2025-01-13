@@ -9,6 +9,7 @@
     <meta content="Inventory Apps PT Cahaya Solusindo" name="description" />
     <meta content="Csnet Developer" name="author" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.ico') }}">
 

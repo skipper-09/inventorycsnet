@@ -12,12 +12,12 @@
                     </h4>
                     <p class="text-muted mb-0">Here's what's happening with your store today.</p>
                 </div>
-                <div class="page-title-right">
+                {{-- <div class="page-title-right">
                     <ol class="breadcrumb m-0">
                         <li class="breadcrumb-item"><a href="javascript: void(0);">Clivax</a></li>
                         <li class="breadcrumb-item active">Dashboard</li>
                     </ol>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
             </div>
             <!-- end row -->
             <div class="row">
-                <div class="col-xl-8">
+                <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
                             <h4 class="card-title mb-0">Stok Barang Per-Cabang</h4>
@@ -100,7 +100,7 @@
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div>
-                <div class="col-xl-4">
+                {{-- <div class="col-xl-4">
                     <div class="card" style="overflow-y: auto; height: 304px;" data-simplebar="">
                         <div class="card-header card-header-bordered">
                             <div class="card-icon text-muted"><i class="fa fa-clipboard-list fs-14"></i></div>
@@ -160,7 +160,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>
