@@ -15,6 +15,7 @@ use App\Http\Controllers\Report\BranchProductStockController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
+use App\Http\Controllers\Transaction\OutcomeProductController;
 
 // Route::get('/', function () {
 //     return redirect()->route('dashboard');
@@ -108,13 +109,23 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     });
 
     //income product
-    Route::prefix('pemasukan-barang')->group(function () {
+    Route::prefix('incomeproduct')->group(function () {
         Route::get('', [IncomeProductController::class, 'index'])->name('incomeproduct');
         Route::get('getdata', [IncomeProductController::class, 'getData'])->name('incomeproduct.getdata');
         Route::post('store', [IncomeProductController::class, 'store'])->name('incomeproduct.store');
         Route::get('/edit/{id}', [IncomeProductController::class, 'show'])->name('incomeproduct.edit');
         Route::put('/update/{id}', [IncomeProductController::class, 'update'])->name('incomeproduct.update');
         Route::delete('/delete/{id}', [IncomeProductController::class, 'destroy'])->name('incomeproduct.delete');
+    });
+
+    //outcome product
+    Route::prefix('outcomeproduct')->group(function () {
+        Route::get('', [OutcomeProductController::class, 'index'])->name('outcomeproduct');
+        Route::get('getdata', [OutcomeProductController::class, 'getData'])->name('outcomeproduct.getdata');
+        Route::post('store', [OutcomeProductController::class, 'store'])->name('outcomeproduct.store');
+        Route::get('/edit/{id}', [OutcomeProductController::class, 'show'])->name('outcomeproduct.edit');
+        Route::put('/update/{id}', [OutcomeProductController::class, 'update'])->name('outcomeproduct.update');
+        Route::delete('/delete/{id}', [OutcomeProductController::class, 'destroy'])->name('outcomeproduct.delete');
     });
 
     // report
