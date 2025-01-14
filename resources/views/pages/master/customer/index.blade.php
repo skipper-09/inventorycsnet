@@ -80,7 +80,7 @@
 {{-- route datatable init and js definition --}}
 <script src="{{ asset('assets/js/mods/customer.js') }}"></script>
 {{-- scanner qr library --}}
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{{-- <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
     function onScanSuccess(decodedText, decodedResult) {
   // handle the scanned code as you like, for example:
@@ -98,6 +98,6 @@ let html5QrcodeScanner = new Html5QrcodeScanner(
   { fps: 10, qrbox: {width: 250, height: 250} },
   /* verbose= */ false);
 html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-</script>
+</script> --}}
 
 @endpush

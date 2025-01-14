@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Odp;
+use App\Models\Product;
 use App\Models\ZoneOdp;
+use Exception;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends Controller
 {
@@ -44,10 +48,45 @@ class CustomerController extends Controller
     {
         $data = [
             'title' => 'Customer',
-            "zone" => ZoneOdp::all()
+            "zone" => ZoneOdp::all(),
+            'branch' => Branch::all(),
+            'product' => Product::all()
         ];
         return view('pages.master.customer.add', $data);
     }
+
+
+    public function store(Request $request){
+
+        dd($request->all());
+        // $request->validate([
+
+        // ]);
+DB::beginTransaction();
+        try {
+            // $customer = Customer::create([
+            // 'branch_id' =>$request->branch_id,
+            // 'zone_id' => $request->zone_id,
+            // 'odp_id' => $request->odp_id,
+            // 'name' => $request->name,
+            // 'phone' => $request->phone,
+            // 'address' => $request->address,
+            // 'latitude' => $request->latitude,
+            // 'longitude' => $request->longitude,
+            // 'sn_modem' => $request->sn_modem
+            // ]);
+
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
 
 
     // get data odp dinamis

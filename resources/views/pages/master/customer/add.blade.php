@@ -40,12 +40,20 @@
             <div class="col-lg-6">
                 <div class="card">
                     <div class="card-body">
-                        <form action="{{ route('role.store') }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('customer.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-
                                 <div class="mb-3">
-                                    <label for="validationCustom01" class="form-label required">Name</label>
+                                    <label class="form-label w-100" for="branch_id">Piih Jalur</label>
+                                    <select name="branch_id" id="branch_id" class="form-control select2form">
+                                        <option value="">Pilih Cabang</option>
+                                        @foreach ($branch as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="validationCustom01" class="form-label required">Nama Customer</label>
                                     <input type="text" name="name"
                                         class="form-control @error('name') is-invalid @enderror"
                                         id="validationCustom01">
@@ -82,24 +90,50 @@
                                     </div>
                                     @enderror
                                 </div>
-                                
+
                                 <div class="col-6 mb-2">
-                                    <button class="btn btn-primary" type="button" id="get-location-btn">Get Lokasi Client</button>
+                                    <button class="btn btn-primary" type="button" id="get-location-btn">Get Lokasi
+                                        Client</button>
                                 </div>
                                 <div class=" d-flex justify-between gap-3">
                                     <div class="mb-3">
                                         <label class="form-label" for="latitude">Latitude</label>
-                                        <input type="text" id="latitude" name="latitude" class="form-control" readonly>
+                                        <input type="text" id="latitude" name="latitude" class="form-control">
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label" for="longitude">Longitude</label>
-                                        <input type="text" id="longitude" name="longitude" class="form-control" readonly>
+                                        <input type="text" id="longitude" name="longitude" class="form-control">
                                     </div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="validationCustom01" class="form-label required">Alamat</label>
-                                   <textarea name="address" class="form-control" cols="30" ></textarea>
+                                    <textarea name="address" class="form-control" cols="30"></textarea>
+                                </div>
+
+                                <hr class="text-bg-info">
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-primary btn-sm mb-3" id="addRow">Tambah
+                                        Barang</button>
+                                </div>
+
+                                <div class="col-lg-12">
+                                    <div class="table-responsive">
+                                        <table class="table" id="myTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>No</th>
+                                                    <th>Barang</th>
+                                                    <th>SN Modem</th>
+                                                    <th>Jumlah</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                             <div>
@@ -115,14 +149,14 @@
 @endsection
 
 @push('js')
-{{--
+
 <!-- Required datatable js -->
 <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
 
 <!-- Responsive examples -->
 <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script> --}}
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 {{-- select 2 deifinition --}}
 <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
@@ -131,8 +165,6 @@
     $(document).ready(function() {
     $('#zone_id').on('change', function() {
         var zone_id = $(this).val();
-                console.log(zone_id);
-                
         if (zone_id) {
             $.ajax({
                 url: "{{ route('customer.getdataodp', ':zone_id') }}".replace(':zone_id', zone_id),
@@ -164,12 +196,86 @@
                 $('#latitude').val(latitude);
                 $('#longitude').val(longitude);
             }, function(error) {
-                alert('Error getting location: ' + error.message);
+            console.log(error.message)
             });
         } else {
-            alert('Geolocation is not supported by this browser.');
+            // alert('Geolocation is not supported by this browser.');
         }
     });
+
+    $('#addRow').click(function() {
+    const tableBody = $('#myTable tbody');
+    const rowIndex = tableBody.children('tr').length + 1;
+    const newRow = `
+    <tr>
+        <th scope="row">${rowIndex}</th>
+        <td>
+            <select name="item_id[]" class="form-control select2form">
+                <option selected>Pilih Barang</option>
+                @foreach ($product as $unit)
+                    <option value="{{ $unit->id }}" data-name="{{ $unit->name }}">
+                        {{ $unit->name }}
+                    </option>
+                @endforeach
+            </select>
+        </td>
+        <td class="sn-modem-container" style="visibility: hidden;">
+            <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
+        </td>
+        <td>
+            <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+        </td>
+    </tr>`;
+    tableBody.append(newRow);
+    tableBody.find('.select2form').select2();
+
+    // Bind event listener to newly added select elements
+    tableBody.find('select[name="item_id[]"]').last().on('change', function() {
+        toggleSnModemInput($(this));
+    });
+
+    // Check if the newly added row should show the sn_modem input
+    toggleSnModemInput(tableBody.find('select[name="item_id[]"]').last());
+    updateRowNumbers(); // Update row numbers after adding a row
+});
+
+// Function to toggle visibility of SN Modem input
+function toggleSnModemInput(selectElement) {
+    const selectedOption = selectElement.find('option:selected');
+    const selectedText = selectedOption.data('name'); // Get the text of the selected option
+
+    // Handle case when no option or "Pilih Barang" is selected
+    if (!selectedText) {
+        return; // Do nothing if no valid item is selected
+    }
+
+    // Find the sn_modem input field in the same row
+    const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
+
+    if (selectedText.toLowerCase() === 'modem') {
+        snModemInputField.css('visibility', 'visible');
+    } else {
+        snModemInputField.css('visibility', 'hidden').find('input').val('');  // Hide and clear input value
+    }
+}
+
+// Hapus baris
+$('#myTable').on('click', '.delete-btn', function() {
+    $(this).closest('tr').remove();
+    updateRowNumbers(); // Update row numbers after deleting a row
+});
+
+// Update nomor urut baris
+function updateRowNumbers() {
+    $('#myTable tbody tr').each(function(index) {
+        $(this).find('th').text(index + 1); // Update the number in the th
+    });
+}
+
+
 });
 
 </script>
