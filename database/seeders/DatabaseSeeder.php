@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             SettingSeeder::class,
             BranchProductStockSeeder::class,
+            OutcomeProductSeeder::class,
             // ZoneOdpSeeder::class,
             // OdpSeeder::class
         ]);
