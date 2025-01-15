@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('branch_id');
             $table->unsignedBigInteger('customer_id')->nullable();
             $table->enum('type',['in','out'])->default('in');
+            $table->enum('purpose',['stock_in','psb','repair','transfer'])->default('stock_in');
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('customer_id')->references('id')->on('customers')->cascadeOnDelete()->cascadeOnUpdate();

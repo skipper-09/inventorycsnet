@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $fillable = [
-        'branch_id','customer_id','type'
+        'branch_id','customer_id','type', 'purpose'
     ];
     protected $primaryKey = 'id';
 

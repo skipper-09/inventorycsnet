@@ -76,20 +76,20 @@ $(document).ready(function () {
                 name: "name",
             },
             {
-                data: "name",
-                name: "name",
+                data: "branch",
+                name: "branch",
             },
             {
-                data: "name",
-                name: "name",
+                data: "zone",
+                name: "zone",
             },
             {
-                data: "name",
-                name: "name",
+                data: "odp_id",
+                name: "odp_id",
             },
             {
-                data: "name",
-                name: "name",
+                data: "sn_modem",
+                name: "sn_modem",
             },
             {
                 data: "action",

@@ -44,7 +44,7 @@
                             @csrf
                             <div class="row">
                                 <div class="mb-3">
-                                    <label class="form-label w-100" for="branch_id">Piih Jalur</label>
+                                    <label class="form-label w-100" for="branch_id">Piih Cabang</label>
                                     <select name="branch_id" id="branch_id" class="form-control select2form">
                                         <option value="">Pilih Cabang</option>
                                         @foreach ($branch as $item)
@@ -78,6 +78,8 @@
                                     <select name="odp_id" id="odp_id" class="form-control select2form">
                                         <option value="">Pilih Odp</option>
                                     </select>
+                                    <input type="text" name="odp_id"
+                                        class="form-control @error('name') is-invalid @enderror">
                                 </div>
 
                                 <div class="mb-3">
@@ -91,6 +93,15 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-3">
+                                    <label class="form-label w-100" for="purpose">Pilih Tujuan</label>
+                                    <select name="purpose" class="form-control select2form">
+                                        <option value="">Pilih Tujuan</option>
+                                        <option value="psb">Pemasangan Baru</option>
+                                        <option value="repair">Perbaikan</option>
+
+                                    </select>
+                                </div>
                                 <div class="col-6 mb-2">
                                     <button class="btn btn-primary" type="button" id="get-location-btn">Get Lokasi
                                         Client</button>
@@ -109,6 +120,15 @@
                                 <div class="mb-3">
                                     <label for="validationCustom01" class="form-label required">Alamat</label>
                                     <textarea name="address" class="form-control" cols="30"></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label w-100" for="tecnition">Piih Teknisi</label>
+                                    <select name="tecnition[]" class="form-control select2form" multiple>
+                                        <option value="">Pilih Teknisi</option>
+                                        @foreach ($technition as $item)
+                                        <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
                                 <hr class="text-bg-info">
@@ -176,7 +196,7 @@
                     $('#odp_id').append('<option value="">Pilih Odp</option>');
 
                     $.each(data, function(key, value) {
-                        $('#odp_id').append('<option value="'+ value.id +'">'+ value.name +'</option>');
+                        $('#odp_id').append('<option value="'+ value.name +'">'+ value.name +'</option>');
                     });
                 },
             });
@@ -203,9 +223,12 @@
         }
     });
 
-    $('#addRow').click(function() {
+    let selectedItems = []; // Array to store selected item ids
+
+$('#addRow').click(function() {
     const tableBody = $('#myTable tbody');
     const rowIndex = tableBody.children('tr').length + 1;
+
     const newRow = `
     <tr>
         <th scope="row">${rowIndex}</th>
@@ -229,12 +252,17 @@
             <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
         </td>
     </tr>`;
+
     tableBody.append(newRow);
     tableBody.find('.select2form').select2();
+
+    // Update the dropdown options to remove already selected items
+    updateItemDropdown();
 
     // Bind event listener to newly added select elements
     tableBody.find('select[name="item_id[]"]').last().on('change', function() {
         toggleSnModemInput($(this));
+        updateItemDropdown(); // Update the dropdown after an item is selected
     });
 
     // Check if the newly added row should show the sn_modem input
@@ -264,8 +292,11 @@ function toggleSnModemInput(selectElement) {
 
 // Hapus baris
 $('#myTable').on('click', '.delete-btn', function() {
+    const itemId = $(this).closest('tr').find('select[name="item_id[]"]').val();
+    selectedItems = selectedItems.filter(item => item !== itemId); // Remove the deleted item from the array
     $(this).closest('tr').remove();
     updateRowNumbers(); // Update row numbers after deleting a row
+    updateItemDropdown(); // Update the dropdown after row deletion
 });
 
 // Update nomor urut baris
@@ -274,6 +305,60 @@ function updateRowNumbers() {
         $(this).find('th').text(index + 1); // Update the number in the th
     });
 }
+
+function updateItemDropdown() {
+    const usedItems = [];
+
+    $('#myTable tbody tr').each(function() {
+        const selectedValue = $(this).find('select[name="item_id[]"]').val();
+        if (selectedValue && selectedValue !== 'Pilih Barang') {
+            usedItems.push(selectedValue);
+        }
+    });
+
+    $('#myTable tbody tr').each(function() {
+        const selectElement = $(this).find('select[name="item_id[]"]');
+        const selectedValue = selectElement.val();
+
+        selectElement.find('option').each(function() {
+            const optionValue = $(this).val();
+            if (usedItems.includes(optionValue) && optionValue !== selectedValue) {
+                $(this).prop('disabled', true); // Disable the option
+            } else {
+                $(this).prop('disabled', false); // Enable the option
+            }
+        });
+    });
+
+    selectedItems = [];
+    $('#myTable tbody tr').each(function() {
+        const selectedValue = $(this).find('select[name="item_id[]"]').val();
+        if (selectedValue && selectedValue !== 'Pilih Barang') {
+            selectedItems.push(selectedValue);
+        }
+    });
+}
+
+$('#submitButton').click(function(e) {
+    const itemIds = [];
+
+    // Collect all selected item_ids from the rows
+    $('#myTable tbody tr').each(function() {
+        const itemId = $(this).find('select[name="item_id[]"]').val();
+        if (itemId && itemId !== 'Pilih Barang') {
+            itemIds.push(itemId);
+        }
+    });
+
+    // Check for duplicates in the selected item_ids
+    const duplicates = itemIds.filter((item, index) => itemIds.indexOf(item) !== index);
+
+    if (duplicates.length > 0) {
+        e.preventDefault(); // Prevent form submission
+        alert('Some products are selected more than once. Please select different products.');
+    }
+});
+
 
 
 });

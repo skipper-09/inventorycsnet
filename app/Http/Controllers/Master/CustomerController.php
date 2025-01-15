@@ -7,6 +7,8 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\Odp;
 use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\User;
 use App\Models\ZoneOdp;
 use Exception;
 use Illuminate\Http\Request;
@@ -26,7 +28,7 @@ class CustomerController extends Controller
 
     public function getData()
     {
-        $data = Customer::orderByDesc('id')->get();
+        $data = Customer::with('transaction','zone','branch')->orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
@@ -40,7 +42,17 @@ class CustomerController extends Controller
             $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('unitproduk.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
-        })->rawColumns(['action'])->make(true);
+        })->editColumn('branch',function ($data){
+            return $data->branch->name;
+        })->editColumn('zone',function ($data){
+            return $data->zone->name;
+        })->editColumn('sn_modem',function ($data){
+            $snModemArray = json_decode($data->sn_modem);
+            if (is_array($snModemArray)) {
+                return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
+            }
+            return '<span class="text-uppercase">No Modem</span>';
+        })->rawColumns(['action','branch',"zone","sn_modem"])->make(true);
     }
 
 
@@ -50,34 +62,47 @@ class CustomerController extends Controller
             'title' => 'Customer',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
-            'product' => Product::all()
+            'product' => Product::all(),
+            'technition' => User::with('roles')->where('name', ['Teknisi'])->orderByDesc('id')->get()
         ];
         return view('pages.master.customer.add', $data);
     }
 
 
-    public function store(Request $request){
-
-        dd($request->all());
+    public function store(Request $request)
+    {
         // $request->validate([
-
+        //     'sn_modem' => 'required|array', 
+        //     'sn_modem.*' => 'string|required', 
         // ]);
-DB::beginTransaction();
+
+        DB::beginTransaction();
+
         try {
-            // $customer = Customer::create([
-            // 'branch_id' =>$request->branch_id,
-            // 'zone_id' => $request->zone_id,
-            // 'odp_id' => $request->odp_id,
-            // 'name' => $request->name,
-            // 'phone' => $request->phone,
-            // 'address' => $request->address,
-            // 'latitude' => $request->latitude,
-            // 'longitude' => $request->longitude,
-            // 'sn_modem' => $request->sn_modem
-            // ]);
+            $customer = Customer::create([
+                'branch_id' => $request->branch_id,
+                'zone_id' => $request->zone_id,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'odp_id' => $request->odp_id,
+                'sn_modem' => json_encode($request->sn_modem),
+            ]);
 
+            $trancsation = Transaction::create([
+                'branch_id' => $request->branch_id,
+                'customer_id' => $customer->id,
+                'type' => 'out',
+                'purpose' => $request->purpose
+            ]);
 
+            DB::commit();
+
+            return redirect()->route('customer');
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -85,6 +110,7 @@ DB::beginTransaction();
             ]);
         }
     }
+
 
 
 

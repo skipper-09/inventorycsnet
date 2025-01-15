@@ -15,9 +15,9 @@ class Customer extends Model
         return  $this->belongsTo(ZoneOdp::class);
     }
 
-    public function odp(){
-        return $this->belongsTo(Odp::class);
-    }
+    // public function odp(){
+    //     return $this->belongsTo(Odp::class);
+    // }
 
     public function branch(){
         return $this->belongsTo(Branch::class);

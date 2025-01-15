@@ -15,17 +15,17 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('branch_id');
             $table->unsignedBigInteger('zone_id');
-            $table->unsignedBigInteger('odp_id');
+            $table->string('odp_id')->nullable();
             $table->string('name');
             $table->string('phone');
             $table->longText('address');
             $table->string('latitude');
             $table->string('longitude');
-            $table->string('sn_modem');
+            $table->string('sn_modem')->nullable();
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('zone_id')->references('id')->on('zone_odps')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('odp_id')->references('id')->on('odps')->cascadeOnDelete()->cascadeOnUpdate();
+            // $table->foreign('odp_id')->references('id')->on('odps')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
