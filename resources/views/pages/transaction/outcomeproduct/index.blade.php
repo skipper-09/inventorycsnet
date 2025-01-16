@@ -35,11 +35,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
+                    {{-- <div class="card-header">
                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="create" data-proses="{{ route('outcomeproduct.store') }}"
                             data-title="{{ $title }}">Tambah {{ $title }}</button>
-                    </div>
+                    </div> --}}
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
@@ -51,6 +51,7 @@
                                     <th>Barang</th>
                                     <th>Jumlah</th>
                                     <th>Tanggal</th>
+                                    <th>Tujuan</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

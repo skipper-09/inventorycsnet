@@ -47,11 +47,20 @@ class OutcomeProductController extends Controller
             return $data->transaksi->branch->name;
         })->editColumn('product', function ($data) {
             return $data->product->name;
+        })->editColumn('purpose', function ($data) {
+            $result = "";
+
+            if ($data->transaksi->purpose == "psb") {
+                $result = 'Pemasangan Baru';
+            }else if($data->transaksi->purpose == "repair"){
+                $result = 'Perbaikan';
+            }
+            return $result;
         })->editColumn('quantity', function ($data) {
             return $data->quantity . " " . $data->product->unit->name;
         })->editColumn('created_at', function ($data) {
             return \Carbon\Carbon::parse($data->created_at)->format('d M Y, H:i');
-        })->rawColumns(['action', 'branch', 'product', 'created_at'])->make(true);
+        })->rawColumns(['action','purpose' ,'branch', 'product', 'created_at'])->make(true);
     }
 
     public function store(Request $request)

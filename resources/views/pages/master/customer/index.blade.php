@@ -51,6 +51,7 @@
                                 <th>Jalur</th>
                                 <th>Odp</th>
                                 <th>SN Modem</th>
+                                <th>Tujuan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

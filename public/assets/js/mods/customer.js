@@ -92,6 +92,10 @@ $(document).ready(function () {
                 name: "sn_modem",
             },
             {
+                data: "purpose",
+                name: "purpose",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,

@@ -101,8 +101,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdata', [CustomerController::class, 'getData'])->name('customer.getdata');
             Route::get('add', [CustomerController::class, 'create'])->name('customer.add');
             Route::post('store', [CustomerController::class, 'store'])->name('customer.store');
-            // Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');
-            // Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
+            Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');
+            Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
             Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });

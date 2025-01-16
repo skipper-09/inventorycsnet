@@ -45,12 +45,17 @@
                             <div class="row">
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="branch_id">Piih Cabang</label>
-                                    <select name="branch_id" id="branch_id" class="form-control select2form">
+                                    <select name="branch_id" id="branch_id" class="form-control select2form @error('branch_id') is-invalid @enderror">
                                         <option value="">Pilih Cabang</option>
                                         @foreach ($branch as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
                                     </select>
+                                    @error('branch_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label for="validationCustom01" class="form-label required">Nama Customer</label>
@@ -66,20 +71,29 @@
 
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="zone_id">Piih Jalur</label>
-                                    <select name="zone_id" id="zone_id" class="form-control select2form">
+                                    <select name="zone_id" id="zone_id" class="form-control select2form @error('zone_id') is-invalid @enderror">
                                         <option value="">Pilih Jalur</option>
                                         @foreach ($zone as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
                                     </select>
+                                    @error('zone_id')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="odp_id">Piih Odp</label>
                                     <select name="odp_id" id="odp_id" class="form-control select2form">
                                         <option value="">Pilih Odp</option>
                                     </select>
-                                    <input type="text" name="odp_id"
-                                        class="form-control @error('name') is-invalid @enderror">
+
+                                    <div id="custom-odp-container" class="mt-2" style="display:none;">
+                                        <label for="custom_odp" class="form-label">Masukkan ODP (Bila Tidak Ada ODP)</label>
+                                        <input type="text" id="custom_odp" name="odp_id" placeholder="Isi ODP jika tidak tersedia pada pilihan"
+                                               class="form-control @error('odp_id') is-invalid @enderror">
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -95,12 +109,16 @@
 
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="purpose">Pilih Tujuan</label>
-                                    <select name="purpose" class="form-control select2form">
+                                    <select name="purpose" class="form-control select2form @error('purpose') is-invalid @enderror"">
                                         <option value="">Pilih Tujuan</option>
                                         <option value="psb">Pemasangan Baru</option>
                                         <option value="repair">Perbaikan</option>
-
                                     </select>
+                                    @error('purpose')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
                                 </div>
                                 <div class="col-6 mb-2">
                                     <button class="btn btn-primary" type="button" id="get-location-btn">Get Lokasi
@@ -183,7 +201,7 @@
 
 <script>
     $(document).ready(function() {
-    $('#zone_id').on('change', function() {
+        $('#zone_id').on('change', function() {
         var zone_id = $(this).val();
         if (zone_id) {
             $.ajax({
@@ -191,18 +209,34 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
-
                     $('#odp_id').empty();
                     $('#odp_id').append('<option value="">Pilih Odp</option>');
-
-                    $.each(data, function(key, value) {
-                        $('#odp_id').append('<option value="'+ value.name +'">'+ value.name +'</option>');
-                    });
+                    
+                    if (data.length > 0) {
+                        $.each(data, function(key, value) {
+                            $('#odp_id').append('<option value="'+ value.id +'">'+ value.name +'</option>');
+                        });
+                        $('#odp_id').prop('disabled', false);
+                        $('#custom-odp-container').hide();
+                    } else {
+                        $('#odp_id').prop('disabled', true); 
+                        $('#custom-odp-container').show();
+                    }
                 },
             });
         } else {
             $('#odp_id').empty();
             $('#odp_id').append('<option value="">Pilih Odp</option>');
+            $('#odp_id').prop('disabled', true);
+            $('#custom-odp-container').hide();
+        }
+    });
+
+    $('#custom_odp').on('input', function() {
+        if ($(this).val() !== '') {
+            $('#odp_id').val('').prop('disabled', true);
+        } else {
+            $('#odp_id').prop('disabled', false);
         }
     });
 
@@ -223,7 +257,7 @@
         }
     });
 
-    let selectedItems = []; // Array to store selected item ids
+    let selectedItems = [];
 
 $('#addRow').click(function() {
     const tableBody = $('#myTable tbody');
@@ -256,53 +290,47 @@ $('#addRow').click(function() {
     tableBody.append(newRow);
     tableBody.find('.select2form').select2();
 
-    // Update the dropdown options to remove already selected items
     updateItemDropdown();
 
-    // Bind event listener to newly added select elements
     tableBody.find('select[name="item_id[]"]').last().on('change', function() {
         toggleSnModemInput($(this));
-        updateItemDropdown(); // Update the dropdown after an item is selected
+        updateItemDropdown();
     });
 
-    // Check if the newly added row should show the sn_modem input
     toggleSnModemInput(tableBody.find('select[name="item_id[]"]').last());
-    updateRowNumbers(); // Update row numbers after adding a row
+    updateRowNumbers(); 
 });
 
-// Function to toggle visibility of SN Modem input
 function toggleSnModemInput(selectElement) {
     const selectedOption = selectElement.find('option:selected');
-    const selectedText = selectedOption.data('name'); // Get the text of the selected option
+    const selectedText = selectedOption.data('name');
 
-    // Handle case when no option or "Pilih Barang" is selected
     if (!selectedText) {
-        return; // Do nothing if no valid item is selected
+        return; 
     }
 
-    // Find the sn_modem input field in the same row
     const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
 
     if (selectedText.toLowerCase() === 'modem') {
         snModemInputField.css('visibility', 'visible');
     } else {
-        snModemInputField.css('visibility', 'hidden').find('input').val('');  // Hide and clear input value
+        snModemInputField.css('visibility', 'hidden').find('input').val('');
     }
 }
 
 // Hapus baris
 $('#myTable').on('click', '.delete-btn', function() {
     const itemId = $(this).closest('tr').find('select[name="item_id[]"]').val();
-    selectedItems = selectedItems.filter(item => item !== itemId); // Remove the deleted item from the array
+    selectedItems = selectedItems.filter(item => item !== itemId);
     $(this).closest('tr').remove();
-    updateRowNumbers(); // Update row numbers after deleting a row
-    updateItemDropdown(); // Update the dropdown after row deletion
+    updateRowNumbers();
+    updateItemDropdown();
 });
 
 // Update nomor urut baris
 function updateRowNumbers() {
     $('#myTable tbody tr').each(function(index) {
-        $(this).find('th').text(index + 1); // Update the number in the th
+        $(this).find('th').text(index + 1);
     });
 }
 
@@ -323,9 +351,9 @@ function updateItemDropdown() {
         selectElement.find('option').each(function() {
             const optionValue = $(this).val();
             if (usedItems.includes(optionValue) && optionValue !== selectedValue) {
-                $(this).prop('disabled', true); // Disable the option
+                $(this).prop('disabled', true);
             } else {
-                $(this).prop('disabled', false); // Enable the option
+                $(this).prop('disabled', false);
             }
         });
     });

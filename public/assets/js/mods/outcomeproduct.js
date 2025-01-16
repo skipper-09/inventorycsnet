@@ -102,6 +102,10 @@ $(document).ready(function () {
                 name: "created_at",
             },
             {
+                data: "purpose",
+                name: "purpose",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,

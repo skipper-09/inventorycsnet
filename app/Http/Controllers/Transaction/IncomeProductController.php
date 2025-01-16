@@ -28,7 +28,9 @@ class IncomeProductController extends Controller
     //getdata
     public function getData()
     {
-        $data = TransactionProduct::with(['product', 'transaksi'])->orderByDesc('id')->get();
+        $data = TransactionProduct::with(['product', 'transaksi']) ->whereHas('transaksi', function ($query) {
+            $query->where('type', 'in');
+        })->orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
