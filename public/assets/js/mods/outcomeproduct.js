@@ -105,12 +105,12 @@ $(document).ready(function () {
                 data: "purpose",
                 name: "purpose",
             },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-            },
+            // {
+            //     data: "action",
+            //     name: "action",
+            //     orderable: false,
+            //     searchable: false,
+            // },
         ],
     });
 

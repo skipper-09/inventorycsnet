@@ -8,16 +8,10 @@
         <div class="col-12">
             <div class="page-title-box d-flex align-items-center justify-content-between">
                 <div>
-                    <h4 class="fs-16 fw-semibold mb-1 mb-md-2">Good Morning, <span class="text-primary">Jonas!</span>
+                    <h4 class="fs-16 fw-semibold mb-1 mb-md-2">{{ $greeting }}, <span class="text-primary text-uppercase">{{ Auth::user()->name }}</span>
                     </h4>
-                    <p class="text-muted mb-0">Here's what's happening with your store today.</p>
+                    <p class="text-muted mb-0">Here's what's happening with your Inventory today.</p>
                 </div>
-                {{-- <div class="page-title-right">
-                    <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="javascript: void(0);">Clivax</a></li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
-                </div> --}}
             </div>
         </div>
     </div>
@@ -35,13 +29,9 @@
                                     <i class="mdi mdi-buffer mt-1"></i>
                                 </div>
                                 <div class="ms-3">
-                                    <p class="text-danger mb-1">Total balance</p>
-                                    <h4 class="mb-0">$1,452.55</h4>
+                                    <p class="text-danger mb-1">Total Cabang</p>
+                                    <h4 class="mb-0">{{ $branch }}</h4>
                                 </div>
-                            </div>
-                            <div class="hstack gap-2 mt-3">
-                                <button class="btn btn-light">Transfer</button>
-                                <button class="btn btn-info">Request</button>
                             </div>
                         </div>
                     </div>
@@ -55,13 +45,11 @@
                                     <i class="mdi mdi-cash-usd-outline mt-1"></i>
                                 </div>
                                 <div class="ms-3">
-                                    <p class="text-success mb-1">Upcoming payments</p>
-                                    <h4 class="mb-0">$120</h4>
+                                    <p class="text-success mb-1">Total Barang</p>
+                                    <h4 class="mb-0">{{ $product }}</h4>
                                 </div>
                             </div>
-                            <div class="mt-3 mb-2">
-                                <p class="mb-0">4 not confirmed</p>
-                            </div>
+                           
                         </div>
                     </div>
                 </div>
@@ -74,14 +62,11 @@
                                     <i class="mdi mdi-webhook mt-1"></i>
                                 </div>
                                 <div class="ms-3">
-                                    <p class="text-info mb-1">Finished appt.</p>
-                                    <h4 class="mb-0">72</h4>
+                                    <p class="text-info mb-1">Total User</p>
+                                    <h4 class="mb-0">{{ $user }}</h4>
                                 </div>
                             </div>
-                            <div class="mt-3 mb-2">
-                                <p class="mb-0"><span class="text-primary me-2 fs-14"><i
-                                            class="fas fa-caret-up me-1"></i>3.4%</span>vs last month</p>
-                            </div>
+                           
                         </div>
                     </div>
                 </div>

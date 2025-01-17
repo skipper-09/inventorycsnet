@@ -52,7 +52,7 @@
                                     <th>Jumlah</th>
                                     <th>Tanggal</th>
                                     <th>Tujuan</th>
-                                    <th>Action</th>
+                                    {{-- <th>Action</th> --}}
                                 </tr>
                             </thead>
                         </table>
