@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
+use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Settings\SettingController;
@@ -93,6 +94,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('/edit/{id}', [OdpController::class, 'show'])->name('odp.edit');
             // Route::put('/update/{id}', [OdpController::class, 'update'])->name('odp.update');
             Route::delete('/delete/{id}', [OdpController::class, 'destroy'])->name('odp.delete');
+        });
+
+        //product role
+        Route::prefix('product-role')->group(function () {
+            Route::get('', [ProductRoleController::class, 'index'])->name('productrole');
+            Route::get('getdata', [ProductRoleController::class, 'getData'])->name('productrole.getdata');
+            // Route::post('store', [ProductRoleController::class, 'store'])->name('productrole.store');
+            Route::get('/edit/{id}', [ProductRoleController::class, 'show'])->name('productrole.edit');
+            Route::put('/update/{id}', [ProductRoleController::class, 'update'])->name('productrole.update');
+            Route::delete('/delete/{id}', [ProductRoleController::class, 'destroy'])->name('productrole.delete');
         });
 
         //customer

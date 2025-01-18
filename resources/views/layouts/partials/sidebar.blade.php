@@ -26,6 +26,7 @@
                         <li><a href="{{ route('produk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Produk</a></li>
                         <li><a href="{{ route('zone') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Jalur</a></li>
                         <li><a href="{{ route('odp') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
+                        <li><a href="{{ route('productrole') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
                     </ul>
                 </li>
                 <li>
@@ -35,7 +36,7 @@
                     </a>
                 </li>
 
-                <li class="menu-title">Transaksi</li>
+                {{-- <li class="menu-title">Transaksi</li>
                 <li>
                     <a href="{{ route('incomeproduct') }}" class="">
                         <i class="fas fa-cart-plus"></i>
@@ -47,15 +48,15 @@
                         <i class="fas fa-cart-arrow-down"></i>
                         <span>Barang Keluar</span>
                     </a>
-                </li>
+                </li> --}}
 
                 <li class="menu-title">Laporan</li>
-                <li>
+                {{-- <li>
                     <a href="{{ route('product-stock') }}" class="">
                         <i class="fas fa-box"></i>
                         <span>Stok Barang</span>
                     </a>
-                </li>
+                </li> --}}
 
                 {{-- <li class="menu-title">Laporan</li>
 
