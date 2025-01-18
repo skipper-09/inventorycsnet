@@ -8,6 +8,7 @@ use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Transaction\IncomeProductController;
+use App\Http\Controllers\Transaction\TransaferProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
@@ -118,6 +119,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
     });
+
+
+      //transafer product
+      Route::prefix('transfer-product')->group(function () {
+        Route::get('', [TransaferProductController::class, 'index'])->name('transfer');
+        Route::get('getdata', [TransaferProductController::class, 'getData'])->name('transfer.getdata');
+        Route::post('store', [TransaferProductController::class, 'store'])->name('transfer.store');
+        Route::get('/edit/{id}', [TransaferProductController::class, 'show'])->name('transfer.edit');
+        Route::put('/update/{id}', [TransaferProductController::class, 'update'])->name('transfer.update');
+        Route::delete('/delete/{id}', [TransaferProductController::class, 'destroy'])->name('transfer.delete');
+    });
+
 
     //income product
     Route::prefix('incomeproduct')->group(function () {

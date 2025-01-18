@@ -36,8 +36,14 @@
                     </a>
                 </li>
 
-                {{-- <li class="menu-title">Transaksi</li>
+                <li class="menu-title">Transaksi</li>
                 <li>
+                    <a href="{{ route('transfer') }}" class="">
+                        <i class="fas fa-cart-plus"></i>
+                        <span>Transfer Barang</span>
+                    </a>
+                </li>
+                {{-- <li>
                     <a href="{{ route('incomeproduct') }}" class="">
                         <i class="fas fa-cart-plus"></i>
                         <span>Barang Masuk</span>
