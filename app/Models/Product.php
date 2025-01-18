@@ -15,4 +15,9 @@ class Product extends Model
     {
         return $this->belongsTo(UnitProduct::class);
     }
+
+    public function productRoles()
+    {
+        return $this->hasMany(ProductRole::class);
+    }
 }
