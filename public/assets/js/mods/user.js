@@ -30,6 +30,7 @@ $(document).ready(function () {
             form.attr("method", "POST");
             $("#imagePreview").addClass("d-none");
             $("#addUserForm #role").val("").trigger("change");
+            $("#addUserForm #branch").val("").trigger("change");
             $("#addUserForm #is_block").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
@@ -46,6 +47,9 @@ $(document).ready(function () {
                         $("#addUserForm #email").val(response.user.email);
                         $("#addUserForm #role")
                             .val(response.user.roles[0].name)
+                            .trigger("change");
+                        $("#addUserForm #branch")
+                            .val(response.user.branch_id)
                             .trigger("change");
 
                         $("#addUserForm #is_block")
@@ -112,6 +116,7 @@ $(document).ready(function () {
             { data: "name", name: "name" },
             { data: "role", name: "role" },
             { data: "status", name: "status" },
+            { data: "branch", name: "branch" },
             {
                 data: "action",
                 name: "action",

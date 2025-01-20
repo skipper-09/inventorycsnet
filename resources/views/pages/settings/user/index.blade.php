@@ -53,6 +53,7 @@
                                     <th>Name</th>
                                     <th>Role</th>
                                     <th>Status</th>
+                                    <th>Cabang</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

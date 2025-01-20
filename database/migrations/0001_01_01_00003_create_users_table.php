@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('branch_id')->nullable();
             $table->string('picture')->nullable();
             $table->string('name');
             $table->string('username')->unique();
@@ -22,6 +23,7 @@ return new class extends Migration
             $table->boolean('is_block')->default(0);
             $table->rememberToken();
             $table->timestamps();
+            $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

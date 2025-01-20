@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -21,6 +22,7 @@ class UserController extends Controller
         $data = [
             'title' => 'User',
             'roles' => Role::where('name', '!=', 'Developer')->get(),
+            'branch'=> Branch::all(),
         ];
 
         return view('pages.settings.user.index', $data);
@@ -28,7 +30,7 @@ class UserController extends Controller
 
     public function getData()
     {
-        $user = User::with('roles')->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
+        $user = User::with(['roles','branch'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
 
         return DataTables::of($user)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
@@ -44,6 +46,8 @@ class UserController extends Controller
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
             return $data->roles[0]->name;
+        })->addColumn('branch', function ($data) {
+            return $data->branch->name ?? '-';
         })->addColumn('status', function ($data) {
             return $data->is_block == 0 ? '<span class="badge badge-label-primary">Aktif</span>' : '<span class="badge badge-label-danger">Blokir</span>';
         })->editColumn('picture', function ($data) {
@@ -54,6 +58,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+     
         $request->validate([
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|max:255',
@@ -100,6 +105,7 @@ class UserController extends Controller
             $user = User::create([
                 'picture' => $filename,
                 'username' => $request->username,
+                'branch_id' => $request->branch,
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -196,6 +202,7 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->is_block = $request->is_block;
+            $user->branch_id = $request->branch;
 
             // Only update password if provided
             if ($request->filled('password')) {
