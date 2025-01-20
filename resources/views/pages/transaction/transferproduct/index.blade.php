@@ -33,19 +33,19 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('unitproduk.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        <a href="{{ route('transfer.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('unitproduk.getdata') }}">
+                            data-route="{{ route('transfer.getdata') }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Dari Cabang</th>
                                     <th>Tujuan Cabang</th>
+                                    <th>Barang</th>
+                                    <th>Tanggal</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -55,21 +55,30 @@
             </div><!-- end col-->
         </div>
     </div>
-
-    @include('pages.master.unit_product.form')
-
 @endsection
 
 @push('js')
     <!-- Required datatable js -->
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
-
     <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
+    <!-- Select2 -->
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 
-{{-- route datatable init and js definition --}}
-<script src="{{ asset('assets/js/mods/transferproduct.js') }}"></script>
+    <script src="{{ asset('assets/js/mods/transferproduct.js') }}"></script>
 
+    <script>
+        @if (Session::has('message'))
+            Swal.fire({
+                title: `{{ Session::get('status') }}`,
+                text: `{{ Session::get('message') }}`,
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+    </script>
 @endpush

@@ -8,7 +8,6 @@ use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Transaction\IncomeProductController;
-use App\Http\Controllers\Transaction\TransaferProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
@@ -18,10 +17,7 @@ use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
 use App\Http\Controllers\Transaction\OutcomeProductController;
-
-// Route::get('/', function () {
-//     return redirect()->route('dashboard');
-// });
+use App\Http\Controllers\Transaction\TransferProductController;
 
 Route::get('', function () {
     return redirect()->route('login');
@@ -121,14 +117,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     });
 
 
-      //transafer product
-      Route::prefix('transfer-product')->group(function () {
-        Route::get('', [TransaferProductController::class, 'index'])->name('transfer');
-        Route::get('getdata', [TransaferProductController::class, 'getData'])->name('transfer.getdata');
-        Route::post('store', [TransaferProductController::class, 'store'])->name('transfer.store');
-        Route::get('/edit/{id}', [TransaferProductController::class, 'show'])->name('transfer.edit');
-        Route::put('/update/{id}', [TransaferProductController::class, 'update'])->name('transfer.update');
-        Route::delete('/delete/{id}', [TransaferProductController::class, 'destroy'])->name('transfer.delete');
+    //transafer product
+    Route::prefix('transfer-product')->group(function () {
+        Route::get('', [TransferProductController::class, 'index'])->name('transfer');
+        Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
+        Route::get('/details/{id}', [TransferProductController::class, 'details'])->name('transfer.details');
+        Route::get('/add', [TransferProductController::class, 'create'])->name('transfer.add');
+        Route::post('store', [TransferProductController::class, 'store'])->name('transfer.store');
+        Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit');
+        Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
+        Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete');
     });
 
 
