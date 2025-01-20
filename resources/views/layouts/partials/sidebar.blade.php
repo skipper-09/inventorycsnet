@@ -57,12 +57,12 @@
                 </li> --}}
 
                 <li class="menu-title">Laporan</li>
-                {{-- <li>
-                    <a href="{{ route('product-stock') }}" class="">
+                <li>
+                    <a href="{{ route('report.transaction-product') }}" class="">
                         <i class="fas fa-box"></i>
-                        <span>Stok Barang</span>
+                        <span>Transaksi Barang</span>
                     </a>
-                </li> --}}
+                </li>
 
                 {{-- <li class="menu-title">Laporan</li>
 

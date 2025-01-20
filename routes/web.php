@@ -13,6 +13,7 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Master\OdpController;
 use App\Http\Controllers\Master\ProductController;
 use App\Http\Controllers\Report\BranchProductStockController;
+use App\Http\Controllers\Report\TransactionProductController;
 use App\Http\Controllers\Settings\ProfileController;
 use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
@@ -116,8 +117,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
     });
 
-
-    //transafer product
+    //transfer product
     Route::prefix('transfer-product')->group(function () {
         Route::get('', [TransferProductController::class, 'index'])->name('transfer');
         Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
@@ -129,6 +129,24 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete');
     });
 
+    // report
+    Route::prefix('report')->group(function () {
+        Route::prefix('product-stock')->group(function () {
+            Route::get('', [BranchProductStockController::class, 'index'])->name('product-stock');
+            Route::get('getdata', [BranchProductStockController::class, 'getData'])->name('product-stock.getdata');
+        });
+
+        Route::prefix('transaction-product')->group(function () {
+            Route::get('', [TransactionProductController::class, 'index'])->name('report.transaction-product');
+            Route::get('getdata', [TransactionProductController::class, 'getData'])->name('report.transaction-product.getdata');
+            Route::get('/details/{id}', [TransactionProductController::class, 'details'])->name('report.transaction-product.details');
+            // Route::get('/add', [TransactionProductController::class,'create'])->name('report.transaction-product.add');
+            // Route::post('store', [TransactionProductController::class, 'store'])->name('report.transaction-product.store');
+            // Route::get('/edit/{id}', [TransactionProductController::class, 'show'])->name('report.transaction-product.edit');
+            // Route::put('/update/{id}', [TransactionProductController::class, 'update'])->name('report.transaction-product.update');
+            // Route::delete('/delete/{id}', [TransactionProductController::class, 'destroy'])->name('report.transaction-product.delete');
+        });
+    });
 
     //income product
     Route::prefix('incomeproduct')->group(function () {
@@ -149,17 +167,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::put('/update/{id}', [OutcomeProductController::class, 'update'])->name('outcomeproduct.update');
         Route::delete('/delete/{id}', [OutcomeProductController::class, 'destroy'])->name('outcomeproduct.delete');
     });
-
-    // report
-    Route::prefix('report')->group(function () {
-        Route::prefix('product-stock')->group(function () {
-            Route::get('', [BranchProductStockController::class, 'index'])->name('product-stock');
-            Route::get('getdata', [BranchProductStockController::class, 'getData'])->name('product-stock.getdata');
-        });
-    });
-
-
-
 
     //settings
     Route::prefix('settings')->group(function () {
