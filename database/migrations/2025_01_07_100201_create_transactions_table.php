@@ -14,11 +14,13 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('branch_id');
+            $table->unsignedBigInteger('to_branch')->nullable();
             $table->unsignedBigInteger('customer_id')->nullable();
-            $table->enum('type',['in','out'])->default('in');
+            $table->enum('type',['in','out'])->default('out');
             $table->enum('purpose',['stock_in','psb','repair','transfer'])->default('stock_in');
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('to_branch')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('customer_id')->references('id')->on('customers')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
