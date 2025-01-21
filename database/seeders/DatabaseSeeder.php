@@ -19,11 +19,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UnitProductSeeder::class,
             ProductSeeder::class,
-            // BranchSeeder::class,
+            BranchSeeder::class,
             SettingSeeder::class,
-            // BranchProductStockSeeder::class,
-            // OutcomeProductSeeder::class,
-            // TransferProductSeeder::class,
+            BranchProductStockSeeder::class,
+            OutcomeProductSeeder::class,
+            TransferProductSeeder::class,
             // ZoneOdpSeeder::class,
             // OdpSeeder::class
         ]);

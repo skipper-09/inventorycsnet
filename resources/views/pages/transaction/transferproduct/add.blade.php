@@ -3,8 +3,10 @@
 
 @push('css')
     <!-- DataTables -->
-    <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
-    <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet"
+        type="text/css" />
+    <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
+        type="text/css" />
     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
@@ -35,15 +37,17 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <form action="{{ route('transfer.store') }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            <form action="{{ route('transfer.store') }}" method="POST" enctype="multipart/form-data"
+                                class="needs-validation" novalidate>
                                 @csrf
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label required">Dari Cabang</label>
-                                            <select name="from_branch" class="form-control select2 @error('from_branch') is-invalid @enderror">
+                                            <select name="from_branch"
+                                                class="form-control select2 @error('from_branch') is-invalid @enderror">
                                                 <option value="">Pilih Cabang</option>
-                                                @foreach($branch as $b)
+                                                @foreach ($branch as $b)
                                                     <option value="{{ $b->id }}">{{ $b->name }}</option>
                                                 @endforeach
                                             </select>
@@ -55,9 +59,10 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label required">Ke Cabang</label>
-                                            <select name="to_branch" class="form-control select2 @error('to_branch') is-invalid @enderror">
+                                            <select name="to_branch"
+                                                class="form-control select2 @error('to_branch') is-invalid @enderror">
                                                 <option value="">Pilih Cabang</option>
-                                                @foreach($branch as $b)
+                                                @foreach ($branch as $b)
                                                     <option value="{{ $b->id }}">{{ $b->name }}</option>
                                                 @endforeach
                                             </select>
@@ -74,10 +79,12 @@
                                         <div id="product-container">
                                             <div class="row product-row mb-3">
                                                 <div class="col-md-6">
-                                                    <select name="products[0][id]" class="form-control select2 product-select @error('products.0.id') is-invalid @enderror">
+                                                    <select name="products[0][id]"
+                                                        class="form-control select2 product-select @error('products.0.id') is-invalid @enderror">
                                                         <option value="">Pilih Produk</option>
-                                                        @foreach($product as $p)
-                                                            <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                                        @foreach ($product as $p)
+                                                            <option value="{{ $p->id }}">{{ $p->name }}
+                                                            </option>
                                                         @endforeach
                                                     </select>
                                                     @error('products.0.id')
@@ -85,13 +92,16 @@
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-4">
-                                                    <input type="number" name="products[0][quantity]" class="form-control @error('products.0.quantity') is-invalid @enderror" placeholder="Jumlah">
+                                                    <input type="number" name="products[0][quantity]"
+                                                        class="form-control @error('products.0.quantity') is-invalid @enderror"
+                                                        placeholder="Jumlah">
                                                     @error('products.0.quantity')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-2">
-                                                    <button type="button" class="btn btn-danger remove-product" style="display: none;"><i class="fas fa-trash"></i></button>
+                                                    <button type="button" class="btn btn-danger remove-product"
+                                                        style="display: none;"><i class="fas fa-trash"></i></button>
                                                 </div>
                                             </div>
                                         </div>
@@ -124,17 +134,31 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
 
+    <!-- Select2 -->
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+
     <script>
         $(document).ready(function() {
+            // Initialize Select2 for existing elements
+            initializeSelect2();
+
+            // Function to initialize Select2
+            function initializeSelect2() {
+                $('.select2').select2({
+                    allowClear: false
+                });
+            }
+
             // Add product row
             $('#add-product').click(function() {
                 const productCount = $('.product-row').length;
                 const newRow = `
                     <div class="row product-row mb-3">
                         <div class="col-md-6">
-                            <select name="products[${productCount}][id]" class="form-control select2 product-select">
-                                <option value="">Pilih Produk</option>
-                                @foreach($product as $p)
+                            <select name="products[${productCount}][id]" class="form-control select2 product-select" data-placeholder="Pilih Produk">
+                                <option value=""></option>
+                                @foreach ($product as $p)
                                     <option value="{{ $p->id }}">{{ $p->name }}</option>
                                 @endforeach
                             </select>
@@ -147,14 +171,22 @@
                         </div>
                     </div>
                 `;
-                $('#product-container').append(newRow);
-                $('.select2').select2();
+
+                // Append new row and initialize Select2
+                const $newRow = $(newRow);
+                $('#product-container').append($newRow);
+                $newRow.find('.select2').select2({
+                    allowClear: false
+                });
+
                 updateRemoveButtons();
             });
 
-            // Remove product row
+            // Remove product row with proper cleanup
             $(document).on('click', '.remove-product', function() {
-                $(this).closest('.product-row').remove();
+                const $row = $(this).closest('.product-row');
+                $row.find('.select2').select2('destroy'); // Cleanup Select2
+                $row.remove();
                 updateRemoveButtons();
             });
 
@@ -173,7 +205,7 @@
                 const fromBranch = $('select[name="from_branch"]').val();
                 const toBranch = $('select[name="to_branch"]').val();
 
-                if (fromBranch === toBranch) {
+                if (fromBranch === toBranch && fromBranch !== '') {
                     alert('Cabang asal dan tujuan tidak boleh sama!');
                     event.preventDefault();
                     return false;
@@ -184,11 +216,13 @@
                 let hasDuplicate = false;
                 $('.product-select').each(function() {
                     const productId = $(this).val();
-                    if (productId in products) {
+                    if (productId && productId in products) {
                         hasDuplicate = true;
                         return false;
                     }
-                    products[productId] = true;
+                    if (productId) {
+                        products[productId] = true;
+                    }
                 });
 
                 if (hasDuplicate) {

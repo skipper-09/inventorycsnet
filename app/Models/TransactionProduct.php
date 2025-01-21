@@ -37,4 +37,18 @@ class TransactionProduct extends Model
                 return '<span class="badge badge-label-success">Stok Masuk</span>';
         }
     }
+
+    public function getTransactionPurposeText()
+    {
+        switch ($this->transaksi->purpose) {
+            case 'psb':
+                return 'Pemasangan Baru';
+            case 'repair':
+                return 'Perbaikan';
+            case 'transfer':
+                return 'Transfer';
+            default:
+                return 'Stok Masuk';
+        }
+    }
 }

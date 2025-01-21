@@ -34,18 +34,17 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex flex-wrap gap-3 mb-5">
+                        <div class="row align-items-end g-3 mb-5">
                             <!-- Filter Jenis Transaksi -->
                             <div class="col-12 col-md-4">
-                                <label class="form-label" for="FilterTransaction">Filter Jenis Transaksi <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-control select2 filter" id="FilterTransaction" name="branch_id">
+                                <label class="form-label" for="FilterTransaction">
+                                    Filter Jenis Transaksi <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select select2 filter" id="FilterTransaction" name="branch_id">
                                     <option value="">Pilih Jenis Transaksi</option>
                                     @foreach ($purposes as $purpose)
                                         @if ($purpose !== 'stock_in')
-                                            <!-- Kecualikan stock_in -->
-                                            <option value="{{ $purpose }}"
-                                                @if (request('purpose') == $purpose) selected @endif>
+                                            <option value="{{ $purpose }}" @if (request('purpose') == $purpose) selected @endif>
                                                 {{ $purpose == 'psb'
                                                     ? 'Pemasangan Baru'
                                                     : ($purpose == 'repair'
@@ -56,11 +55,20 @@
                                     @endforeach
                                 </select>
                             </div>
+                
                             <!-- Filter Tanggal -->
                             <div class="col-12 col-md-4">
                                 <label class="form-label" for="created_at">Filter Tanggal</label>
-                                <input type="date" id="created_at" class="form-control filter"
-                                    placeholder="Pilih Tanggal">
+                                <input type="date" id="created_at" class="form-control filter" placeholder="Pilih Tanggal">
+                            </div>
+                
+                            <!-- Export Button -->
+                            <div class="col-12 col-md-4">
+                                <div class="d-flex justify-content-end">
+                                    <a href="{{ route('report.transaction-product.export') }}" class="btn btn-outline-success">
+                                        <i class="fas fa-file-excel me-2"></i>Export Excel
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <table id="scroll-sidebar-datatable"

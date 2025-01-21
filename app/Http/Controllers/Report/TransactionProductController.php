@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Exports\TransactionProductExport;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\TransactionProduct;
@@ -9,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionProductController extends Controller
 {
@@ -119,6 +121,20 @@ class TransactionProductController extends Controller
         ];
 
         return view('pages.report.transaction-product.details', $data);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        try {
+            return Excel::download(
+                new TransactionProductExport($request),
+                'laporan_transaksi_barang_' . now()->format('Y-m-d_His') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Terjadi kesalahan saat mengexport data: ' . $e->getMessage());
+        }
     }
 
     public function create()
