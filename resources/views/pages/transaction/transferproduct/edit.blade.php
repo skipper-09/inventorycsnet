@@ -139,8 +139,21 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
 
+    <!-- Select2 -->
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+
     <script>
         $(document).ready(function() {
+            // Initialize Select2 for existing elements
+            initializeSelect2();
+
+            // Function to initialize Select2
+            function initializeSelect2() {
+                $('.select2').select2({
+                    allowClear: false
+                });
+            }
             // Add product row
             $('#add-product').click(function() {
                 const productCount = $('.product-row').length;
