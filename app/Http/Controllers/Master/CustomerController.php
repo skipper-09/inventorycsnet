@@ -35,13 +35,12 @@ class CustomerController extends Controller
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
-            // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-            //                                             class="fas fa-pen "></i></a>';
+           
 
             $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('customer.edit', ['id' => $data->id]) . '" data-proses="' . route('customer.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
-
+            $button .= ' <a href="' . route('customer.detail',['id'=>$data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
             $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -60,9 +59,14 @@ class CustomerController extends Controller
             return $result;
         })->editColumn('sn_modem', function ($data) {
             $snModemArray = json_decode($data->sn_modem);
-            if (is_array($snModemArray)) {
+            $snModemArray = array_filter($snModemArray, function($value) {
+                return !empty($value);
+            });
+            
+            if (count($snModemArray) > 0) {
                 return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
             }
+            
             return '<span class="text-uppercase">No Modem</span>';
         })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose'])->make(true);
     }
@@ -271,6 +275,26 @@ class CustomerController extends Controller
 
 
 
+
+
+
+    //detail
+    public function details($id)
+    {
+        $customer = Customer::with(['transaction','branch','zone'])
+        ->where('id', $id)->firstOrFail();
+
+        // dd($customer);
+        $data = [
+            'title' => 'Detail Customer',
+            'customer' => $customer
+        ];
+
+        return view('pages.master.customer.detail', $data);
+    }
+
+
+
     //destroy data
     public function destroy($id)
     {
@@ -283,22 +307,22 @@ class CustomerController extends Controller
 
             if ($transaction) {
                 $stockChanges = [];
-                $transactionProducts = TransactionProduct::where('transaction_id', $transaction->id)->get();
-                foreach ($transactionProducts as $transactionProduct) {
-                    $branchProductStock = BranchProductStock::where('branch_id', $transaction->branch_id)
-                        ->where('product_id', $transactionProduct->product_id)
-                        ->first();
+                // $transactionProducts = TransactionProduct::where('transaction_id', $transaction->id)->get();
+                // foreach ($transactionProducts as $transactionProduct) {
+                //     $branchProductStock = BranchProductStock::where('branch_id', $transaction->branch_id)
+                //         ->where('product_id', $transactionProduct->product_id)
+                //         ->first();
 
-                    if ($branchProductStock) {
-                        $stockChanges[] = [
-                            'branchProductStock' => $branchProductStock,
-                            'quantity' => $transactionProduct->quantity
-                        ];
+                //     if ($branchProductStock) {
+                //         $stockChanges[] = [
+                //             'branchProductStock' => $branchProductStock,
+                //             'quantity' => $transactionProduct->quantity
+                //         ];
 
-                        $branchProductStock->stock += $transactionProduct->quantity;
-                        $branchProductStock->save();
-                    }
-                }
+                //         $branchProductStock->stock += $transactionProduct->quantity;
+                //         $branchProductStock->save();
+                //     }
+                // }
                 TransactionProduct::where('transaction_id', $transaction->id)->delete();
                 TransactionTechnition::where('transaction_id', $transaction->id)->delete();
                 $transaction->delete();
@@ -310,7 +334,7 @@ class CustomerController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => 'success',
-                'message' => 'Customer data and related transactions have been deleted successfully, and stock has been restored.',
+                'message' => 'Data Berhasil Di hapus',
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
