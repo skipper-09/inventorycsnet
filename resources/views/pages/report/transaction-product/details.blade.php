@@ -27,24 +27,28 @@
                         <h5 class="card-title">Informasi Transaksi</h5>
                         <table class="table table-bordered">
                             <tr>
-                                <th>Transaction ID</th>
-                                <td>{{ $transaction->id }}</td>
+                                <th>Tujuan Transaksi</th>
+                                <td>
+                                    @if($transaction->purpose == 'psb')
+                                        Pemasangan Baru
+                                    @elseif($transaction->purpose == 'repair')
+                                        Perbaikan
+                                    @elseif($transaction->purpose == 'transfer')
+                                        Transfer
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
-                                <th>Jenis Transaksi</th>
-                                <td>{{ $transaction->purpose == 'psb' ? 'Pemasangan Baru' : ($transaction->purpose == 'repair' ? 'Perbaikan' : 'Stok Masuk') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Branch</th>
+                                <th>Dari Cabang</th>
                                 <td>{{ $transaction->branch->name ?? 'N/A' }}</td>
                             </tr>
                             <tr>
-                                <th>To Branch</th>
+                                <th>Ke Cabang</th>
                                 <td>{{ $transaction->tobranch->name ?? 'N/A' }}</td>
                             </tr>
                             <tr>
                                 <th>Dibuat Pada</th>
-                                <td>{{ $transaction->created_at->format('d-m-Y H:i') }}</td>
+                                <td>{{ $transaction->created_at->format('H:i d-m-Y') }}</td>
                             </tr>
                         </table>
                     </div>
@@ -62,19 +66,17 @@
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
+                                        <th class="text-center" style="width: 50px;">No</th>
                                         <th>Barang</th>
                                         <th>Jumlah</th>
-                                        <th>Created At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($transaction->transactionproduct as $index => $product)
                                         <tr>
-                                            <td>{{ $index + 1 }}</td>
+                                            <td class="text-center" style="width: 50px">{{ $index + 1 }}</td>
                                             <td>{{ $product->product->name ?? 'N/A' }}</td>
                                             <td>{{ $product->quantity }} {{ $product->product->unit->name ?? '' }}</td>
-                                            <td>{{ $product->created_at->format('d-m-Y H:i') }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

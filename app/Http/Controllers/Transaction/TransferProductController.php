@@ -46,9 +46,10 @@ class TransferProductController extends Controller
             ->addColumn('products', function ($row) {
                 $products = [];
                 foreach ($row->Transactionproduct as $tp) {
-                    $products[] = $tp->product->name . ' (' . $tp->quantity . ')';
+                    $unit = $tp->product->unit->name ??'';
+                    $products[] = $tp->product->name . ' (' . $tp->quantity . ' ' . $unit . ')';
                 }
-                return implode(', ', $products);
+                return implode('<br>', $products);
             })
             ->addColumn('date', function ($row) {
                 return $row->created_at->format('d M Y H:i');
@@ -128,12 +129,6 @@ class TransferProductController extends Controller
 
             // Add products to transfer
             foreach ($request->products as $product) {
-                // Check stock availability
-                $currentStock = $this->getCurrentStock($request->from_branch, $product['id']);
-                if ($currentStock < $product['quantity']) {
-                    throw new \Exception("Stok tidak mencukupi untuk produk dengan ID {$product['id']}. Stok tersedia: {$currentStock}");
-                }
-
                 TransactionProduct::create([
                     'transaction_id' => $transfer->id,
                     'product_id' => $product['id'],
@@ -225,12 +220,6 @@ class TransferProductController extends Controller
 
             // Add new products
             foreach ($request->products as $product) {
-                // Check stock availability (excluding current transfer)
-                $currentStock = $this->getCurrentStock($request->from_branch, $product['id']);
-                if ($currentStock < $product['quantity']) {
-                    throw new \Exception("Stok tidak mencukupi untuk produk dengan ID {$product['id']}. Stok tersedia: {$currentStock}");
-                }
-
                 TransactionProduct::create([
                     'transaction_id' => $transfer->id,
                     'product_id' => $product['id'],
@@ -250,32 +239,6 @@ class TransferProductController extends Controller
                 'message' => $e->getMessage()
             ]);
         }
-    }
-
-    /**
-     * Get current stock for a product at a branch
-     */
-    private function getCurrentStock($branchId, $productId)
-    {
-        $inStock = Transaction::where('branch_id', $branchId)
-            ->where('type', 'in')
-            ->whereHas('Transactionproduct', function ($query) use ($productId) {
-                $query->where('product_id', $productId);
-            })
-            ->join('transaction_products', 'transactions.id', '=', 'transaction_products.transaction_id')
-            ->where('transaction_products.product_id', $productId)
-            ->sum('transaction_products.quantity');
-
-        $outStock = Transaction::where('branch_id', $branchId)
-            ->where('type', 'out')
-            ->whereHas('Transactionproduct', function ($query) use ($productId) {
-                $query->where('product_id', $productId);
-            })
-            ->join('transaction_products', 'transactions.id', '=', 'transaction_products.transaction_id')
-            ->where('transaction_products.product_id', $productId)
-            ->sum('transaction_products.quantity');
-
-        return $inStock - $outStock;
     }
 
     public function destroy($id)

@@ -26,46 +26,44 @@ class TransactionProductController extends Controller
 
     public function getData(Request $request)
     {
-        $query = TransactionProduct::with(['transaksi', 'product'])
+        $query = TransactionProduct::with(['transaksi', 'product.unit'])
             ->whereHas('transaksi', function ($query) {
-                $query->where('type', 'out') // Transaksi dengan type 'out'
-                    ->where('purpose', '!=', 'stock_in'); // Tidak memiliki purpose 'stock_in'
-            });
+                $query->where('type', 'out')
+                    ->where('purpose', '!=', 'stock_in');
+            })
+            ->orderByDesc('created_at'); // Moved the orderByDesc here
 
-
+        // Apply transaction purpose filter
         if ($request->filled('transaksi')) {
             $query->whereHas('transaksi', function ($q) use ($request) {
                 $q->where('purpose', $request->input('transaksi'))
-                    ->where('purpose', '!=', 'stock_in'); // Tidak termasuk 'stock_in'
-            });
-        } else {
-            $query->whereHas('transaksi', function ($q) {
-                $q->where('purpose', '!=', 'stock_in'); // Hanya mengecualikan 'stock_in'
+                    ->where('purpose', '!=', 'stock_in');
             });
         }
 
-        if ($request->has('created_at') && !empty($request->input('created_at'))) {
-            $query->whereDate('created_at', $request->input('created_at')); // Filter sesuai tanggal
+        // Apply date filter
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
         }
 
-        $data = $query->get()->groupBy(function ($item) {
-            return $item->transaksi->id; // Group by transaction_id
-        });
+        // Get and group the data
+        $data = $query->get()->groupBy('transaksi.id');
 
-        // Prepare data for DataTables by merging grouped data
+        // Format the data for DataTables
         $formattedData = $data->map(function ($group) {
-            $firstRow = $group->first();  // Get the first item in the group
+            $firstRow = $group->first();
             $products = $group->map(function ($item) {
-                return $item->product->name . ' (' . $item->quantity . ' ' . ($item->product->unit->name ?? '') . ')';
-            })->toArray();
+                $unit = $item->product->unit->name ?? '';
+                return "{$item->product->name} ({$item->quantity} {$unit})";
+            })->implode('<br>');
 
             return [
                 'created_at' => $firstRow->created_at->format('d-m-Y H:i'),
                 'transaksi' => $firstRow->getTransactionPurpose(),
-                'products' => implode(', ', $products),
-                'action' => $this->generateActionButtons($firstRow)  // Generate action buttons for the first item in the group
+                'products' => $products,
+                'action' => $this->generateActionButtons($firstRow)
             ];
-        })->values(); // Reset keys for DataTables compatibility
+        })->values();
 
         return DataTables::of($formattedData)
             ->addIndexColumn()
@@ -112,7 +110,7 @@ class TransactionProductController extends Controller
 
     public function details($id)
     {
-        $transaction = Transaction::with(['branch', 'tobranch', 'transactionproduct.product.unit'])
+        $transaction = Transaction::with(['branch', 'tobranch', 'transactionproduct.product.unit'])->where('type', 'out')->where('purpose', '!=', 'stock_in')
             ->findOrFail($id); // Cari transaksi berdasarkan ID, atau gagal jika tidak ditemukan
 
         $data = [
