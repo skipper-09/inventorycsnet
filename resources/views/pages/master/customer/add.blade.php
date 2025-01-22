@@ -214,7 +214,7 @@
                     
                     if (data.length > 0) {
                         $.each(data, function(key, value) {
-                            $('#odp_id').append('<option value="'+ value.id +'">'+ value.name +'</option>');
+                            $('#odp_id').append('<option value="'+ value.name +'">'+ value.name +'</option>');
                         });
                         $('#odp_id').prop('disabled', false);
                         $('#custom-odp-container').hide();
@@ -239,6 +239,24 @@
             $('#odp_id').prop('disabled', false);
         }
     });
+
+
+    $('form').on('submit', function(e) {
+    var odp_id = $('#odp_id').val();
+    var custom_odp = $('#custom_odp').val();
+
+    if (odp_id) {
+        $('input[name="odp_id"]').val(odp_id);
+    } else if (custom_odp) {
+        $('input[name="odp_id"]').val(custom_odp);
+    } else {
+        e.preventDefault();
+        alert('Harap pilih ODP atau masukkan ODP secara manual.');
+    }
+    });
+
+
+
 
 
     $('#get-location-btn').click(function() {

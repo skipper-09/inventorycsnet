@@ -71,13 +71,13 @@ $(document).ready(function () {
 
     // Handle transaction filter change
     $("#FilterTransaction").on("change", function () {
-        $('#created_at').val('').trigger('change.select2'); // reset created_at
+        // $('#created_at').val('').trigger('change.select2'); // reset created_at
         table.ajax.reload(null, false); // Reload table with updated filter
     });
 
     // Handle date filter change
     $("#created_at").on("change", function () {
-        $('#FilterTransaction').val('').trigger('change.select2'); // reset transaksi
+        // $('#FilterTransaction').val('').trigger('change.select2'); // reset transaksi
         table.ajax.reload(null, false); // Reload table with updated filter
     });
 

@@ -35,11 +35,7 @@ class CustomerController extends Controller
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
-           
-
-            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('customer.edit', ['id' => $data->id]) . '" data-proses="' . route('customer.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                                                        class="fas fa-pen "></i></button>';
+            $button .= ' <a href="' . route('customer.edit',['id'=>$data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
             $button .= ' <a href="' . route('customer.detail',['id'=>$data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
             $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
@@ -164,77 +160,79 @@ class CustomerController extends Controller
 
 
 
-    public function update(Request $request, $id)
+    public function show($id)
     {
-        $request->validate([
-            'name' => 'required',
-            'purpose' => 'required',
-            'phone' => 'required',
-            'branch_id' => 'required',
-            'zone_id' => 'required',
+        $customer =  Customer::findOrFail($id);
+        $data = [
+            'title' => 'Customer',
+            "zone" => ZoneOdp::all(),
+            'branch' => Branch::all(),
+            'customer'=>$customer,
+            'product' => Product::all(),
+            'technition' => User::with('roles')->whereHas('roles', function ($query) {
+                $query->where('name', 'Teknisi');
+            })->orderByDesc('id')->get()
+        ];
+        return view('pages.master.customer.edit', $data);
+    }
+
+
+
+    public function update(Request $request, $id)
+{
+    // Validate incoming data
+    $request->validate([
+        'name' => 'required',
+        'purpose' => 'required',
+        'phone' => 'required',
+        'branch_id' => 'required',
+        'zone_id' => 'required',
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $customer = Customer::findOrFail($id);
+
+        $customer->update([
+            'branch_id' => $request->branch_id,
+            'zone_id' => $request->zone_id,
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'odp_id' => $request->odp_id,
+            'sn_modem' => json_encode($request->sn_modem),
         ]);
 
-        DB::beginTransaction();
+        
+        $transaction = Transaction::where('customer_id', $customer->id)->first();
 
-        try {
-            $customer = Customer::findOrFail($id);
+        if (!$transaction) {
+            throw new Exception('Transaction not found for the customer.');
+        }
 
-            $customer->update([
-                'branch_id' => $request->branch_id,
-                'zone_id' => $request->zone_id,
-                'name' => $request->name,
-                'phone' => $request->phone,
-                'address' => $request->address,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-                'odp_id' => $request->odp_id,
-                'sn_modem' => json_encode($request->sn_modem),
-            ]);
+        $transaction->update([
+            'branch_id' => $request->branch_id,
+            'purpose' => $request->purpose
+        ]);
 
-            $transaction = Transaction::where('customer_id', $customer->id)->first();
-
-            if (!$transaction) {
-                throw new Exception('Transaction not found for the customer.');
-            }
-
-            $transaction->update([
-                'branch_id' => $request->branch_id,
-                'purpose' => $request->purpose
-            ]);
-
-            $originalStockChanges = [];
-
+        if (is_array($request->item_id) && is_array($request->quantity)) {
             TransactionProduct::where('transaction_id', $transaction->id)->delete();
 
             foreach ($request->item_id as $index => $item) {
-                TransactionProduct::create([
-                    'transaction_id' => $transaction->id,
-                    'product_id' => $item,
-                    'quantity' => $request->quantity[$index]
-                ]);
-
-                $branchProductStock = BranchProductStock::where('branch_id', $request->branch_id)
-                    ->where('product_id', $item)
-                    ->first();
-
-                if (!$branchProductStock || $branchProductStock->stock < $request->quantity[$index]) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'status' => "Gagal",
-                        'message' => 'Stok ' . $branchProductStock->product->name . ' tidak mencukupi untuk pengeluaran. Stok saat ini: ' . ($branchProductStock->stock ?? 0),
-                    ], 400);
+                if (isset($request->quantity[$index])) {
+                    TransactionProduct::create([
+                        'transaction_id' => $transaction->id,
+                        'product_id' => $item,
+                        'quantity' => $request->quantity[$index]
+                    ]);
                 }
-
-                $originalStockChanges[] = [
-                    'branch_product_stock' => $branchProductStock,
-                    'previous_stock' => $branchProductStock->stock
-                ];
-
-                $branchProductStock->stock -= $request->quantity[$index];
-                $branchProductStock->save();
             }
+        }
 
+        if (is_array($request->tecnition)) {
             TransactionTechnition::where('transaction_id', $transaction->id)->delete();
 
             foreach ($request->tecnition as $teknisi) {
@@ -243,25 +241,22 @@ class CustomerController extends Controller
                     'user_id' => $teknisi
                 ]);
             }
-
-            DB::commit();
-
-            return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
-        } catch (Exception $e) {
-            DB::rollBack();
-
-            foreach ($originalStockChanges as $change) {
-                $change['branch_product_stock']->stock = $change['previous_stock'];
-                $change['branch_product_stock']->save();
-            }
-
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ]);
         }
+
+        DB::commit();
+
+        return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
+    } catch (Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'status' => "Gagal",
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ]);
     }
+}
+
 
 
 
