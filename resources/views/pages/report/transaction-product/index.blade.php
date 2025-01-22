@@ -40,32 +40,30 @@
                                 <label class="form-label" for="FilterTransaction">
                                     Filter Jenis Transaksi <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select select2 filter" id="FilterTransaction" name="branch_id">
+                                <select class="form-select select2 filter" id="FilterTransaction" name="transaksi">
                                     <option value="">Pilih Jenis Transaksi</option>
                                     @foreach ($purposes as $purpose)
                                         @if ($purpose !== 'stock_in')
-                                            <option value="{{ $purpose }}" @if (request('purpose') == $purpose) selected @endif>
-                                                {{ $purpose == 'psb'
-                                                    ? 'Pemasangan Baru'
-                                                    : ($purpose == 'repair'
-                                                        ? 'Perbaikan'
-                                                        : ucwords(str_replace('_', ' ', $purpose))) }}
+                                            <option value="{{ $purpose }}"
+                                                @if (request('transaksi') == $purpose) selected @endif>
+                                                {{ $purpose == 'psb' ? 'Pemasangan Baru' : ucwords(str_replace('_', ' ', $purpose)) }}
                                             </option>
                                         @endif
                                     @endforeach
                                 </select>
                             </div>
-                
+
                             <!-- Filter Tanggal -->
                             <div class="col-12 col-md-4">
                                 <label class="form-label" for="created_at">Filter Tanggal</label>
-                                <input type="date" id="created_at" class="form-control filter" placeholder="Pilih Tanggal">
+                                <input type="date" id="created_at" class="form-control filter"
+                                    placeholder="Pilih Tanggal">
                             </div>
-                
+
                             <!-- Export Button -->
                             <div class="col-12 col-md-4">
                                 <div class="d-flex justify-content-end">
-                                    <a href="{{ route('report.transaction-product.export') }}" class="btn btn-outline-success">
+                                    <a href="javascript:void(0);" id="export-button" class="btn btn-outline-success">
                                         <i class="fas fa-file-excel me-2"></i>Export Excel
                                     </a>
                                 </div>
@@ -101,7 +99,10 @@
     <!-- Select2 -->
     <script src="{{ asset('assets/libs/select2/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
-
     <!-- Custom JS for Transaction Product -->
     <script src="{{ asset('assets/js/mods/transactionproduct.js') }}"></script>
+
+    <script>
+        document.getElementById("export-button").dataset.route = @json(route('report.transaction-product.export'));
+    </script>
 @endpush

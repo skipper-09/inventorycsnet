@@ -80,4 +80,18 @@ $(document).ready(function () {
         $('#FilterTransaction').val('').trigger('change.select2'); // reset transaksi
         table.ajax.reload(null, false); // Reload table with updated filter
     });
+
+    document.getElementById("export-button").addEventListener("click", function () {
+        let baseUrl = $("#export-button").data("route");
+        let transaksi = document.getElementById("FilterTransaction").value;
+        let createdAt = document.getElementById("created_at").value;
+
+        if (!transaksi && !createdAt) {
+            Swal.fire("Perhatian", "Silakan pilih minimal satu filter sebelum ekspor.", "warning");
+            return;
+        }
+
+        let exportUrl = `${baseUrl}?transaksi=${transaksi}&created_at=${createdAt}`;
+        window.location.href = exportUrl; // Redirect ke URL ekspor
+    });
 });

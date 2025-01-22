@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionProductController extends Controller
@@ -125,16 +126,11 @@ class TransactionProductController extends Controller
 
     public function exportExcel(Request $request)
     {
-        try {
-            return Excel::download(
-                new TransactionProductExport($request),
-                'laporan_transaksi_barang_' . now()->format('Y-m-d_His') . '.xlsx'
-            );
-        } catch (\Exception $e) {
-            return redirect()
-                ->back()
-                ->with('error', 'Terjadi kesalahan saat mengexport data: ' . $e->getMessage());
-        }
+        Log::info('Export Parameters:', $request->all()); // Logging untuk memverifikasi parameter
+        return Excel::download(
+            new TransactionProductExport($request),
+            'laporan_transaksi_barang_' . now()->format('Y-m-d_His') . '.xlsx'
+        );
     }
 
     public function create()
