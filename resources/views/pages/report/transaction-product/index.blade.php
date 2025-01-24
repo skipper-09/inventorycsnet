@@ -77,6 +77,7 @@
                                     <th>No</th>
                                     <th>Tanggal</th>
                                     <th>Jenis Transaksi</th>
+                                    <th>Pelanggan / Tujuan</th>
                                     <th>Barang</th>
                                     <th>Action</th>
                                 </tr>

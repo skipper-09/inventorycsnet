@@ -59,10 +59,21 @@ class TransactionProductController extends Controller
                 $unit = $item->product->unit->name ?? '';
                 return "{$item->product->name} ({$item->quantity} {$unit})";
             })->implode('<br>');
-
             return [
                 'created_at' => $firstRow->created_at->format('d-m-Y H:i'),
                 'transaksi' => $firstRow->getTransactionPurpose(),
+                'pelanggan' => (function () use ($firstRow) {
+                    switch ($firstRow->transaksi->purpose) {
+                        case 'psb':
+                            return 'Pemasangan Customer ' . $firstRow->transaksi->customer->name;
+                        case 'repair':
+                            return 'Perbaikan Customer ' . $firstRow->transaksi->customer->name;
+                        case 'transfer':
+                            return 'Pindah Barang Dari ' . $firstRow->transaksi->branch->name . ' Ke ' . $firstRow->transaksi->tobranch->name;
+                        default:
+                            return '<span class="badge badge-label-success">Stok Masuk</span>';
+                    }
+                })(),
                 'products' => $products,
                 'action' => $this->generateActionButtons($firstRow)
             ];
@@ -70,7 +81,7 @@ class TransactionProductController extends Controller
 
         return DataTables::of($formattedData)
             ->addIndexColumn()
-            ->rawColumns(['action', 'created_at', 'transaksi', 'products'])
+            ->rawColumns(['action', 'created_at', 'transaksi', 'products','pelanggan'])
             ->make(true);
     }
 

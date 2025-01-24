@@ -62,6 +62,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'Produk'
                 ];
             case 'psb':
+            case 'repair':
                 return [
                     'No',
                     'Tanggal',
@@ -74,6 +75,10 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 return [
                     'No',
                     'Tanggal',
+                    'Dari Cabang',
+                    'Ke Cabang',
+                    'Nama Customer',
+                    'Alamat Customer',
                     'Tujuan Transaksi',
                     'Produk'
                 ];
@@ -116,6 +121,10 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 return [
                     $index,
                     $firstRow->created_at->format('d-m-Y H:i'),
+                    $firstRow->transaksi->branch->name ?? '-',
+                    $firstRow->transaksi->toBranch->name ?? '-',
+                    $firstRow->transaksi->customer->name ?? '-',
+                    $firstRow->transaksi->customer->address ?? '-',
                     $firstRow->getTransactionPurposeText(),
                     $products
                 ];
@@ -145,19 +154,23 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 ];
             default:
                 return [
-                    'A' => 5,  // No
-                    'B' => 20, // Tanggal
-                    'C' => 20, // Tujuan Transaksi
-                    'D' => 50, // Produk
+                    'A' => 5,  
+                    'B' => 20, 
+                    'C' => 25, 
+                    'D' => 25, 
+                    'E' => 20, 
+                    'F' => 50, 
+                    'G' => 50, 
+                    'H' => 50, 
                 ];
         }
     }
 
     public function styles(Worksheet $sheet)
     {
-        $lastColumn = in_array($this->purpose, ['transfer', 'psb']) ? 'F' : 'D';
+        $lastColumn = in_array($this->purpose, ['transfer', 'psb']) ? 'F' : 'H'; // Sesuaikan dengan kolom terakhir yang relevan
         $lastRow = $sheet->getHighestRow();
-
+    
         // Style for all cells
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray([
             'borders' => [
@@ -166,7 +179,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 ],
             ],
         ]);
-
+    
         // Header styling
         $headerStyle = [
             'font' => [
@@ -182,7 +195,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
             ],
         ];
-
+    
         // Content styling
         $contentStyle = [
             'alignment' => [
@@ -190,14 +203,14 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 'wrapText' => true,
             ],
         ];
-
+    
         // Apply styles
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray($headerStyle);
         $sheet->getStyle("A2:{$lastColumn}{$lastRow}")->applyFromArray($contentStyle);
-
+    
         // Center align specific columns
         $sheet->getStyle("A2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
+    
         if ($this->purpose === 'transfer') {
             // Center align branch columns for transfer
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -205,15 +218,15 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
             // Left align customer name and address
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
-
+    
         // Set row height for header
         $sheet->getRowDimension(1)->setRowHeight(20);
-
+    
         // Set minimum row height for content
         for ($i = 2; $i <= $lastRow; $i++) {
             $sheet->getRowDimension($i)->setRowHeight(-1); // Auto height
         }
-
+    
         return [];
     }
 }
