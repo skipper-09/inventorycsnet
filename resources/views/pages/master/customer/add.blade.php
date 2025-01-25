@@ -45,7 +45,8 @@
                             <div class="row">
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="branch_id">Piih Cabang</label>
-                                    <select name="branch_id" id="branch_id" class="form-control select2form @error('branch_id') is-invalid @enderror">
+                                    <select name="branch_id" id="branch_id"
+                                        class="form-control select2form @error('branch_id') is-invalid @enderror">
                                         <option value="">Pilih Cabang</option>
                                         @foreach ($branch as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -71,7 +72,8 @@
 
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="zone_id">Piih Jalur</label>
-                                    <select name="zone_id" id="zone_id" class="form-control select2form @error('zone_id') is-invalid @enderror">
+                                    <select name="zone_id" id="zone_id"
+                                        class="form-control select2form @error('zone_id') is-invalid @enderror">
                                         <option value="">Pilih Jalur</option>
                                         @foreach ($zone as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -90,9 +92,11 @@
                                     </select>
 
                                     <div id="custom-odp-container" class="mt-2" style="display:none;">
-                                        <label for="custom_odp" class="form-label">Masukkan ODP (Bila Tidak Ada ODP)</label>
-                                        <input type="text" id="custom_odp" name="odp_id" placeholder="Isi ODP jika tidak tersedia pada pilihan"
-                                               class="form-control @error('odp_id') is-invalid @enderror">
+                                        <label for="custom_odp" class="form-label">Masukkan ODP (Bila Tidak Ada
+                                            ODP)</label>
+                                        <input type="text" id="custom_odp" name="odp_id"
+                                            placeholder="Isi ODP jika tidak tersedia pada pilihan"
+                                            class="form-control @error('odp_id') is-invalid @enderror">
                                     </div>
                                 </div>
 
@@ -109,9 +113,10 @@
 
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="purpose">Pilih Tujuan</label>
-                                    <select name="purpose" class="form-control select2form @error('purpose') is-invalid @enderror"">
+                                    <select name="purpose"
+                                        class="form-control select2form @error('purpose') is-invalid @enderror"">
                                         <option value="">Pilih Tujuan</option>
-                                        <option value="psb">Pemasangan Baru</option>
+                                        <option value=" psb">Pemasangan Baru</option>
                                         <option value="repair">Perbaikan</option>
                                     </select>
                                     @error('purpose')
@@ -137,7 +142,13 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="validationCustom01" class="form-label required">Alamat</label>
-                                    <textarea name="address" class="form-control" cols="30"></textarea>
+                                    <textarea name="address" class="form-control @error('address') is-invalid @enderror"
+                                        cols="30"></textarea>
+                                    @error('address')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="tecnition">Piih Teknisi</label>
@@ -146,6 +157,11 @@
                                         @foreach ($technition as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                         @endforeach
+                                        @error('tecnition')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                        @enderror
                                     </select>
                                 </div>
 
@@ -154,6 +170,7 @@
                                     <button type="button" class="btn btn-primary btn-sm mb-3" id="addRow">Tambah
                                         Barang</button>
                                 </div>
+                                
 
                                 <div class="col-lg-12">
                                     <div class="table-responsive">
@@ -172,6 +189,7 @@
                                             </tbody>
                                         </table>
                                     </div>
+
                                 </div>
                             </div>
                             <div>
@@ -249,9 +267,53 @@
         $('input[name="odp_id"]').val(odp_id);
     } else if (custom_odp) {
         $('input[name="odp_id"]').val(custom_odp);
-    } else {
-        e.preventDefault();
-        alert('Harap pilih ODP atau masukkan ODP secara manual.');
+    }
+
+
+
+     const itemIds = [];
+    let isValid = true;
+    let alertMessage = '';
+
+    $('#myTable tbody tr').each(function() {
+        const itemId = $(this).find('select[name="item_id[]"]').val();
+        const quantity = $(this).find('input[name="quantity[]"]').val();
+        const snModem = $(this).find('input[name="sn_modem[]"]').val();
+
+        // Check if the item is selected
+        if (itemId && itemId !== 'Pilih Barang') {
+            itemIds.push(itemId);
+        } else {
+            isValid = false;
+            alertMessage = 'Please select a product for all rows.';
+        }
+
+        // Check if quantity is filled
+        if (!quantity || quantity.trim() === '') {
+            isValid = false;
+            alertMessage = 'Please enter a quantity for all rows.';
+        }
+
+        // Check if SN modem input should be filled (if applicable)
+        const snModemContainer = $(this).find('.sn-modem-container');
+        if (snModemContainer.css('visibility') === 'visible' && (!snModem || snModem.trim() === '')) {
+            isValid = false;
+            alertMessage = 'Please enter a serial number for the modem.';
+        }
+    });
+
+    // Check for duplicates in the selected item_ids
+    const duplicates = itemIds.filter((item, index) => itemIds.indexOf(item) !== index);
+
+    if (duplicates.length > 0) {
+        isValid = false;
+        alertMessage = 'Some products are selected more than once. Please select different products.';
+    }
+
+    // If validation failed, show an alert and prevent form submission
+    if (!isValid) {
+        alert(alertMessage);
+        return; // Stop the form submission
     }
     });
 

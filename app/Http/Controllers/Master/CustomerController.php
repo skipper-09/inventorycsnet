@@ -85,14 +85,35 @@ class CustomerController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
         $request->validate([
-            'name' => 'required',
-            'purpose' => 'required',
-            'phone' => 'required',
-            'branch_id' => 'required',
+            'name' => 'required|string|max:255',
+            'purpose' => 'required|string|max:255',
+            'phone' => 'required|integer|regex:/^62[0-9]{9,11}$/',
+            'branch_id' => 'required|integer|exists:branches,id',
             'zone_id' => 'required',
+            'address' => 'required|string|max:255',
+            'tecnition' => 'required',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'purpose.required' => 'Tujuan wajib diisi.',
+            'phone.required' => 'Nomor telepon wajib diisi.',
+            'phone.integer' => 'Nomor telepon harus berupa angka.',
+            'phone.regex' => 'Nomor telepon harus dimulai dengan 62 dan memiliki panjang antara 11 hingga 12 digit.',
+            'branch_id.required' => 'ID cabang wajib diisi.',
+            'zone_id.required' => 'ID zona wajib diisi.',
+            'address.required' => 'Alamat wajib diisi.',
+            'tecnition.required' => 'Teknisi wajib diisi.',
+            
+            'name.string' => 'Nama harus berupa teks.',
+            'purpose.string' => 'Tujuan harus berupa teks.',
+            'phone.max' => 'Nomor telepon maksimal 12 karakter.',
+            'branch_id.integer' => 'ID cabang harus berupa angka.',
+            'branch_id.exists' => 'ID cabang tidak ditemukan.',
+            'address.string' => 'Alamat harus berupa teks.',
         ]);
+        
+        
+        
 
         DB::beginTransaction();
 
