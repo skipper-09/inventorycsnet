@@ -21,7 +21,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
     public function __construct($request)
     {
         $this->request = $request;
-        $this->purpose = $request->input('transaksi');
+        $this->purpose = $request->input('type_transaction');
     }
 
     public function collection()
@@ -30,23 +30,28 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
             ->whereHas('transaksi', function ($query) {
                 $query->where('type', 'out')
                     ->where('purpose', '!=', 'stock_in');
-            })
-            ->orderByDesc('created_at');
+            });
 
-        if ($this->request->filled('transaksi')) {
+        if ($this->request->filled('type_transaction')) {
             $query->whereHas('transaksi', function ($q) {
-                $q->where('purpose', $this->request->input('transaksi'));
+                $q->where('purpose', $this->request->input('type_transaction'));
             });
         }
 
-        if ($this->request->filled('created_at')) {
-            $query->whereDate('created_at', $this->request->input('created_at'));
+        // Filter berdasarkan rentang tanggal
+        if ($this->request->filled('start_date') && $this->request->filled('end_date')) {
+            $query->whereDate('created_at', '>=', $this->request->input('start_date'))
+                  ->whereDate('created_at', '<=', $this->request->input('end_date'));
         }
-
-        Log::info('Query SQL:', ['query' => $query->toSql(), 'bindings' => $query->getBindings()]);
+        // elseif ($this->request->filled('start_date')) {
+        //     $query->whereDate('created_at', '>=', $this->request->input('start_date'));
+        // } elseif ($this->request->filled('end_date')) {
+        //     $query->whereDate('created_at', '<=', $this->request->input('end_date'));
+        // }
 
         return $query->get()->groupBy('transaksi.id');
     }
+
 
 
     public function headings(): array
@@ -154,14 +159,14 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 ];
             default:
                 return [
-                    'A' => 5,  
-                    'B' => 20, 
-                    'C' => 25, 
-                    'D' => 25, 
-                    'E' => 20, 
-                    'F' => 50, 
-                    'G' => 50, 
-                    'H' => 50, 
+                    'A' => 5,
+                    'B' => 20,
+                    'C' => 25,
+                    'D' => 25,
+                    'E' => 20,
+                    'F' => 50,
+                    'G' => 50,
+                    'H' => 50,
                 ];
         }
     }
@@ -170,7 +175,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
     {
         $lastColumn = in_array($this->purpose, ['transfer', 'psb']) ? 'F' : 'H'; // Sesuaikan dengan kolom terakhir yang relevan
         $lastRow = $sheet->getHighestRow();
-    
+
         // Style for all cells
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray([
             'borders' => [
@@ -179,7 +184,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 ],
             ],
         ]);
-    
+
         // Header styling
         $headerStyle = [
             'font' => [
@@ -195,7 +200,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
             ],
         ];
-    
+
         // Content styling
         $contentStyle = [
             'alignment' => [
@@ -203,14 +208,14 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 'wrapText' => true,
             ],
         ];
-    
+
         // Apply styles
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray($headerStyle);
         $sheet->getStyle("A2:{$lastColumn}{$lastRow}")->applyFromArray($contentStyle);
-    
+
         // Center align specific columns
         $sheet->getStyle("A2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-    
+
         if ($this->purpose === 'transfer') {
             // Center align branch columns for transfer
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
@@ -218,15 +223,15 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
             // Left align customer name and address
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
-    
+
         // Set row height for header
         $sheet->getRowDimension(1)->setRowHeight(20);
-    
+
         // Set minimum row height for content
         for ($i = 2; $i <= $lastRow; $i++) {
             $sheet->getRowDimension($i)->setRowHeight(-1); // Auto height
         }
-    
+
         return [];
     }
 }

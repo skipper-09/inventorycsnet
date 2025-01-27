@@ -81,7 +81,7 @@ class TransactionProductController extends Controller
 
         return DataTables::of($formattedData)
             ->addIndexColumn()
-            ->rawColumns(['action', 'created_at', 'transaksi', 'products','pelanggan'])
+            ->rawColumns(['action', 'created_at', 'transaksi', 'products', 'pelanggan'])
             ->make(true);
     }
 
@@ -137,10 +137,14 @@ class TransactionProductController extends Controller
 
     public function exportExcel(Request $request)
     {
+        $request->validate([
+            'start_date' => 'required',
+            'end_date' => 'required',
+        ]);
         Log::info('Export Parameters:', $request->all()); // Logging untuk memverifikasi parameter
         return Excel::download(
             new TransactionProductExport($request),
-            'laporan_transaksi_barang_' . now()->format('Y-m-d_His') . '.xlsx'
+            'laporan_transaksi_barang_' . $request->start_date. '_'. $request->end_date . '.xlsx'
         );
     }
 

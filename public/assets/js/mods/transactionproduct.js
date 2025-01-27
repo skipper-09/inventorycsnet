@@ -1,10 +1,10 @@
 // Wait for document ready
 $(document).ready(function () {
     // Initialize Select2 first
-    $(".select2").select2({
-        width: "100%",
-        dropdownParent: $("body"),
-    });
+    // $(".select2").select2({
+    //     width: "100%",
+    //     dropdownParent: $("body"),
+    // });
 
     // Sweet Alert configuration
     var n = Swal.mixin({
@@ -15,6 +15,59 @@ $(document).ready(function () {
         },
         buttonsStyling: !1,
     });
+
+
+
+    $('#addBranchForm').on('submit', function(event) {
+        const startDate = $('#start_date').val();
+        const endDate = $('#end_date').val();
+        var formData = $(this).serialize();
+        
+        if (!startDate || !endDate) {
+            event.preventDefault(); 
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error",
+                text: "Tanggal mulai dan tanggal akhir wajib diisi",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else if (new Date(startDate) > new Date(endDate)) {
+            event.preventDefault();
+            Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error",
+                text: "Tanggal mulai tidak boleh lebih besar dari tanggal akhir",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        } else {
+            $.ajax({
+                url: $(this).attr("action"),
+                method:'POST',
+                data: formData,
+                processData: false,
+                success: function (response) {
+                    if (response.success) {
+                        // $("#modal8").modal("hide");
+                        resetForm(); 
+                    }
+                },
+            });
+        }
+    });
+
+   
+function resetForm() {
+    $('#addBranchForm')[0].reset();
+    $('#type_transaction').val('').trigger('change');
+    $('#start_date').val('');
+    $('#end_date').val('');
+}
+
+
 
     var route = $("#scroll-sidebar-datatable").data("route");
 
@@ -87,15 +140,15 @@ $(document).ready(function () {
 
     document.getElementById("export-button").addEventListener("click", function () {
         let baseUrl = $("#export-button").data("route");
-        let transaksi = document.getElementById("FilterTransaction").value;
-        let createdAt = document.getElementById("created_at").value;
+        // let transaksi = document.getElementById("FilterTransaction").value;
+        // let createdAt = document.getElementById("created_at").value;
 
-        if (!transaksi && !createdAt) {
-            Swal.fire("Perhatian", "Silakan pilih minimal satu filter sebelum ekspor.", "warning");
-            return;
-        }
+        // if (!transaksi && !createdAt) {
+        //     Swal.fire("Perhatian", "Silakan pilih minimal satu filter sebelum ekspor.", "warning");
+        //     return;
+        // }
 
-        let exportUrl = `${baseUrl}?transaksi=${transaksi}&created_at=${createdAt}`;
-        window.location.href = exportUrl; // Redirect ke URL ekspor
+        // let exportUrl = `${baseUrl}?transaksi=${transaksi}&created_at=${createdAt}`;
+        // window.location.href = exportUrl; // Redirect ke URL ekspor
     });
 });

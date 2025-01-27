@@ -139,7 +139,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('', [TransactionProductController::class, 'index'])->name('report.transaction-product');
             Route::get('getdata', [TransactionProductController::class, 'getData'])->name('report.transaction-product.getdata');
             Route::get('/details/{id}', [TransactionProductController::class, 'details'])->name('report.transaction-product.details');
-            Route::get('/export', [TransactionProductController::class, 'exportExcel'])->name('report.transaction-product.export');
+            Route::post('/export', [TransactionProductController::class, 'exportExcel'])->name('report.transaction-product.export');
             // Route::get('/add', [TransactionProductController::class,'create'])->name('report.transaction-product.add');
             // Route::post('store', [TransactionProductController::class, 'store'])->name('report.transaction-product.store');
             // Route::get('/edit/{id}', [TransactionProductController::class, 'show'])->name('report.transaction-product.edit');

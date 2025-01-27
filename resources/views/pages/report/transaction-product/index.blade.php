@@ -7,9 +7,9 @@
         type="text/css" />
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
-    <!-- Select2 -->
-    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+     {{-- select 2 --}}
+     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 
 @section('content')
@@ -63,9 +63,9 @@
                             <!-- Export Button -->
                             <div class="col-12 col-md-4">
                                 <div class="d-flex justify-content-end">
-                                    <a href="javascript:void(0);" id="export-button" class="btn btn-outline-success">
+                                    <button data-bs-toggle="modal" data-bs-target="#modal8" id="export-button" class="btn btn-outline-success">
                                         <i class="fas fa-file-excel me-2"></i>Export Excel
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -88,6 +88,8 @@
             </div>
         </div>
     </div>
+
+    @include('pages.report.transaction-product.modalexport')
 @endsection
 
 @push('js')
@@ -97,9 +99,9 @@
     <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
-    <!-- Select2 -->
-    <script src="{{ asset('assets/libs/select2/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+     {{-- select 2 deifinition --}}
+     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
     <!-- Custom JS for Transaction Product -->
     <script src="{{ asset('assets/js/mods/transactionproduct.js') }}"></script>
 
