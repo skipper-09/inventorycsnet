@@ -48,6 +48,7 @@ class OutcomeProductSeeder extends Seeder
                     // Create Transaction
                     $transaction = Transaction::create([
                         'branch_id' => $branch->id,
+                        'user_id'=>1,
                         'type' => 'out', // Tipe transaksi pengeluaran barang
                     ]);
 

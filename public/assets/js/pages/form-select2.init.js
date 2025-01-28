@@ -10,6 +10,10 @@ $(function () {
         dir: e,
         dropdownAutoWidth: !0,
     });
+    $("#FilterTransaction").select2({
+        dir: e,
+        dropdownAutoWidth: !0,
+    });
     $("#select2-1, #select2-2").select2({ dir: e, dropdownAutoWidth: !0 }),
         $("#select2-3").select2({
             dir: e,

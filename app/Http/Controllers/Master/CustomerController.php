@@ -8,6 +8,7 @@ use App\Models\BranchProductStock;
 use App\Models\Customer;
 use App\Models\Odp;
 use App\Models\Product;
+use App\Models\ProductRole;
 use App\Models\Transaction;
 use App\Models\TransactionProduct;
 use App\Models\TransactionTechnition;
@@ -15,6 +16,7 @@ use App\Models\User;
 use App\Models\ZoneOdp;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -35,8 +37,8 @@ class CustomerController extends Controller
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
-            $button .= ' <a href="' . route('customer.edit',['id'=>$data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
-            $button .= ' <a href="' . route('customer.detail',['id'=>$data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+            $button .= ' <a href="' . route('customer.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+            $button .= ' <a href="' . route('customer.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
             $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -55,26 +57,41 @@ class CustomerController extends Controller
             return $result;
         })->editColumn('sn_modem', function ($data) {
             $snModemArray = json_decode($data->sn_modem);
-            $snModemArray = array_filter($snModemArray, function($value) {
+            $snModemArray = array_filter($snModemArray, function ($value) {
                 return !empty($value);
             });
-            
+
             if (count($snModemArray) > 0) {
                 return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
             }
-            
+
             return '<span class="text-uppercase">No Modem</span>';
-        })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose'])->make(true);
+        })->editColumn('created_at', function ($data) {
+            return $data->created_at->format('d M Y H:i');
+        })->addColumn('owner', function ($data) {
+            return $data->transaction->userTransaction->name;
+        })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose', 'created_at','owner'])->make(true);
     }
 
 
     public function create()
     {
+        $userRole = auth()->user()->getRoleNames()->first();
+        if ($userRole == 'Developer' || $userRole == 'Administrator') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereHas('productRoles', function ($query) use ($userRole) {
+                $query->whereHas('role', function ($query) use ($userRole) {
+                    $query->where('name', $userRole);
+                });
+            })->get();
+        }
+
         $data = [
             'title' => 'Customer',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
-            'product' => Product::all(),
+            'product' => $products,
             'technition' => User::with('roles')->whereHas('roles', function ($query) {
                 $query->where('name', 'Teknisi');
             })->orderByDesc('id')->get()
@@ -103,7 +120,7 @@ class CustomerController extends Controller
             'zone_id.required' => 'ID zona wajib diisi.',
             'address.required' => 'Alamat wajib diisi.',
             'tecnition.required' => 'Teknisi wajib diisi.',
-            
+
             'name.string' => 'Nama harus berupa teks.',
             'purpose.string' => 'Tujuan harus berupa teks.',
             'phone.max' => 'Nomor telepon maksimal 12 karakter.',
@@ -111,9 +128,9 @@ class CustomerController extends Controller
             'branch_id.exists' => 'ID cabang tidak ditemukan.',
             'address.string' => 'Alamat harus berupa teks.',
         ]);
-        
-        
-        
+
+
+
 
         DB::beginTransaction();
 
@@ -134,6 +151,7 @@ class CustomerController extends Controller
                 'branch_id' => $request->branch_id,
                 'customer_id' => $customer->id,
                 'type' => 'out',
+                'user_id'=>Auth::user()->id,
                 'purpose' => $request->purpose
             ]);
 
@@ -183,13 +201,23 @@ class CustomerController extends Controller
 
     public function show($id)
     {
-        $customer =  Customer::findOrFail($id);
+        $userRole = auth()->user()->getRoleNames()->first();
+        if ($userRole == 'Developer' || $userRole == 'Administrator') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereHas('productRoles', function ($query) use ($userRole) {
+                $query->whereHas('role', function ($query) use ($userRole) {
+                    $query->where('name', $userRole);
+                });
+            })->get();
+        }
+        $customer = Customer::findOrFail($id);
         $data = [
             'title' => 'Customer',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
-            'customer'=>$customer,
-            'product' => Product::all(),
+            'customer' => $customer,
+            'product' => $products,
             'technition' => User::with('roles')->whereHas('roles', function ($query) {
                 $query->where('name', 'Teknisi');
             })->orderByDesc('id')->get()
@@ -200,83 +228,83 @@ class CustomerController extends Controller
 
 
     public function update(Request $request, $id)
-{
-    // Validate incoming data
-    $request->validate([
-        'name' => 'required',
-        'purpose' => 'required',
-        'phone' => 'required',
-        'branch_id' => 'required',
-        'zone_id' => 'required',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        $customer = Customer::findOrFail($id);
-
-        $customer->update([
-            'branch_id' => $request->branch_id,
-            'zone_id' => $request->zone_id,
-            'name' => $request->name,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'odp_id' => $request->odp_id,
-            'sn_modem' => json_encode($request->sn_modem),
+    {
+        // Validate incoming data
+        $request->validate([
+            'name' => 'required',
+            'purpose' => 'required',
+            'phone' => 'required',
+            'branch_id' => 'required',
+            'zone_id' => 'required',
         ]);
 
-        
-        $transaction = Transaction::where('customer_id', $customer->id)->first();
+        DB::beginTransaction();
 
-        if (!$transaction) {
-            throw new Exception('Transaction not found for the customer.');
-        }
+        try {
+            $customer = Customer::findOrFail($id);
 
-        $transaction->update([
-            'branch_id' => $request->branch_id,
-            'purpose' => $request->purpose
-        ]);
+            $customer->update([
+                'branch_id' => $request->branch_id,
+                'zone_id' => $request->zone_id,
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+                'odp_id' => $request->odp_id,
+                'sn_modem' => json_encode($request->sn_modem),
+            ]);
 
-        if (is_array($request->item_id) && is_array($request->quantity)) {
-            TransactionProduct::where('transaction_id', $transaction->id)->delete();
 
-            foreach ($request->item_id as $index => $item) {
-                if (isset($request->quantity[$index])) {
-                    TransactionProduct::create([
+            $transaction = Transaction::where('customer_id', $customer->id)->first();
+
+            if (!$transaction) {
+                throw new Exception('Transaction not found for the customer.');
+            }
+
+            $transaction->update([
+                'branch_id' => $request->branch_id,
+                'purpose' => $request->purpose
+            ]);
+
+            if (is_array($request->item_id) && is_array($request->quantity)) {
+                TransactionProduct::where('transaction_id', $transaction->id)->delete();
+
+                foreach ($request->item_id as $index => $item) {
+                    if (isset($request->quantity[$index])) {
+                        TransactionProduct::create([
+                            'transaction_id' => $transaction->id,
+                            'product_id' => $item,
+                            'quantity' => $request->quantity[$index]
+                        ]);
+                    }
+                }
+            }
+
+            if (is_array($request->tecnition)) {
+                TransactionTechnition::where('transaction_id', $transaction->id)->delete();
+
+                foreach ($request->tecnition as $teknisi) {
+                    TransactionTechnition::create([
                         'transaction_id' => $transaction->id,
-                        'product_id' => $item,
-                        'quantity' => $request->quantity[$index]
+                        'user_id' => $teknisi
                     ]);
                 }
             }
+
+            DB::commit();
+
+            return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
         }
-
-        if (is_array($request->tecnition)) {
-            TransactionTechnition::where('transaction_id', $transaction->id)->delete();
-
-            foreach ($request->tecnition as $teknisi) {
-                TransactionTechnition::create([
-                    'transaction_id' => $transaction->id,
-                    'user_id' => $teknisi
-                ]);
-            }
-        }
-
-        DB::commit();
-
-        return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
-    } catch (Exception $e) {
-        DB::rollBack();
-
-        return response()->json([
-            'success' => false,
-            'status' => "Gagal",
-            'message' => 'An error occurred: ' . $e->getMessage()
-        ]);
     }
-}
 
 
 
@@ -297,8 +325,8 @@ class CustomerController extends Controller
     //detail
     public function details($id)
     {
-        $customer = Customer::with(['transaction','branch','zone'])
-        ->where('id', $id)->firstOrFail();
+        $customer = Customer::with(['transaction', 'branch', 'zone'])
+            ->where('id', $id)->firstOrFail();
 
         // dd($customer);
         $data = [

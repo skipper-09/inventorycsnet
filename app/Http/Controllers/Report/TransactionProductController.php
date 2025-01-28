@@ -21,7 +21,7 @@ class TransactionProductController extends Controller
             'title' => 'Laporan Transaksi Barang',
             'transaksi' => Transaction::all(),
             'product' => Product::all(),
-            'purposes' => Transaction::select('purpose')->distinct()->pluck('purpose'), // Get unique purposes
+            'purposes' => Transaction::select('purpose')->distinct()->pluck('purpose'),
         ];
 
         return view('pages.report.transaction-product.index', $data);

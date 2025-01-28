@@ -49,6 +49,10 @@
                                                     <th scope="row">Ke Cabang</th>
                                                     <td>: {{ $transfer->tobranch->name }}</td>
                                                 </tr>
+                                                <tr>
+                                                    <th scope="row">Dibuat</th>
+                                                    <td>: {{ $transfer->userTransaction->name }}</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>

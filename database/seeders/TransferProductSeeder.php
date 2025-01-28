@@ -63,6 +63,7 @@ class TransferProductSeeder extends Seeder
                 $stockIn = Transaction::create([
                     'branch_id' => $branch->id,
                     'type' => 'in',
+                    'user_id'=>1,
                     'purpose' => 'stock_in',
                 ]);
 
@@ -81,6 +82,7 @@ class TransferProductSeeder extends Seeder
                 [
                     'from' => 1, // Pusat
                     'to' => 2,   // Utara
+                    'user_id'=>1,
                     'products' => [
                         ['id' => 2, 'qty' => 5],  // Router
                         ['id' => 3, 'qty' => 10], // Kabel
@@ -89,6 +91,7 @@ class TransferProductSeeder extends Seeder
                 [
                     'from' => 1, // Pusat
                     'to' => 3,   // Selatan
+                    'user_id'=>1,
                     'products' => [
                         ['id' => 2, 'qty' => 3],  // Switch
                         ['id' => 3, 'qty' => 4],  // AP
@@ -97,6 +100,7 @@ class TransferProductSeeder extends Seeder
                 [
                     'from' => 2, // Utara
                     'to' => 3,   // Selatan
+                    'user_id'=>1,
                     'products' => [
                         ['id' => 2, 'qty' => 2],  // Router
                         ['id' => 3, 'qty' => 1],  // Switch
@@ -109,6 +113,7 @@ class TransferProductSeeder extends Seeder
                 $transfer = Transaction::create([
                     'branch_id' => $scenario['from'],
                     'to_branch' => $scenario['to'],
+                    'user_id' => $scenario['user_id'],
                     'type' => 'out',
                     'purpose' => 'transfer',
                 ]);
@@ -126,6 +131,7 @@ class TransferProductSeeder extends Seeder
                 $receiveTransfer = Transaction::create([
                     'branch_id' => $scenario['to'],
                     'type' => 'in',
+                    'user_id'=>1,
                     'purpose' => 'transfer',
                 ]);
 

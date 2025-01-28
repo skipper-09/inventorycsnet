@@ -49,6 +49,7 @@ class PermissionSeeder extends Seeder
             'create-role',
             'update-role',
             'delete-role',
+            'read-setting',
         ];
         
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {

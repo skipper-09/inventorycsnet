@@ -40,7 +40,7 @@
                                 <label class="form-label" for="FilterTransaction">
                                     Filter Jenis Transaksi <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select select2 filter" id="FilterTransaction" name="transaksi">
+                                <select class="form-select select2" id="FilterTransaction" name="transaksi">
                                     <option value="">Pilih Jenis Transaksi</option>
                                     @foreach ($purposes as $purpose)
                                         @if ($purpose !== 'stock_in')

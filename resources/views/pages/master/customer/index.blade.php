@@ -52,6 +52,8 @@
                                 <th>Odp</th>
                                 <th>SN Modem</th>
                                 <th>Tujuan</th>
+                                <th>Tgl</th>
+                                <th>Dibuat</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

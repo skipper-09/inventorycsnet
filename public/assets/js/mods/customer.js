@@ -96,6 +96,14 @@ $(document).ready(function () {
                 name: "purpose",
             },
             {
+                data: "created_at",
+                name: "created_at",
+            },
+            {
+                data: "owner",
+                name: "owner",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,

@@ -64,6 +64,10 @@
                                                         {{ $loop->iteration }}. {{ $teknisi->user->name }}<br>
                                                     @endforeach</td>
                                                 </tr>
+                                                <tr>
+                                                    <th scope="row">Dibuat</th>
+                                                    <td class="text-uppercase">{{ $customer->transaction->userTransaction->name }}</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>

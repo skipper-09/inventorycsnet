@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionProduct;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -124,6 +125,7 @@ class TransferProductController extends Controller
                 'branch_id' => $request->from_branch,
                 'to_branch' => $request->to_branch,
                 'type' => 'out',
+                'user_id'=>Auth::user()->id,
                 'purpose' => 'transfer'
             ]);
 
@@ -152,7 +154,7 @@ class TransferProductController extends Controller
      */
     public function details($id)
     {
-        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product'])
+        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product','userTransaction'])
             ->where('id', $id)
             ->where('purpose', 'transfer')
             ->where('type', 'out')

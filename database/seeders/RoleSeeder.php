@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         $admin = Role::create(['name' => 'Administrator']);
 
         $developer->givePermissionTo([
-            'read-dashboard',
+           'read-dashboard',
             'read-branch',
             'create-branch',
             'update-branch',
@@ -39,6 +39,10 @@ class RoleSeeder extends Seeder
             'delete-zone',
             'read-zone-odp',
             'delete-zone-odp',
+            'read-product-role',
+            'create-product-role',
+            'update-product-role',
+            'delete-product-role',
             'read-user',
             'create-user',
             'update-user',
@@ -47,6 +51,7 @@ class RoleSeeder extends Seeder
             'create-role',
             'update-role',
             'delete-role',
+            'read-setting'
         ]);
 
         $admin->givePermissionTo([

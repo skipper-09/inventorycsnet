@@ -54,4 +54,7 @@ class User extends Authenticatable
     public function branch(){
         return $this->belongsTo(Branch::class);
     }
+    public function Transaction(){
+        return $this->hasOne(Transaction::class);
+    }
 }

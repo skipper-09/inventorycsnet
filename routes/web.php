@@ -94,12 +94,12 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         //product role
         Route::prefix('product-role')->group(function () {
-            Route::get('', [ProductRoleController::class, 'index'])->name('productrole');
+            Route::get('', [ProductRoleController::class, 'index'])->name('productrole')->middleware('can:read-product-role');
             Route::get('getdata', [ProductRoleController::class, 'getData'])->name('productrole.getdata');
             // Route::post('store', [ProductRoleController::class, 'store'])->name('productrole.store');
-            Route::get('/edit/{id}', [ProductRoleController::class, 'show'])->name('productrole.edit');
+            Route::get('/edit/{id}', [ProductRoleController::class, 'show'])->name('productrole.edit')->middleware('can:update-product-role');
             Route::put('/update/{id}', [ProductRoleController::class, 'update'])->name('productrole.update');
-            Route::delete('/delete/{id}', [ProductRoleController::class, 'destroy'])->name('productrole.delete');
+            Route::delete('/delete/{id}', [ProductRoleController::class, 'destroy'])->name('productrole.delete')->middleware('can:delete-product-role');
         });
 
         //customer
@@ -195,7 +195,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
 
         Route::prefix('general')->group(function () {
-            Route::get('', [SettingController::class, 'index'])->name('setting');
+            Route::get('', [SettingController::class, 'index'])->name('setting')->middleware('can:read-setting');
             Route::post('/update', [SettingController::class, 'update'])->name('setting.update');
         });
     });

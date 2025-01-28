@@ -11,7 +11,9 @@ class Transaction extends Model
         'to_branch',
         'customer_id',
         'type',
-        'purpose'
+        'purpose',
+        'user_id',
+        'work_id',
     ];
     protected $primaryKey = 'id';
 
@@ -37,5 +39,13 @@ class Transaction extends Model
     public function Transactiontechnition()
     {
         return $this->hasMany(TransactionTechnition::class);
+    }
+    public function userTransaction()
+    {
+        return $this->belongsTo(User::class,'user_id','id');
+    }
+    public function WorkTransaction()
+    {
+        return $this->belongsTo(Work::class,'work_id','id');
     }
 }

@@ -18,6 +18,6 @@ class Product extends Model
 
     public function productRoles()
     {
-        return $this->hasMany(ProductRole::class);
+        return $this->hasOne(ProductRole::class);
     }
 }
