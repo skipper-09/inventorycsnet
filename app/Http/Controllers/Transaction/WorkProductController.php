@@ -35,11 +35,13 @@ class WorkProductController extends Controller
 
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $transaction = $data->transaction->first();
+
             $button = '';
-            $button .= ' <a href="' . route('workproduct.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
-            // $button .= ' <a href="' . route('workproduct.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-            // $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('workproduct.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-            //                                          class="fas fa-trash "></i></button>';
+            $button .= ' <a href="' . route('workproduct.edit', ['id' => $transaction->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $transaction->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+            $button .= ' <a href="' . route('workproduct.details', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('workproduct.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                                                     class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->editColumn('branch', function ($data) {
             // Ambil nama branch dari transaction pertama (jika ada)
@@ -60,13 +62,14 @@ class WorkProductController extends Controller
 
     public function details($id)
     {
-        $customer = Customer::with(['transaction', 'branch', 'zone'])
-            ->where('id', $id)->firstOrFail();
+        $work = Work::with(['transaction.userTransaction', 'transaction.branch'])->where('id', $id)->firstOrFail();
 
-        // dd($customer);
+        $transaction = $work->transaction->first();
+
         $data = [
-            'title' => 'Detail Customer',
-            'customer' => $customer
+            'title' => 'Work Product',
+            'work' => $work,
+            'transaction' => $transaction
         ];
 
         return view('pages.transaction.workproduct.detail', $data);
@@ -160,6 +163,164 @@ class WorkProductController extends Controller
                 'status' => "Gagal",
                 'message' => 'An error occurred: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    public function show($id)
+    {
+        $userRole = auth()->user()->getRoleNames()->first();
+
+        // Get products based on user role
+        if ($userRole == 'Developer' || $userRole == 'Administrator') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereHas('productRoles', function ($query) use ($userRole) {
+                $query->whereHas('role', function ($query) use ($userRole) {
+                    $query->where('name', $userRole);
+                });
+            })->get();
+        }
+
+        // Get transaction with relationships
+        $transaction = Transaction::with(['WorkTransaction', 'branch', 'Transactionproduct.product', 'Transactiontechnition.user'])
+            ->findOrFail($id);
+
+        $data = [
+            'title' => 'Work Product',
+            'transaction' => $transaction,
+            'branch' => Branch::all(),
+            'product' => $products,
+            'technitian' => User::with('roles')
+                ->whereHas('roles', function ($query) {
+                    $query->where('name', 'Listrik')
+                        ->orWhere('name', 'ODP');
+                })
+                ->orderByDesc('id')
+                ->get(),
+        ];
+
+        return view('pages.transaction.workproduct.edit', $data);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'purpose' => 'required|string|max:255',
+            'branch_id' => 'required|integer|exists:branches,id',
+            'technitian' => 'required',
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'purpose.required' => 'Tujuan wajib diisi.',
+            'branch_id.required' => 'ID cabang wajib diisi.',
+            'technitian.required' => 'Teknisi wajib diisi.',
+            'name.string' => 'Nama harus berupa teks.',
+            'purpose.string' => 'Tujuan harus berupa teks.',
+            'branch_id.integer' => 'ID cabang harus berupa angka.',
+            'branch_id.exists' => 'ID cabang tidak ditemukan.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $transaction = Transaction::with('WorkTransaction')->findOrFail($id);
+
+            // Update work
+            $transaction->WorkTransaction->update([
+                'name' => $request->name,
+            ]);
+
+            // Update transaction
+            $transaction->update([
+                'branch_id' => $request->branch_id,
+                'purpose' => $request->purpose,
+            ]);
+
+            // Delete existing transaction products
+            TransactionProduct::where('transaction_id', $transaction->id)->delete();
+
+            // Create new transaction products
+            foreach ($request->item_id as $index => $item) {
+                TransactionProduct::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $item,
+                    'quantity' => $request->quantity[$index]
+                ]);
+            }
+
+            // Delete existing transaction technitions
+            TransactionTechnition::where('transaction_id', $transaction->id)->delete();
+
+            // Create new transaction technitions
+            foreach ($request->technitian as $teknisi) {
+                TransactionTechnition::create([
+                    'transaction_id' => $transaction->id,
+                    'user_id' => $teknisi
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('workproduct')->with('success', 'Work product berhasil diperbarui');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Find the work record
+            $work = Work::findOrFail($id);
+
+            // Find associated transaction
+            $transaction = Transaction::where('work_id', $work->id)->first();
+
+            if ($transaction) {
+                // Delete transaction products
+                TransactionProduct::where('transaction_id', $transaction->id)
+                    ->chunkById(100, function ($products) {
+                        foreach ($products as $product) {
+                            $product->delete();
+                        }
+                    });
+
+                // Delete transaction technicians
+                TransactionTechnition::where('transaction_id', $transaction->id)
+                    ->chunkById(100, function ($technicians) {
+                        foreach ($technicians as $technician) {
+                            $technician->delete();
+                        }
+                    });
+
+                // Delete the transaction
+                $transaction->delete();
+            }
+
+            // Delete the work record
+            $work->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'status' => 'success',
+                'message' => 'Data berhasil dihapus',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
