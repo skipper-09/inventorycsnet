@@ -11,7 +11,7 @@ class Work extends Model
     ];
     protected $primaryKey = 'id';
 
-    public function Transaction()
+    public function transaction()
     {
         return $this->hasMany(Transaction::class);
     }

@@ -30,6 +30,13 @@ class UserSeeder extends Seeder
         ])->assignRole('Teknisi');
 
         User::create([
+            'name' => 'ODP',
+            'username' => 'odp123',
+            'email' => 'odp@gmail.com',
+            'password' => Hash::make('odp123'),
+        ])->assignRole('ODP');
+
+        User::create([
             'name' => 'Admin',
             'username' => 'admin',
             'email' => 'admin@gmail.com',

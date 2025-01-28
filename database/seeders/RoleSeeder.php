@@ -16,6 +16,8 @@ class RoleSeeder extends Seeder
         $developer = Role::create(['name' => 'Developer']);
         $teknisi = Role::create(['name' => 'Teknisi']);
         $admin = Role::create(['name' => 'Administrator']);
+        $odp = Role::create(['name' => 'ODP']);
+        $listrik = Role::create(['name' => 'Listrik']);
 
         $developer->givePermissionTo([
            'read-dashboard',
@@ -59,6 +61,14 @@ class RoleSeeder extends Seeder
         ]);
 
         $teknisi->givePermissionTo([
+            'read-dashboard',
+        ]);
+
+        $odp->givePermissionTo([
+            'read-dashboard',
+        ]);
+
+        $listrik->givePermissionTo([
             'read-dashboard',
         ]);
     }

@@ -21,9 +21,9 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             BranchSeeder::class,
             SettingSeeder::class,
-            BranchProductStockSeeder::class,
-            OutcomeProductSeeder::class,
-            TransferProductSeeder::class,
+            // BranchProductStockSeeder::class,
+            // OutcomeProductSeeder::class,
+            // TransferProductSeeder::class,
             // ZoneOdpSeeder::class,
             // OdpSeeder::class
         ]);

@@ -20,6 +20,17 @@ class ProductSeeder extends Seeder
                 'unit_id' => 1
             ],
             
+            [
+                'name' => 'Router',
+                'description' => 'Router Zte, Xpon',
+                'unit_id' => 1
+            ],
+
+            [
+                'name' => 'Switch',
+                'description' => 'Switch Zte, Xpon',
+                'unit_id' => 1
+            ],
         ]);
     }
 }

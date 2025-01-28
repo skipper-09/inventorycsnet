@@ -65,6 +65,12 @@
                         <span>Transfer Barang</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('workproduct') }}" class="">
+                        <i class="fas fa-cart-arrow-down"></i>
+                        <span>Pengeluaran Barang</span>
+                    </a>
+                </li>
                 {{-- <li>
                     <a href="{{ route('incomeproduct') }}" class="">
                         <i class="fas fa-cart-plus"></i>

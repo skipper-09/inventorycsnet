@@ -45,7 +45,7 @@ class CustomerController extends Controller
         })->editColumn('branch', function ($data) {
             return $data->branch->name;
         })->editColumn('zone', function ($data) {
-            return $data->zone->name;
+            return $data->zone->name ?? "";
         })->editColumn('purpose', function ($data) {
             $result = "";
 
@@ -107,7 +107,7 @@ class CustomerController extends Controller
             'purpose' => 'required|string|max:255',
             'phone' => 'required|integer|regex:/^62[0-9]{9,11}$/',
             'branch_id' => 'required|integer|exists:branches,id',
-            'zone_id' => 'required',
+            // 'zone_id' => 'required',
             'address' => 'required|string|max:255',
             'tecnition' => 'required',
         ], [
@@ -196,8 +196,6 @@ class CustomerController extends Controller
             ]);
         }
     }
-
-
 
     public function show($id)
     {

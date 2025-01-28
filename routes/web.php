@@ -19,6 +19,7 @@ use App\Http\Controllers\Settings\RoleController;
 use App\Http\Controllers\Settings\UserController;
 use App\Http\Controllers\Transaction\OutcomeProductController;
 use App\Http\Controllers\Transaction\TransferProductController;
+use App\Http\Controllers\Transaction\WorkProductController;
 
 Route::get('', function () {
     return redirect()->route('login');
@@ -126,6 +127,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit');
         Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
         Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete');
+    });
+
+    Route::prefix('work-product')->group(function () {
+        Route::get('', [WorkProductController::class, 'index'])->name('workproduct');
+        Route::get('getdata', [WorkProductController::class, 'getData'])->name('workproduct.getdata');
+        Route::get('/details/{id}', [WorkProductController::class, 'details'])->name('workproduct.details');
+        Route::get('/add', [WorkProductController::class, 'create'])->name('workproduct.add');
+        Route::post('store', [WorkProductController::class, 'store'])->name('workproduct.store');
+        Route::get('/edit/{id}', [WorkProductController::class, 'show'])->name('workproduct.edit');
+        Route::put('/update/{id}', [WorkProductController::class, 'update'])->name('workproduct.update');
+        Route::delete('/delete/{id}', [WorkProductController::class, 'destroy'])->name('workproduct.delete');
     });
 
     // report
