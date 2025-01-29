@@ -37,14 +37,20 @@ class WorkProductController extends Controller
             ->get();
 
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
-            // $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $userauth = User::with('roles')->where('id', FacadesAuth::id())->first();
             $transaction = $data->transaction->first();
 
             $button = '';
-            $button .= ' <a href="' . route('workproduct.edit', ['id' => $transaction->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $transaction->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
-            $button .= ' <a href="' . route('workproduct.details', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('workproduct.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                                                     class="fas fa-trash "></i></button>';
+            if ($userauth->can('update-work-product')) {
+                $button .= ' <a href="' . route('workproduct.edit', ['id' => $transaction->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $transaction->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+            }
+            if ($userauth->can('read-work-product')) {
+                $button .= ' <a href="' . route('workproduct.details', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+            }
+            if ($userauth->can('delete-work-product')) {
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('workproduct.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                        class="fas fa-trash "></i></button>';
+            }
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->editColumn('branch', function ($data) {
             // Ambil nama branch dari transaction pertama (jika ada)
