@@ -11,12 +11,10 @@ use App\Models\TransactionTechnition;
 use App\Models\User;
 use App\Models\Work;
 use Exception;
-use Illuminate\Container\Attributes\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 use Yajra\DataTables\Facades\DataTables;
 
 class WorkProductController extends Controller
@@ -24,14 +22,19 @@ class WorkProductController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Work Product',
+            'title' => 'Pengeluaran Barang'
         ];
         return view('pages.transaction.workproduct.index', $data);
     }
 
     public function getData()
     {
-        $data = Work::with(['transaction.userTransaction', 'transaction.branch'])->orderByDesc('id')->get();
+        $data = Work::with(['transaction.userTransaction', 'transaction.branch'])
+            ->whereHas('transaction', function ($query) {
+                $query->where('purpose', 'other');
+            })
+            ->orderByDesc('id')
+            ->get();
 
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
@@ -47,17 +50,13 @@ class WorkProductController extends Controller
             // Ambil nama branch dari transaction pertama (jika ada)
             $transaction = $data->transaction->first();
             return $transaction ? $transaction->branch->name : '-';
-        })->editColumn('purpose', function ($data) {
-            // Ambil nama branch dari transaction pertama (jika ada)
-            $transaction = $data->transaction->first();
-            return $transaction ? $transaction->purpose : '-';
         })->editColumn('created_at', function ($data) {
             return $data->created_at->format('d M Y H:i');
         })->addColumn('owner', function ($data) {
             // Ambil nama owner dari userTransaction di transaction pertama (jika ada)
             $transaction = $data->transaction->first();
             return $transaction ? $transaction->userTransaction->name : '-';
-        })->rawColumns(['action', 'branch', 'purpose', 'created_at', 'owner'])->make(true);
+        })->rawColumns(['action', 'branch', 'created_at', 'owner'])->make(true);
     }
 
     public function details($id)
@@ -67,7 +66,7 @@ class WorkProductController extends Controller
         $transaction = $work->transaction->first();
 
         $data = [
-            'title' => 'Work Product',
+            'title' => 'Pengeluaran Barang',
             'work' => $work,
             'transaction' => $transaction
         ];
@@ -90,7 +89,7 @@ class WorkProductController extends Controller
         }
 
         $data = [
-            'title' => 'Work Product',
+            'title' => 'Pengeluaran Barang',
             'branch' => Branch::all(),
             'product' => $products,
             'technitian' => User::with('roles')
@@ -109,12 +108,10 @@ class WorkProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'purpose' => 'required|string|max:255',
             'branch_id' => 'required|integer|exists:branches,id',
             'technitian' => 'required',
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'purpose.required' => 'Tujuan wajib diisi.',
             'branch_id.required' => 'ID cabang wajib diisi.',
             'technitian.required' => 'Teknisi wajib diisi.',
             'name.string' => 'Nama harus berupa teks.',
@@ -134,7 +131,7 @@ class WorkProductController extends Controller
                 'branch_id' => $request->branch_id,
                 'type' => 'out',
                 'user_id' => FacadesAuth::user()->id,
-                'purpose' => $request->purpose,
+                'purpose' => 'other',
                 'work_id' => $work->id
             ]);
 
@@ -155,13 +152,18 @@ class WorkProductController extends Controller
 
             DB::commit();
 
-            return redirect()->route('workproduct');
+            return redirect()->route('workproduct')->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Menambahkan Data!'
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+
+            Log::error($e);
+
+            return redirect()->route('workproduct')->with([
+                'status' => 'Error!',
+                'message' => 'Gagal Menambahkan Data!'
             ]);
         }
     }
@@ -186,7 +188,7 @@ class WorkProductController extends Controller
             ->findOrFail($id);
 
         $data = [
-            'title' => 'Work Product',
+            'title' => 'Pengeluaran Barang',
             'transaction' => $transaction,
             'branch' => Branch::all(),
             'product' => $products,
@@ -206,12 +208,10 @@ class WorkProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'purpose' => 'required|string|max:255',
             'branch_id' => 'required|integer|exists:branches,id',
             'technitian' => 'required',
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'purpose.required' => 'Tujuan wajib diisi.',
             'branch_id.required' => 'ID cabang wajib diisi.',
             'technitian.required' => 'Teknisi wajib diisi.',
             'name.string' => 'Nama harus berupa teks.',
@@ -233,7 +233,7 @@ class WorkProductController extends Controller
             // Update transaction
             $transaction->update([
                 'branch_id' => $request->branch_id,
-                'purpose' => $request->purpose,
+                'purpose' => 'other',
             ]);
 
             // Delete existing transaction products
@@ -261,13 +261,16 @@ class WorkProductController extends Controller
 
             DB::commit();
 
-            return redirect()->route('workproduct')->with('success', 'Work product berhasil diperbarui');
+            return redirect()->route('workproduct')->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Mengupdate Data!'
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+
+            return redirect()->route('workproduct')->with([
+                'status' => 'Error!',
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -310,17 +313,19 @@ class WorkProductController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true,
                 'status' => 'success',
-                'message' => 'Data berhasil dihapus',
-            ], 200);
+                'success' => true,
+                'message' => 'Data Berhasil Dihapus!'
+            ]);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json([
-                'success' => false,
                 'status' => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
+                'success' => false,
+                'message' => 'Data Gagal dihapus!',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

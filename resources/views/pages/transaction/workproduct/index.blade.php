@@ -37,7 +37,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('workproduct.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
+                        <a href="{{ route('workproduct.add') }}" class="btn btn-primary btn-sm">Tambah
+                            {{ $title }}</a>
                     </div>
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
@@ -48,7 +49,6 @@
                                     <th>No</th>
                                     <th>Name</th>
                                     <th>Cabang</th>
-                                    <th>Tujuan</th>
                                     <th>Tanggal</th>
                                     <th>Dibuat</th>
                                     <th>Action</th>
@@ -79,4 +79,16 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/workproduct.js') }}"></script>
+
+    <script>
+        @if (Session::has('message'))
+            Swal.fire({
+                title: `{{ Session::get('status') }}`,
+                text: `{{ Session::get('message') }}`,
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+    </script>
 @endpush

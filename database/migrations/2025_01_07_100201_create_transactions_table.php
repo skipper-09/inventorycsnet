@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('work_id')->nullable();
             $table->unsignedBigInteger('user_id');
             $table->enum('type',['in','out'])->default('out');
-            $table->enum('purpose',['stock_in','psb','repair','transfer'])->default('stock_in');
+            $table->enum('purpose',['stock_in','psb','repair','transfer', 'other'])->default('stock_in');
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('to_branch')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
