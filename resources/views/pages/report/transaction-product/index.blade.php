@@ -61,6 +61,7 @@
                             </div>
 
                             <!-- Export Button -->
+                            @can('export-transaction-product')
                             <div class="col-12 col-md-4">
                                 <div class="d-flex justify-content-end">
                                     <button data-bs-toggle="modal" data-bs-target="#modal8" id="export-button" class="btn btn-outline-success">
@@ -68,6 +69,7 @@
                                     </button>
                                 </div>
                             </div>
+                            @endcan
                         </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"

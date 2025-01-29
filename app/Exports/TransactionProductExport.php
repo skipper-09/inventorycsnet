@@ -109,20 +109,22 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
     public function map($group): array
     {
         $firstRow = $group->first();
+        // $technition = $group->map(function ($item) {
+        //     $technicians = $item->transaksi->Transactiontechnition->map(function ($technition) {
+        //         return "• " . ($technition->user->name ?? '-');
+        //     });
+        //     return $technicians->implode("\n");
+        // })->implode("\n");
+
+        $technicians = $firstRow->transaksi->Transactiontechnition->map(function ($technition) {
+            return "• " . ($technition->user->name ?? '-');
+        })->implode("\n");
 
         // Format products with bullet points and new lines
         $products = $group->map(function ($item) {
             $unit = $item->product->unit->name ?? '';
             return "• {$item->product->name} ({$item->quantity} {$unit})";
         })->implode("\n");
-
-        $technition = $group->map(function ($item) {
-            $technicians = $item->transaksi->Transactiontechnition->map(function ($technition) {
-                return "• " . ($technition->user->name ?? '-');
-            });
-            return $technicians->implode("\n");
-        })->implode("\n");
-
 
         static $index = 0;
         $index++;
@@ -147,7 +149,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->getTransactionPurposeText(),
                     $products,
                     $firstRow->transaksi->userTransaction->name,
-                    $technition,
+                    $technicians,
                 ];
             case 'repair':
                 return [
@@ -158,7 +160,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->getTransactionPurposeText(),
                     $products,
                     $firstRow->transaksi->userTransaction->name,
-                    $technition,
+                    $technicians,
                 ];
             case 'other':
                 return [
@@ -168,7 +170,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->getTransactionPurposeText(),
                     $products,
                     $firstRow->transaksi->userTransaction->name,
-                    $technition,
+                    $technicians,
                 ];
             default:
                 return [
@@ -182,7 +184,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->getTransactionPurposeText(),
                     $products,
                     $firstRow->transaksi->userTransaction->name,
-                    $technition,
+                    $technicians ?? '-',
                 ];
         }
     }

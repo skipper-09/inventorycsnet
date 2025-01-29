@@ -50,6 +50,8 @@ class PermissionSeeder extends Seeder
             'create-work-product',
             'update-work-product',
             'delete-work-product',
+            'read-transaction-product',
+            'export-transaction-product',
             // Setting
             'read-user',
             'create-user',

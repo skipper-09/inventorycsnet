@@ -281,8 +281,7 @@ class CustomerController extends Controller
 
             if (is_array($request->tecnition)) {
                 TransactionTechnition::where('transaction_id', $transaction->id)->delete();
-
-                foreach ($request->tecnition as $teknisi) {
+                foreach ($request->tecnition as $index => $teknisi) {
                     TransactionTechnition::create([
                         'transaction_id' => $transaction->id,
                         'user_id' => $teknisi

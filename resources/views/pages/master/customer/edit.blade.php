@@ -154,7 +154,7 @@
 
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="technition">Pilih Teknisi</label>
-                                    <select name="technition[]" class="form-control select2form" multiple>
+                                    <select name="tecnition[]" class="form-control select2form" multiple>
                                         <option value="">Pilih Teknisi</option>
                                         @foreach ($technition as $item)
                                         <option value="{{ $item->id }}" @if(in_array($item->id,
