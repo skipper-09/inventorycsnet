@@ -49,7 +49,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
+                                    <th>Pekerjaan</th>
                                     <th>Cabang</th>
                                     <th>Tanggal</th>
                                     <th>Dibuat</th>
