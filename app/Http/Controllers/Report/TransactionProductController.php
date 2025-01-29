@@ -29,13 +29,15 @@ class TransactionProductController extends Controller
 
     public function getData(Request $request)
     {
-        $query = TransactionProduct::with(['transaksi', 'product.unit'])
+        $query = TransactionProduct::with(['transaksi.WorkTransaction', 'product.unit'])
             ->whereHas('transaksi', function ($query) {
                 $query->where('type', 'out')
                     ->where('purpose', '!=', 'stock_in');
             })
             ->orderByDesc('created_at'); // Moved the orderByDesc here
 
+
+            
         // Apply transaction purpose filter
         if ($request->filled('transaksi')) {
             $query->whereHas('transaksi', function ($q) use ($request) {
@@ -63,15 +65,19 @@ class TransactionProductController extends Controller
                 'created_at' => $firstRow->created_at->format('d-m-Y H:i'),
                 'transaksi' => $firstRow->getTransactionPurpose(),
                 'pelanggan' => (function () use ($firstRow) {
-                    switch ($firstRow->transaksi->purpose) {
-                        case 'psb':
-                            return 'Pemasangan Customer ' . $firstRow->transaksi->customer->name;
-                        case 'repair':
-                            return 'Perbaikan Customer ' . $firstRow->transaksi->customer->name;
-                        case 'transfer':
-                            return 'Pindah Barang Dari ' . $firstRow->transaksi->branch->name . ' Ke ' . $firstRow->transaksi->tobranch->name;
-                        default:
-                            return '<span class="badge badge-label-success">Stok Masuk</span>';
+                    if (optional($firstRow->transaksi->WorkTransaction)->id === null) {
+                        switch ($firstRow->transaksi->purpose) {
+                            case 'psb':
+                                return 'Pemasangan Customer ' . $firstRow->transaksi->customer->name;
+                            case 'repair':
+                                return 'Perbaikan Customer ' . $firstRow->transaksi->customer->name;
+                            case 'transfer':
+                                return 'Pindah Barang Dari ' . $firstRow->transaksi->branch->name . ' Ke ' . $firstRow->transaksi->tobranch->name;
+                            default:
+                                return '<span class="badge badge-label-success">Stok Masuk</span>';
+                        }
+                    } else {
+                        return $firstRow->transaksi->WorkTransaction->name;
                     }
                 })(),
                 'products' => $products,
