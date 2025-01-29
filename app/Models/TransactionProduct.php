@@ -33,6 +33,8 @@ class TransactionProduct extends Model
                 return '<div class="badge badge-label-warning">Perbaikan</div>';
             case 'transfer':
                 return '<div class="badge badge-label-info">Transfer</div>';
+            case 'other':
+                return '<div class="badge badge-label-info">Other</div>';
             default:
                 return '<span class="badge badge-label-success">Stok Masuk</span>';
         }
@@ -47,6 +49,8 @@ class TransactionProduct extends Model
                 return 'Perbaikan';
             case 'transfer':
                 return 'Transfer';
+            case 'other':
+                return 'Other';
             default:
                 return 'Stok Masuk';
         }

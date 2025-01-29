@@ -24,9 +24,14 @@
                         <label class="form-label w-100" for="unit_id">Jenis</label>
                         <select name="type_transaction" id="type_transaction" class="form-control select2">
                             <option value="">Semua Jenis</option>
-                            <option value="transfer">Transfer</option>
-                            <option value="psb">Pemasangan baru</option>
-                            <option value="repair">Perbaikan</option>
+                            @foreach ($purposes as $purpose)
+                            @if ($purpose !== 'stock_in')
+                                <option value="{{ $purpose }}"
+                                    @if (request('transaksi') == $purpose) selected @endif>
+                                    {{ $purpose == 'psb' ? 'Pemasangan Baru' : ucwords(str_replace('_', ' ', $purpose)) }}
+                                </option>
+                            @endif
+                        @endforeach
                         </select>
                     </div>
                 </div>

@@ -26,7 +26,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
 
     public function collection()
     {
-        $query = TransactionProduct::with(['transaksi.customer', 'transaksi.branch', 'transaksi.toBranch', 'product.unit'])
+        $query = TransactionProduct::with(['transaksi.customer', 'transaksi.branch', 'transaksi.toBranch', 'product.unit','transaksi.Transactiontechnition.user'])
             ->whereHas('transaksi', function ($query) {
                 $query->where('type', 'out')
                     ->where('purpose', '!=', 'stock_in');
@@ -41,7 +41,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
         // Filter berdasarkan rentang tanggal
         if ($this->request->filled('start_date') && $this->request->filled('end_date')) {
             $query->whereDate('created_at', '>=', $this->request->input('start_date'))
-                  ->whereDate('created_at', '<=', $this->request->input('end_date'));
+                ->whereDate('created_at', '<=', $this->request->input('end_date'));
         }
         // elseif ($this->request->filled('start_date')) {
         //     $query->whereDate('created_at', '>=', $this->request->input('start_date'));
@@ -64,6 +64,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'Dari Cabang',
                     'Ke Cabang',
                     'Tujuan Transaksi',
+                    'Dibuat',
                     'Produk'
                 ];
             case 'psb':
@@ -74,7 +75,19 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'Nama Customer',
                     'Alamat Customer',
                     'Tujuan Transaksi',
-                    'Produk'
+                    'Produk',
+                    'Dibuat',
+                    'Teknisi Bertugas'
+                ];
+            case 'other':
+                return [
+                    'No',
+                    'Tanggal',
+                    'Nama Pekerjaan',
+                    'Tujuan Transaksi',
+                    'Produk',
+                    'Dibuat',
+                    'Teknisi Bertugas',
                 ];
             default:
                 return [
@@ -82,10 +95,13 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'Tanggal',
                     'Dari Cabang',
                     'Ke Cabang',
+                    'Pekerjaan',
                     'Nama Customer',
                     'Alamat Customer',
                     'Tujuan Transaksi',
-                    'Produk'
+                    'Produk',
+                    'Dibuat',
+                    'Teknisi Bertugas',
                 ];
         }
     }
@@ -100,6 +116,14 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
             return "• {$item->product->name} ({$item->quantity} {$unit})";
         })->implode("\n");
 
+        $technition = $group->map(function ($item) {
+            $technicians = $item->transaksi->Transactiontechnition->map(function ($technition) {
+                return "• " . ($technition->user->name ?? '-');
+            });
+            return $technicians->implode("\n");
+        })->implode("\n");
+
+
         static $index = 0;
         $index++;
 
@@ -111,6 +135,7 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->transaksi->branch->name ?? '-',
                     $firstRow->transaksi->toBranch->name ?? '-',
                     $firstRow->getTransactionPurposeText(),
+                    $firstRow->transaksi->userTransaction->name,
                     $products
                 ];
             case 'psb':
@@ -120,7 +145,30 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->transaksi->customer->name ?? '-',
                     $firstRow->transaksi->customer->address ?? '-',
                     $firstRow->getTransactionPurposeText(),
-                    $products
+                    $products,
+                    $firstRow->transaksi->userTransaction->name,
+                    $technition,
+                ];
+            case 'repair':
+                return [
+                    $index,
+                    $firstRow->created_at->format('d-m-Y H:i'),
+                    $firstRow->transaksi->customer->name ?? '-',
+                    $firstRow->transaksi->customer->address ?? '-',
+                    $firstRow->getTransactionPurposeText(),
+                    $products,
+                    $firstRow->transaksi->userTransaction->name,
+                    $technition,
+                ];
+            case 'other':
+                return [
+                    $index,
+                    $firstRow->created_at->format('d-m-Y H:i'),
+                    $firstRow->transaksi->WorkTransaction->name ?? '-',
+                    $firstRow->getTransactionPurposeText(),
+                    $products,
+                    $firstRow->transaksi->userTransaction->name,
+                    $technition,
                 ];
             default:
                 return [
@@ -128,10 +176,13 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     $firstRow->created_at->format('d-m-Y H:i'),
                     $firstRow->transaksi->branch->name ?? '-',
                     $firstRow->transaksi->toBranch->name ?? '-',
+                    $firstRow->transaksi->WorkTransaction->name ?? '-',
                     $firstRow->transaksi->customer->name ?? '-',
                     $firstRow->transaksi->customer->address ?? '-',
                     $firstRow->getTransactionPurposeText(),
-                    $products
+                    $products,
+                    $firstRow->transaksi->userTransaction->name,
+                    $technition,
                 ];
         }
     }
@@ -153,9 +204,26 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'A' => 5,  // No
                     'B' => 20, // Tanggal
                     'C' => 30, // Nama Customer
-                    'D' => 40, // Alamat Customer
-                    'E' => 20, // Tujuan Transaksi
+                    'D' => 20, // Alamat Customer
+                    'E' => 40, // Tujuan Transaksi
                     'F' => 50, // Produk
+                ];
+            case 'repair':
+                return [
+                    'A' => 5,  // No
+                    'B' => 20, // Tanggal
+                    'C' => 30, // Nama Customer
+                    'D' => 20, // Alamat Customer
+                    'E' => 40, // Tujuan Transaksi
+                    'F' => 50, // Produk
+                ];
+            case 'other':
+                return [
+                    'A' => 5,  // No
+                    'B' => 20, // Tanggal
+                    'C' => 30, // Nama Customer
+                    'D' => 20, // Tujuan Transaksi
+                    'E' => 50, // Produk
                 ];
             default:
                 return [
@@ -166,17 +234,19 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                     'E' => 20,
                     'F' => 50,
                     'G' => 50,
-                    'H' => 50,
+                    'H' => 30,
+                    'I' => 50,
                 ];
         }
     }
 
     public function styles(Worksheet $sheet)
     {
-        $lastColumn = in_array($this->purpose, ['transfer', 'psb']) ? 'F' : 'H'; // Sesuaikan dengan kolom terakhir yang relevan
+        $headings = $this->headings();
+        $lastColumnIndex = count($headings);
+        $lastColumn = chr(64 + $lastColumnIndex);
         $lastRow = $sheet->getHighestRow();
-
-        // Style for all cells
+    
         $sheet->getStyle("A1:{$lastColumn}{$lastRow}")->applyFromArray([
             'borders' => [
                 'allBorders' => [
@@ -184,54 +254,63 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
                 ],
             ],
         ]);
-
-        // Header styling
+    
+        // Header styling: Bold, background color, and centered alignment
         $headerStyle = [
             'font' => [
                 'bold' => true,
-                'size' => 11,
+                'size' => 12, // Increased font size for better readability
             ],
             'fill' => [
                 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => ['rgb' => 'CCCCCC']
+                'startColor' => ['rgb' => '4F81BD'], // Changed to a blue shade for better contrast
             ],
             'alignment' => [
                 'vertical' => Alignment::VERTICAL_CENTER,
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
             ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                ],
+            ],
         ];
-
-        // Content styling
+    
+        // Content styling: Ensuring text is wrapped and aligned to the top
         $contentStyle = [
             'alignment' => [
                 'vertical' => Alignment::VERTICAL_TOP,
-                'wrapText' => true,
+                'wrapText' => true,  // Wrap long text within cells
             ],
         ];
-
-        // Apply styles
+    
+        // Apply header style to the first row
         $sheet->getStyle("A1:{$lastColumn}1")->applyFromArray($headerStyle);
+        // Apply content style from row 2 onwards
         $sheet->getStyle("A2:{$lastColumn}{$lastRow}")->applyFromArray($contentStyle);
-
-        // Center align specific columns
-        $sheet->getStyle("A2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-
+    
+        // Specific column adjustments:
+        // - Center align the 'No' column (Column A)
+        // - Center align the 'Tanggal' column (Column B)
+        // - Center align branch columns for 'transfer' type (Columns C and D)
+        // - Left align customer name and address (Columns C and D for 'psb' and 'repair')
+        $sheet->getStyle("A2:A{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle("B2:B{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
         if ($this->purpose === 'transfer') {
-            // Center align branch columns for transfer
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-        } elseif ($this->purpose === 'psb') {
-            // Left align customer name and address
+        } elseif ($this->purpose === 'psb' || $this->purpose === 'repair') {
             $sheet->getStyle("C2:D{$lastRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
         }
-
-        // Set row height for header
-        $sheet->getRowDimension(1)->setRowHeight(20);
-
-        // Set minimum row height for content
+    
+        // Adjust row height to improve readability, especially for multi-line text cells
+        $sheet->getRowDimension(1)->setRowHeight(25); // Taller header row for readability
         for ($i = 2; $i <= $lastRow; $i++) {
-            $sheet->getRowDimension($i)->setRowHeight(-1); // Auto height
+            $sheet->getRowDimension($i)->setRowHeight(-1); // Auto height based on content
         }
-
+    
         return [];
     }
+    
+    
 }
