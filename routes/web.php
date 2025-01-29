@@ -117,27 +117,29 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
     });
 
-    //transfer product
-    Route::prefix('transfer-product')->group(function () {
-        Route::get('', [TransferProductController::class, 'index'])->name('transfer');
-        Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
-        Route::get('/details/{id}', [TransferProductController::class, 'details'])->name('transfer.details');
-        Route::get('/add', [TransferProductController::class, 'create'])->name('transfer.add');
-        Route::post('store', [TransferProductController::class, 'store'])->name('transfer.store');
-        Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit');
-        Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
-        Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete');
-    });
+    Route::prefix('transaction')->group(function () {
+        //transfer product
+        Route::prefix('transfer-product')->group(function () {
+            Route::get('', [TransferProductController::class, 'index'])->name('transfer')->middleware('can:read-transfer-product');
+            Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
+            Route::get('/details/{id}', [TransferProductController::class, 'details'])->name('transfer.details')->middleware('can:read-transfer-product');
+            Route::get('/add', [TransferProductController::class, 'create'])->name('transfer.add')->middleware('can:create-transfer-product');
+            Route::post('store', [TransferProductController::class, 'store'])->name('transfer.store');
+            Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit')->middleware('can:update-transfer-product');
+            Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
+            Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete')->middleware('can:delete-transfer-product');
+        });
 
-    Route::prefix('work-product')->group(function () {
-        Route::get('', [WorkProductController::class, 'index'])->name('workproduct');
-        Route::get('getdata', [WorkProductController::class, 'getData'])->name('workproduct.getdata');
-        Route::get('/details/{id}', [WorkProductController::class, 'details'])->name('workproduct.details');
-        Route::get('/add', [WorkProductController::class, 'create'])->name('workproduct.add');
-        Route::post('store', [WorkProductController::class, 'store'])->name('workproduct.store');
-        Route::get('/edit/{id}', [WorkProductController::class, 'show'])->name('workproduct.edit');
-        Route::put('/update/{id}', [WorkProductController::class, 'update'])->name('workproduct.update');
-        Route::delete('/delete/{id}', [WorkProductController::class, 'destroy'])->name('workproduct.delete');
+        Route::prefix('work-product')->group(function () {
+            Route::get('', [WorkProductController::class, 'index'])->name('workproduct')->middleware('can:read-work-product');
+            Route::get('getdata', [WorkProductController::class, 'getData'])->name('workproduct.getdata');
+            Route::get('/details/{id}', [WorkProductController::class, 'details'])->name('workproduct.details')->middleware('can:read-work-product');
+            Route::get('/add', [WorkProductController::class, 'create'])->name('workproduct.add')->middleware('can:create-work-product');
+            Route::post('store', [WorkProductController::class, 'store'])->name('workproduct.store');
+            Route::get('/edit/{id}', [WorkProductController::class, 'show'])->name('workproduct.edit')->middleware('can:update-work-product');
+            Route::put('/update/{id}', [WorkProductController::class, 'update'])->name('workproduct.update');
+            Route::delete('/delete/{id}', [WorkProductController::class, 'destroy'])->name('workproduct.delete')->middleware('can:delete-work-product');
+        });
     });
 
     // report
@@ -148,10 +150,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
 
         Route::prefix('transaction-product')->group(function () {
-            Route::get('', [TransactionProductController::class, 'index'])->name('report.transaction-product');
+            Route::get('', [TransactionProductController::class, 'index'])->name('report.transaction-product')->middleware('can:read-transaction-product');
             Route::get('getdata', [TransactionProductController::class, 'getData'])->name('report.transaction-product.getdata');
-            Route::get('/details/{id}', [TransactionProductController::class, 'details'])->name('report.transaction-product.details');
-            Route::post('/export', [TransactionProductController::class, 'exportExcel'])->name('report.transaction-product.export');
+            Route::get('/details/{id}', [TransactionProductController::class, 'details'])->name('report.transaction-product.details')->middleware('can:read-transaction-product');
+            Route::post('/export', [TransactionProductController::class, 'exportExcel'])->name('report.transaction-product.export')->middleware('can:export-transaction-product');
             // Route::get('/add', [TransactionProductController::class,'create'])->name('report.transaction-product.add');
             // Route::post('store', [TransactionProductController::class, 'store'])->name('report.transaction-product.store');
             // Route::get('/edit/{id}', [TransactionProductController::class, 'show'])->name('report.transaction-product.edit');

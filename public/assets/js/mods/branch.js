@@ -51,6 +51,35 @@ $(document).ready(function () {
     });
 
     var route = $("#scroll-sidebar-datatable").data("route");
+    var hasActionPermission = $("#scroll-sidebar-datatable").data("has-action-permission");
+
+    var columns = [
+        {
+            data: "DT_RowIndex",
+            searchable: false,
+            width: "10px",
+            class: "text-center",
+        },
+        {
+            data: "name",
+            name: "name",
+        },
+        {
+            data: "address",
+            name: "address",
+        }
+    ];
+
+    // Only add action column if user has permission
+    if (hasActionPermission) {
+        columns.push({
+            data: "action",
+            name: "action",
+            orderable: false,
+            searchable: false,
+        });
+    }
+
     var table = $("#scroll-sidebar-datatable").DataTable({
         scrollY: "350px",
         scrollCollapse: !0,
@@ -67,28 +96,7 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         ajax: route,
-        columns: [
-            {
-                data: "DT_RowIndex",
-                searchable: false,
-                width: "10px",
-                class: "text-center",
-            },
-            {
-                data: "name",
-                name: "name",
-            },
-            {
-                data: "address",
-                name: "address",
-            },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-            },
-        ],
+        columns: columns,
     });
 
     $("#addBranchForm").on("submit", function (e) {

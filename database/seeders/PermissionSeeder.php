@@ -41,6 +41,16 @@ class PermissionSeeder extends Seeder
             'create-product-role',
             'update-product-role',
             'delete-product-role',
+            // Transaction
+            'read-transfer-product',
+            'create-transfer-product',
+            'update-transfer-product',
+            'delete-transfer-product',
+            'read-work-product',
+            'create-work-product',
+            'update-work-product',
+            'delete-work-product',
+            // Setting
             'read-user',
             'create-user',
             'update-user',

@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionProduct;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -47,7 +48,7 @@ class TransferProductController extends Controller
             ->addColumn('products', function ($row) {
                 $products = [];
                 foreach ($row->Transactionproduct as $tp) {
-                    $unit = $tp->product->unit->name ??'';
+                    $unit = $tp->product->unit->name ?? '';
                     $products[] = $tp->product->name . ' (' . $tp->quantity . ' ' . $unit . ')';
                 }
                 return implode('<br>', $products);
@@ -56,8 +57,11 @@ class TransferProductController extends Controller
                 return $row->created_at->format('d M Y H:i');
             })
             ->addColumn('action', function ($row) {
+                $userauth = User::with('roles')->where('id', Auth::id())->first();
+
                 $button = '';
-                $button .= '<a href="' . route('transfer.details', ['id' => $row->id]) . '"
+                if ($userauth->can('read-transfer-product')) {
+                    $button .= '<a href="' . route('transfer.details', ['id' => $row->id]) . '"
                           class="btn btn-sm btn-info" 
                           data-id="' . $row->id . '" 
                           data-type="details" 
@@ -66,7 +70,9 @@ class TransferProductController extends Controller
                           title="Details">
                            <i class="fas fa-eye"></i>
                        </a>';
-                $button .= '<a href="' . route('transfer.edit', ['id' => $row->id]) . '"
+                }
+                if ($userauth->can('update-transfer-product')) {
+                    $button .= '<a href="' . route('transfer.edit', ['id' => $row->id]) . '"
                           class="btn btn-sm btn-success" 
                           data-id="' . $row->id . '" 
                           data-type="edit" 
@@ -75,7 +81,9 @@ class TransferProductController extends Controller
                           title="Edit Data">
                            <i class="fas fa-pen"></i>
                        </a>';
-                $button .= ' <button class="btn btn-sm btn-danger action" 
+                }
+                if ($userauth->can('delete-transfer-product')) {
+                    $button .= ' <button class="btn btn-sm btn-danger action" 
                                data-id="' . $row->id . '" 
                                data-type="delete" 
                                data-route="' . route('transfer.delete', ['id' => $row->id]) . '" 
@@ -84,6 +92,7 @@ class TransferProductController extends Controller
                                title="Delete Data">
                             <i class="fas fa-trash-alt"></i>
                         </button>';
+                }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->rawColumns(['action', 'from_branch', 'to_branch', 'products', 'type', 'date'])
@@ -125,7 +134,7 @@ class TransferProductController extends Controller
                 'branch_id' => $request->from_branch,
                 'to_branch' => $request->to_branch,
                 'type' => 'out',
-                'user_id'=>Auth::user()->id,
+                'user_id' => Auth::user()->id,
                 'purpose' => 'transfer'
             ]);
 
@@ -154,7 +163,7 @@ class TransferProductController extends Controller
      */
     public function details($id)
     {
-        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product','userTransaction'])
+        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product', 'userTransaction'])
             ->where('id', $id)
             ->where('purpose', 'transfer')
             ->where('type', 'out')

@@ -32,21 +32,26 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('branch.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
-                    </div>
+                    @can('create-branch')
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                                data-action="create" data-proses="{{ route('branch.store') }}"
+                                data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        </div>
+                    @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('branch.getdata') }}">
+                            data-route="{{ route('branch.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-branch', 'delete-branch'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Cabang</th>
                                     <th>Alamat</th>
+                                    @canany(['update-branch', 'delete-branch'])
                                     <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                         </table>
