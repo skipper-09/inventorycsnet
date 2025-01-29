@@ -22,7 +22,7 @@ class UserController extends Controller
         $data = [
             'title' => 'User',
             'roles' => Role::where('name', '!=', 'Developer')->get(),
-            'branch'=> Branch::all(),
+            'branch' => Branch::all(),
         ];
 
         return view('pages.settings.user.index', $data);
@@ -30,18 +30,21 @@ class UserController extends Controller
 
     public function getData()
     {
-        $user = User::with(['roles','branch'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
+        $user = User::with(['roles', 'branch'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
 
         return DataTables::of($user)->addIndexColumn()->addColumn('action', function ($data) {
-            // $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
 
-            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('user.edit', ['id' => $data->id]) . '" data-proses="' . route('user.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            if ($userauth->can('update-user')) {
+                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('user.edit', ['id' => $data->id]) . '" data-proses="' . route('user.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
             data-action="edit" data-title="User" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                         class="fas fa-pen "></i></button>';
-
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('user.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+            }
+            if ($userauth->can('delete-user')) {
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('user.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                         class="fas fa-trash "></i></button>';
+            }
 
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
@@ -58,7 +61,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-     
+
         $request->validate([
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|max:255',
