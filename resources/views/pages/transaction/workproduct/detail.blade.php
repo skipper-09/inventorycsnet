@@ -104,11 +104,6 @@
                                         <a href="{{ route('workproduct') }}" class="btn btn-secondary">
                                             <i class="fas fa-arrow-left me-1"></i> Kembali
                                         </a>
-                                        {{-- @if($transfer->type == 'out')
-                                        <a href="{{ route('transfer.edit', $transfer->id) }}" class="btn btn-primary">
-                                            <i class="fas fa-edit me-1"></i> Edit
-                                        </a>
-                                        @endif --}}
                                     </div>
                                 </div>
                             </div>

@@ -68,6 +68,8 @@ class RoleSeeder extends Seeder
 
         $admin->givePermissionTo([
             'read-dashboard',
+            'read-transfer-product',
+            'read-work-product',
         ]);
 
         $teknisi->givePermissionTo([

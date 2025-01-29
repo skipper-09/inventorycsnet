@@ -12,7 +12,7 @@ use App\Models\User;
 use App\Models\Work;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth as FacadesAuth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
@@ -37,7 +37,7 @@ class WorkProductController extends Controller
             ->get();
 
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
-            $userauth = User::with('roles')->where('id', FacadesAuth::id())->first();
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
             $transaction = $data->transaction->first();
 
             $button = '';
@@ -136,7 +136,7 @@ class WorkProductController extends Controller
             $transaction = Transaction::create([
                 'branch_id' => $request->branch_id,
                 'type' => 'out',
-                'user_id' => FacadesAuth::user()->id,
+                'user_id' => Auth::user()->id,
                 'purpose' => 'other',
                 'work_id' => $work->id
             ]);

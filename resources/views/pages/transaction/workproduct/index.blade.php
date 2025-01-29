@@ -45,7 +45,8 @@
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('workproduct.getdata') }}">
+                            data-route="{{ route('workproduct.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['read-work-product', 'update-work-product', 'delete-work-product'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -53,8 +54,8 @@
                                     <th>Cabang</th>
                                     <th>Tanggal</th>
                                     <th>Dibuat</th>
-                                    @canany(['update-work-product', 'delete-work-product'])
-                                    <th>Action</th>
+                                    @canany(['read-work-product','update-work-product', 'delete-work-product'])
+                                        <th>Action</th>
                                     @endcanany
                                 </tr>
                             </thead>
