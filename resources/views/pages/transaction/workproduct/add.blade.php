@@ -71,23 +71,7 @@
                                             </div>
                                         @enderror
                                     </div>
-
-
-                                    <div class="mb-3">
-                                        <label class="form-label w-100" for="purpose">Pilih Tujuan</label>
-                                        <select name="purpose"
-                                            class="form-control select2form @error('purpose') is-invalid @enderror"">
-                                            <option value="">Pilih Tujuan</option>
-                                            <option value=" psb">Pemasangan Baru</option>
-                                            <option value="repair">Perbaikan</option>
-                                        </select>
-                                        @error('purpose')
-                                            <div class="invalid-feedback">
-                                                {{ $message }}
-                                            </div>
-                                        @enderror
-                                    </div>
-
+                                    
                                     <div class="mb-3">
                                         <label class="form-label w-100" for="technitian">Piih Teknisi</label>
                                         <select name="technitian[]" class="form-control select2form" multiple>

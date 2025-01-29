@@ -80,10 +80,6 @@ $(document).ready(function () {
                 name: "branch",
             },
             {
-                data: "purpose",
-                name: "purpose",
-            },
-            {
                 data: "created_at",
                 name: "created_at",
             },
