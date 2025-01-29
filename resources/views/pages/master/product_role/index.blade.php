@@ -35,12 +35,15 @@
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('productrole.getdata') }}">
+                            data-route="{{ route('productrole.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->can('update-product-role')? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
-                                    <th>Action</th>
+                                    @can('update-product-role')
+                                        <th>Action</th>
+                                    @endcan
                                 </tr>
                             </thead>
                         </table>

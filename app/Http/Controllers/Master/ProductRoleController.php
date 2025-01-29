@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductRole;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -28,13 +30,16 @@ class ProductRoleController extends Controller
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
+                $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-                // Tombol Edit
-                $button .= '<a href="' . route('productrole.edit', ['id' => $data->id]) . '"
+
+                if ($userauth->can('update-product-role')) {
+                    $button .= '<a href="' . route('productrole.edit', ['id' => $data->id]) . '"
                             class="btn btn-sm btn-success" 
                             title="Edit Data">
                             <i class="fas fa-pen"></i>
                         </a>';
+                }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->rawColumns(['action'])
@@ -85,17 +90,16 @@ class ProductRoleController extends Controller
             return redirect()
                 ->route('productrole')
                 ->with([
-                    'status' => 'Success!', 
+                    'status' => 'Success!',
                     'message' => 'Berhasil Mengubah Product Role!'
                 ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return redirect()
                 ->route('productrole')
                 ->with([
-                    'status' => 'Error!', 
+                    'status' => 'Error!',
                     'message' => 'Gagal Mengubah Product Role!'
                 ]);
         }

@@ -32,20 +32,25 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('unitproduk.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
-                    </div>
+                    @can('create-unit-product')
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                                data-action="create" data-proses="{{ route('unitproduk.store') }}"
+                                data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        </div>
+                    @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('unitproduk.getdata') }}">
+                            data-route="{{ route('unitproduk.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-unit-product', 'delete-unit-product'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
+                                    @canany(['update-unit-product', 'delete-unit-product'])   
                                     <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                         </table>
@@ -68,7 +73,6 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 
-{{-- route datatable init and js definition --}}
-<script src="{{ asset('assets/js/mods/unitproduct.js') }}"></script>
-
+    {{-- route datatable init and js definition --}}
+    <script src="{{ asset('assets/js/mods/unitproduct.js') }}"></script>
 @endpush
