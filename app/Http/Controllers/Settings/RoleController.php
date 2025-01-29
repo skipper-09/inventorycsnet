@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
@@ -30,8 +32,11 @@ class RoleController extends Controller
         return DataTables::of($role)
             ->addIndexColumn()
             ->addColumn('action', function ($role) {
+                $userauth = User::with('roles')->where('id', Auth::id())->first();
+
                 $button = '';
-                $button .= '<a href="' . route('role.edit', ['id' => $role->id]) . '"
+                if ($userauth->can('update-role')) {
+                    $button .= '<a href="' . route('role.edit', ['id' => $role->id]) . '"
                           class="btn btn-sm btn-success" 
                           data-id="' . $role->id . '" 
                           data-type="edit" 
@@ -40,8 +45,9 @@ class RoleController extends Controller
                           title="Edit Data">
                            <i class="fas fa-pen"></i>
                        </a>';
-
-                $button .= ' <button class="btn btn-sm btn-danger action" 
+                }
+                if ($userauth->can('delete-role')) {
+                    $button .= ' <button class="btn btn-sm btn-danger action" 
                                data-id="' . $role->id . '" 
                                data-type="delete" 
                                data-route="' . route('role.delete', ['id' => $role->id]) . '" 
@@ -50,6 +56,7 @@ class RoleController extends Controller
                                title="Delete Data">
                             <i class="fas fa-trash-alt"></i>
                         </button>';
+                }
 
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })

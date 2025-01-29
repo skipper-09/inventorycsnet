@@ -33,18 +33,23 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <a href="{{ route('role.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
-                    </div>
+                    @can('create-role')
+                        <div class="card-header">
+                            <a href="{{ route('role.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
+                        </div>
+                    @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('role.getdata') }}">
+                            data-route="{{ route('role.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-role', 'delete-role'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
-                                    <th>Action</th>
+                                    @canany(['update-role', 'delete-role'])
+                                        <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                         </table>

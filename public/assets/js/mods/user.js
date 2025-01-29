@@ -83,6 +83,38 @@ $(document).ready(function () {
     });
 
     var route = $("#scroll-sidebar-datatable").data("route");
+    var hasActionPermission = $("#scroll-sidebar-datatable").data("has-action-permission");
+
+    var columns = [
+        {
+            data: "DT_RowIndex",
+            searchable: false,
+            width: "10px",
+            class: "text-center",
+        },
+        {
+            data: "picture",
+            name: "picture",
+            orderable: false,
+            searchable: false,
+        },
+        { data: "username", name: "username" },
+        { data: "name", name: "name" },
+        { data: "role", name: "role" },
+        { data: "status", name: "status" },
+        { data: "branch", name: "branch" },
+    ];
+
+    // Only add action column if user has permission
+    if (hasActionPermission) {
+        columns.push({
+            data: "action",
+            name: "action",
+            orderable: false,
+            searchable: false,
+        });
+    }
+
     var table = $("#scroll-sidebar-datatable").DataTable({
         scrollY: "350px",
         scrollCollapse: !0,
@@ -99,31 +131,7 @@ $(document).ready(function () {
         processing: true,
         serverSide: true,
         ajax: route,
-        columns: [
-            {
-                data: "DT_RowIndex",
-                searchable: false,
-                width: "10px",
-                class: "text-center",
-            },
-            {
-                data: "picture",
-                name: "picture",
-                orderable: false,
-                searchable: false,
-            },
-            { data: "username", name: "username" },
-            { data: "name", name: "name" },
-            { data: "role", name: "role" },
-            { data: "status", name: "status" },
-            { data: "branch", name: "branch" },
-            {
-                data: "action",
-                name: "action",
-                orderable: false,
-                searchable: false,
-            },
-        ],
+        columns: columns,
     });
 
     // Form submit handler

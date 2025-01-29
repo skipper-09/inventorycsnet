@@ -36,15 +36,18 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('user.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
-                    </div>
+                    @can('create-user')
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                                data-action="create" data-proses="{{ route('user.store') }}"
+                                data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        </div>
+                    @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('user.getdata') }}">
+                            data-route="{{ route('user.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-user', 'delete-user'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
@@ -54,7 +57,9 @@
                                     <th>Role</th>
                                     <th>Status</th>
                                     <th>Cabang</th>
+                                    @canany(['update-user', 'delete-user'])
                                     <th>Action</th>
+                                    @endcanany
                                 </tr>
                             </thead>
                         </table>
