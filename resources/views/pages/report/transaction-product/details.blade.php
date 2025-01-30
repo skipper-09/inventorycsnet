@@ -27,6 +27,10 @@
                         <h5 class="card-title">Informasi Transaksi</h5>
                         <table class="table table-bordered">
                             <tr>
+                                <th>Tanggal</th>
+                                <td>{{ $transaction->created_at->format('d M Y H:i') }}</td>
+                            </tr>
+                            <tr>
                                 <th>Tujuan Transaksi</th>
                                 <td>
                                     @if($transaction->purpose == 'psb')
@@ -35,6 +39,8 @@
                                         Perbaikan
                                     @elseif($transaction->purpose == 'transfer')
                                         Transfer
+                                    @elseif($transaction->purpose == 'other')
+                                        <span class="text-uppercase">{{ $transaction->WorkTransaction->name }}</span>
                                     @endif
                                 </td>
                             </tr>
@@ -46,9 +52,17 @@
                                 <th>Ke Cabang</th>
                                 <td>{{ $transaction->tobranch->name ?? 'N/A' }}</td>
                             </tr>
+                            
                             <tr>
-                                <th>Dibuat Pada</th>
-                                <td>{{ $transaction->created_at->format('H:i d-m-Y') }}</td>
+                                <th>Dibuat</th>
+                                <td>{{ $transaction->userTransaction->name}}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Teknisi Bertugas</th>
+                                <td class="text-uppercase"> 
+                                    @foreach($transaction->Transactiontechnition as $index => $teknisi)
+                                    {{ $loop->iteration }}. {{ $teknisi->user->name }}<br>
+                                @endforeach</td>
                             </tr>
                         </table>
                     </div>
