@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assign;
 use App\Models\Branch;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionProduct;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 
 class TransferProductController extends Controller
@@ -108,6 +113,11 @@ class TransferProductController extends Controller
             'title' => 'Tambah Pemindahan Barang',
             'branch' => Branch::all(),
             'product' => Product::all(),
+            'technitians' => User::whereHas('roles', function ($query) {
+                $query->whereNotIn('name', ['Developer', 'Administrator']);
+            })
+                ->orderByDesc('id')
+                ->get(),
         ];
 
         return view('pages.transaction.transferproduct.add', $data);
@@ -123,7 +133,8 @@ class TransferProductController extends Controller
             'to_branch' => 'required|exists:branches,id|different:from_branch',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1'
+            'products.*.quantity' => 'required|integer|min:1',
+            'technitian_id' => 'required|exists:users,id', // Validasi technitian_id
         ]);
 
         try {
@@ -147,13 +158,31 @@ class TransferProductController extends Controller
                 ]);
             }
 
+            // Save owner signature
+            $ownerSignaturePath = $this->saveSignature($request->owner_signature, 'owner');
+
+            // Save technitian signature
+            $technitianSignaturePath = $this->saveSignature($request->technitian_signature, 'technitian');
+
+            // Create Assign
+            $assign = Assign::create([
+                'owner_id' => Auth::user()->id,
+                'technitian_id' => $request->technitian_id,
+                'owner_signature' => $ownerSignaturePath,
+                'technitian_signature' => $technitianSignaturePath,
+            ]);
+
+            // Hubungkan Assign dengan Transaction
+            $transfer->update(['assign_id' => $assign->id]);
+
             DB::commit();
             return redirect()->route('transfer')->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Menambahkan Pemindahan Barang!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage());
             return redirect()->route('transfer')->with(['status' => 'Error!', 'message' => 'Gagal Menambahkan Pemindahan Barang!']);
         }
     }
@@ -163,7 +192,7 @@ class TransferProductController extends Controller
      */
     public function details($id)
     {
-        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product', 'userTransaction'])
+        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product', 'userTransaction', 'assign'])
             ->where('id', $id)
             ->where('purpose', 'transfer')
             ->where('type', 'out')
@@ -182,7 +211,7 @@ class TransferProductController extends Controller
      */
     public function show($id)
     {
-        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product'])
+        $transfer = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product', 'assign'])
             ->where('id', $id)
             ->where('purpose', 'transfer')
             ->where('type', 'out')
@@ -193,6 +222,11 @@ class TransferProductController extends Controller
             'transfer' => $transfer,
             'branch' => Branch::all(),
             'product' => Product::all(),
+            'technitians' => User::whereHas('roles', function ($query) {
+                $query->whereNotIn('name', ['Developer', 'Administrator']);
+            })
+                ->orderByDesc('id')
+                ->get(),
         ];
 
         return view('pages.transaction.transferproduct.edit', $data);
@@ -208,7 +242,8 @@ class TransferProductController extends Controller
             'to_branch' => 'required|exists:branches,id|different:from_branch',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',
-            'products.*.quantity' => 'required|integer|min:1'
+            'products.*.quantity' => 'required|integer|min:1',
+            'technitian_id' => 'required|exists:users,id',
         ]);
 
         try {
@@ -238,16 +273,57 @@ class TransferProductController extends Controller
                 ]);
             }
 
+            // Handle signatures
+            if ($transfer->assign) {
+                // Save new owner signature if provided
+                if ($request->owner_signature) {
+                    $ownerSignaturePath = $this->saveSignature($request->owner_signature, 'owner');
+                    // Delete old signature file if it exists
+                    if ($transfer->assign->owner_signature) {
+                        Storage::disk('public')->delete($transfer->assign->owner_signature);
+                    }
+                    $transfer->assign->owner_signature = $ownerSignaturePath;
+                }
+
+                // Save new technitian signature if provided
+                if ($request->technitian_signature) {
+                    $technitianSignaturePath = $this->saveSignature($request->technitian_signature, 'technitian');
+                    // Delete old signature file if it exists
+                    if ($transfer->assign->technitian_signature) {
+                        Storage::disk('public')->delete($transfer->assign->technitian_signature);
+                    }
+                    $transfer->assign->technitian_signature = $technitianSignaturePath;
+                }
+
+                // Update technitian_id
+                $transfer->assign->technitian_id = $request->technitian_id;
+                $transfer->assign->save();
+            } else {
+                // Create new Assign if it doesn't exist
+                $ownerSignaturePath = $this->saveSignature($request->owner_signature, 'owner');
+                $technitianSignaturePath = $this->saveSignature($request->technitian_signature, 'technitian');
+
+                $assign = Assign::create([
+                    'owner_id' => Auth::user()->id,
+                    'technitian_id' => $request->technitian_id,
+                    'owner_signature' => $ownerSignaturePath,
+                    'technitian_signature' => $technitianSignaturePath,
+                ]);
+
+                $transfer->update(['assign_id' => $assign->id]);
+            }
+
             DB::commit();
             return redirect()->route('transfer')->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Mengupdate Pemindahan Barang!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage());
             return redirect()->route('transfer')->with([
                 'status' => 'Error!',
-                'message' => $e->getMessage()
+                'message' => 'Gagal Mengupdate Pemindahan Barang!'
             ]);
         }
     }
@@ -257,13 +333,30 @@ class TransferProductController extends Controller
         try {
             DB::beginTransaction();
 
-            // Find the outgoing transfer
-            $transfer = Transaction::where('id', $id)
+            // Find the outgoing transfer with its relationships
+            $transfer = Transaction::with(['Transactionproduct', 'assign'])
+                ->where('id', $id)
                 ->where('purpose', 'transfer')
                 ->where('type', 'out')
                 ->firstOrFail();
 
-            // Find and delete all related transaction products
+            // Delete signature files if they exist
+            if ($transfer->assign) {
+                // Delete owner signature
+                if ($transfer->assign->owner_signature) {
+                    Storage::disk('public')->delete($transfer->assign->owner_signature);
+                }
+
+                // Delete technitian signature
+                if ($transfer->assign->technitian_signature) {
+                    Storage::disk('public')->delete($transfer->assign->technitian_signature);
+                }
+
+                // Delete the assign record
+                $transfer->assign->delete();
+            }
+
+            // Delete all related transaction products
             TransactionProduct::where('transaction_id', $id)->delete();
 
             // Delete the outgoing transfer
@@ -275,14 +368,49 @@ class TransferProductController extends Controller
                 'success' => true,
                 'message' => 'Pemindahan Barang Berhasil Dihapus!'
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
+            Log::error('Error deleting transfer: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'success' => false,
                 'message' => 'Pemindahan Barang Gagal dihapus!',
                 'error' => $e->getMessage()
-            ]);
+            ], 500);
+        }
+    }
+    private function saveSignature($base64Signature, $type)
+    {
+        try {
+            // Check if the signature is empty or invalid
+            if (empty($base64Signature)) {
+                throw new Exception('Tanda tangan tidak boleh kosong');
+            }
+
+            // Check if it's a valid base64 image string
+            if (!preg_match('/^data:image\/(\w+);base64,/', $base64Signature)) {
+                throw new Exception('Format tanda tangan tidak valid');
+            }
+
+            // Get image data and decode base64
+            $imageData = base64_decode(preg_replace('/^data:image\/\w+;base64,/', '', $base64Signature));
+
+            if (!$imageData) {
+                throw new Exception('Gagal decode data tanda tangan');
+            }
+
+            // Generate filename
+            $filename = $type . '_signature_' . time() . '_' . Str::random(10) . '.png';
+            $path = 'signatures/' . $filename;
+
+            // Save image directly from binary data
+            if (!Storage::disk('public')->put($path, $imageData)) {
+                throw new Exception('Gagal menyimpan file tanda tangan');
+            }
+
+            return $path;
+        } catch (Exception $e) {
+            throw new Exception('Gagal menyimpan tanda tangan: ' . $e->getMessage());
         }
     }
 }

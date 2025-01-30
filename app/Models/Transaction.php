@@ -14,6 +14,7 @@ class Transaction extends Model
         'purpose',
         'user_id',
         'work_id',
+        'assign_id',
     ];
     protected $primaryKey = 'id';
 
@@ -36,16 +37,24 @@ class Transaction extends Model
     {
         return $this->hasMany(TransactionProduct::class);
     }
+
     public function Transactiontechnition()
     {
         return $this->hasMany(TransactionTechnition::class);
     }
+
     public function userTransaction()
     {
         return $this->belongsTo(User::class,'user_id','id');
     }
+
     public function WorkTransaction()
     {
         return $this->belongsTo(Work::class,'work_id','id');
+    }
+
+    public function assign()
+    {
+        return $this->belongsTo(Assign::class, 'assign_id');
     }
 }

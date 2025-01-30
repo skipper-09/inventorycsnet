@@ -31,14 +31,14 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="row mb-3">
+                            <div class="row mb-4">
                                 <div class="col-md-6">
                                     <h5 class="card-title mb-4">Informasi Transfer</h5>
                                     <div class="table-responsive">
                                         <table class="table table-borderless mb-0">
                                             <tbody>
                                                 <tr>
-                                                    <th scope="row">Tanggal Transfer</th>
+                                                    <th scope="row" class="w-25">Tanggal Transfer</th>
                                                     <td>: {{ $transfer->created_at->format('d M Y H:i') }}</td>
                                                 </tr>
                                                 <tr>
@@ -53,13 +53,17 @@
                                                     <th scope="row">Dibuat</th>
                                                     <td>: {{ $transfer->userTransaction->name }}</td>
                                                 </tr>
+                                                <tr>
+                                                    <th scope="row">Penanggung Jawab</th>
+                                                    <td>: {{ $transfer->assign->technitian->name }}</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row">
+                            <div class="row mb-4">
                                 <div class="col-12">
                                     <h5 class="card-title mb-4">Detail Produk</h5>
                                     <div class="table-responsive">
@@ -80,12 +84,40 @@
                                                 </tr>
                                                 @endforeach
                                             </tbody>
-                                            {{-- <tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Signature -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h5 class="card-title mb-4">Tanda Tangan</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped mb-0">
+                                            <thead>
                                                 <tr>
-                                                    <th colspan="2" class="text-end">Total Item:</th>
-                                                    <th class="text-center">{{ $transfer->Transactionproduct->sum('quantity') }}</th>
+                                                    <th class="text-center" style="width: 50px;">No</th>
+                                                    <th>Nama</th>
+                                                    <th>Tanda Tangan</th>
                                                 </tr>
-                                            </tfoot> --}}
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-center">1</td>
+                                                    <td>Owner</td>
+                                                    <td>
+                                                        <img src="{{ asset('storage/' . $transfer->assign->owner_signature) }}" class="img-fluid" style="width: 200px; height: 100px;" alt="Signature">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center">2</td>
+                                                    <td>Penanggung Jawab</td>
+                                                    <td>
+                                                        <img src="{{ asset('storage/' . $transfer->assign->technitian_signature) }}" class="img-fluid" style="width: 200px; height: 100px;" alt="Signature">
+                                                    </td>
+                                                </tr>
+                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
