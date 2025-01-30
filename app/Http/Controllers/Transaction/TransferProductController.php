@@ -37,10 +37,22 @@ class TransferProductController extends Controller
      */
     public function getData()
     {
-        $data = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product'])
+        $userauth = User::with('roles')->where('id', Auth::id())->first();
+
+        // Base query with common relations
+        $query = Transaction::with(['branch', 'tobranch', 'Transactionproduct.product', 'assign'])
             ->where('purpose', 'transfer')
             ->where('type', 'out')
-            ->orderByDesc('created_at')->get();
+            ->orderByDesc('created_at');
+
+        // Apply role-based filtering
+        if (!$userauth->hasRole(['Developer', 'Administrator'])) {
+            $query->whereHas('assign', function ($q) {
+                $q->where('technitian_id', Auth::id());
+            });
+        }
+
+        $data = $query->get();
 
         return DataTables::of($data)
             ->addIndexColumn()
@@ -67,36 +79,36 @@ class TransferProductController extends Controller
                 $button = '';
                 if ($userauth->can('read-transfer-product')) {
                     $button .= '<a href="' . route('transfer.details', ['id' => $row->id]) . '"
-                          class="btn btn-sm btn-info" 
-                          data-id="' . $row->id . '" 
-                          data-type="details" 
-                          data-toggle="tooltip" 
-                          data-placement="bottom" 
-                          title="Details">
-                           <i class="fas fa-eye"></i>
-                       </a>';
+                      class="btn btn-sm btn-info"
+                       data-id="' . $row->id . '"
+                       data-type="details"
+                       data-toggle="tooltip"
+                       data-placement="bottom"
+                       title="Details">
+                       <i class="fas fa-eye"></i>
+                   </a>';
                 }
                 if ($userauth->can('update-transfer-product')) {
                     $button .= '<a href="' . route('transfer.edit', ['id' => $row->id]) . '"
-                          class="btn btn-sm btn-success" 
-                          data-id="' . $row->id . '" 
-                          data-type="edit" 
-                          data-toggle="tooltip" 
-                          data-placement="bottom" 
-                          title="Edit Data">
-                           <i class="fas fa-pen"></i>
-                       </a>';
+                      class="btn btn-sm btn-success"
+                       data-id="' . $row->id . '"
+                       data-type="edit"
+                       data-toggle="tooltip"
+                       data-placement="bottom"
+                       title="Edit Data">
+                       <i class="fas fa-pen"></i>
+                   </a>';
                 }
                 if ($userauth->can('delete-transfer-product')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" 
-                               data-id="' . $row->id . '" 
-                               data-type="delete" 
-                               data-route="' . route('transfer.delete', ['id' => $row->id]) . '" 
-                               data-toggle="tooltip" 
-                               data-placement="bottom" 
-                               title="Delete Data">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>';
+                    $button .= ' <button class="btn btn-sm btn-danger action"
+                            data-id="' . $row->id . '"
+                            data-type="delete"
+                            data-route="' . route('transfer.delete', ['id' => $row->id]) . '"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="Delete Data">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })

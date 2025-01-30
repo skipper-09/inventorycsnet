@@ -69,7 +69,7 @@ class RoleSeeder extends Seeder
         ]);
 
         $admin->givePermissionTo([
-           'read-dashboard',
+            'read-dashboard',
             'read-branch',
             'create-branch',
             'update-branch',
@@ -119,10 +119,12 @@ class RoleSeeder extends Seeder
 
         $teknisi->givePermissionTo([
             'read-dashboard',
+            'read-transfer-product',
         ]);
 
         $odp->givePermissionTo([
             'read-dashboard',
+            'read-transfer-product',
         ]);
 
         $listrik->givePermissionTo([
