@@ -35,7 +35,7 @@ class TransferProductController extends Controller
     /**
      * Get data for DataTables
      */
-    public function getData()
+    public function getData(Request $request)
     {
         $userauth = User::with('roles')->where('id', Auth::id())->first();
 
@@ -45,11 +45,16 @@ class TransferProductController extends Controller
             ->where('type', 'out')
             ->orderByDesc('created_at');
 
-        // Apply role-based filtering
+        // Apply role-based
         if (!$userauth->hasRole(['Developer', 'Administrator'])) {
             $query->whereHas('assign', function ($q) {
                 $q->where('technitian_id', Auth::id());
             });
+        }
+
+        // Apply date filter
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
         }
 
         $data = $query->get();

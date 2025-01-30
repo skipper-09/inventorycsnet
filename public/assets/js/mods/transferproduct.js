@@ -64,7 +64,16 @@ $(document).ready(function () {
         },
         processing: true,
         serverSide: true,
-        ajax: route,
+        ajax: {
+            url: route,
+            data: function (d) {
+                d.created_at = $("#created_at").val(); // Filter tanggal
+            },
+        },
         columns: columns,
+    });
+
+    $("#created_at").on("change", function () {
+        $("#scroll-sidebar-datatable").DataTable().ajax.reload();
     });
 });

@@ -38,6 +38,14 @@
                         </div>
                     @endcan
                     <div class="card-body">
+                        <div class="row align-items-end g-3 mb-5">
+                            <!-- Filter Tanggal -->
+                            <div class="col-12 col-md-4">
+                                <label class="form-label" for="created_at">Filter Tanggal</label>
+                                <input type="date" id="created_at" class="form-control filter"
+                                    placeholder="Pilih Tanggal">
+                            </div>
+                        </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('transfer.getdata') }}"
