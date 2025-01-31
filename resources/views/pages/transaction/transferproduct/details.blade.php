@@ -88,7 +88,9 @@
                                     <div class="col-md-6">
                                         <div class="card h-100">
                                             <div class="card-body">
-                                                <h6 class="card-subtitle mb-3 text-muted">Owner</h6>
+                                                <h6 class="card-subtitle mb-3 text-muted">
+                                                    {{ $transfer->assign->owner->name }}
+                                                </h6>
                                                 <img src="{{ asset('storage/' . $transfer->assign->owner_signature) }}" 
                                                      class="img-fluid" 
                                                      style="max-height: 100px; object-fit: contain;" 
@@ -99,7 +101,9 @@
                                     <div class="col-md-6">
                                         <div class="card h-100">
                                             <div class="card-body">
-                                                <h6 class="card-subtitle mb-3 text-muted">Penanggung Jawab</h6>
+                                                <h6 class="card-subtitle mb-3 text-muted">
+                                                    {{ $transfer->assign->technitian->name }}
+                                                </h6>
                                                 <img src="{{ asset('storage/' . $transfer->assign->technitian_signature) }}" 
                                                      class="img-fluid" 
                                                      style="max-height: 100px; object-fit: contain;" 
