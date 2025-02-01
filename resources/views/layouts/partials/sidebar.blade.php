@@ -53,6 +53,13 @@
                 @endcanany
                 
                 <li>
+                    <a href="{{ route('formbuilder') }}" class="">
+                        <i class="fas fa-user-alt"></i>
+                        <span>Form Template</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('customer') }}" class="">
                         <i class="fas fa-user-alt"></i>
                         <span>Customer</span>

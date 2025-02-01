@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
+use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -114,6 +115,19 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
             Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
+        });
+
+
+        Route::prefix('form-builder')->group(function () {
+            Route::get('', [FormTemplateBuilderController::class, 'index'])->name('formbuilder');
+            Route::get('getdata', [FormTemplateBuilderController::class, 'getData'])->name('formbuilder.getdata');
+            Route::get('add', [FormTemplateBuilderController::class, 'create'])->name('formbuilder.add');
+            Route::post('store', [FormTemplateBuilderController::class, 'store'])->name('formbuilder.store');
+            Route::get('/template/{id}', [FormTemplateBuilderController::class, 'FormView'])->name('formbuilder.detail');
+            Route::get('/edit/{id}', [FormTemplateBuilderController::class, 'show'])->name('formbuilder.edit');
+            Route::put('/update/{id}', [FormTemplateBuilderController::class, 'update'])->name('formbuilder.update');
+            // Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
+            // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
     });
 
