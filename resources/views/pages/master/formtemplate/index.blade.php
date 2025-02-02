@@ -10,10 +10,10 @@
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
 
-      
-     {{-- select 2 --}}
-     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
-     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+
+    {{-- select 2 --}}
+    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 @section('content')
     <div class="container-fluid">
@@ -39,7 +39,8 @@
                 <div class="card">
                     @can('create-unit-product')
                         <div class="card-header">
-                            <a href="{{ route('formbuilder.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
+                            <a href="{{ route('formbuilder.add') }}" class="btn btn-primary btn-sm">Tambah
+                                {{ $title }}</a>
                         </div>
                     @endcan
                     <div class="card-body">
@@ -51,8 +52,8 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
-                                    @canany(['update-unit-product', 'delete-unit-product'])   
-                                    <th>Action</th>
+                                    @canany(['update-unit-product', 'delete-unit-product'])
+                                        <th>Action</th>
                                     @endcanany
                                 </tr>
                             </thead>
@@ -79,4 +80,16 @@
     {{-- select 2 deifinition --}}
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+
+    <script>
+        @if (Session::has('message'))
+            Swal.fire({
+                title: `{{ Session::get('status') }}`,
+                text: `{{ Session::get('message') }}`,
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+    </script>
 @endpush

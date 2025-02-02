@@ -126,7 +126,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/template/{id}', [FormTemplateBuilderController::class, 'FormView'])->name('formbuilder.detail');
             Route::get('/edit/{id}', [FormTemplateBuilderController::class, 'show'])->name('formbuilder.edit');
             Route::put('/update/{id}', [FormTemplateBuilderController::class, 'update'])->name('formbuilder.update');
-            // Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
+            Route::delete('/delete/{id}', [FormTemplateBuilderController::class, 'destroy'])->name('formbuilder.delete');
             // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
     });

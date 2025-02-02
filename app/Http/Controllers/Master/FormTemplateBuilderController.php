@@ -29,13 +29,13 @@ class FormTemplateBuilderController extends Controller
         $data = FormTemplate::orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             // $userauth = User::with('roles')->where('id', Auth::id())->first();
-                        // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+            // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                             class="fas fa-pen "></i></a>';
             $button = '';
             $button .= ' <a href="' . route('formbuilder.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
             $button .= ' <a href="' . route('formbuilder.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                                                        class="fas fa-trash "></i></button>';            
+            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('formbuilder.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+            class="fas fa-trash "></i></button>';
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->rawColumns(['action'])->make(true);
     }
@@ -102,13 +102,13 @@ class FormTemplateBuilderController extends Controller
                 ->get(),
             'product' => Product::all(),
             'formbuilder' => $form,
-            'contentform' => json_decode($form->content,true)
+            'contentform' => json_decode($form->content, true)
         ];
         return view('pages.master.formtemplate.edit', $data);
     }
 
 
-    public function update(Request $request,$id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -128,6 +128,29 @@ class FormTemplateBuilderController extends Controller
         }
     }
 
+    public function destroy($id)
+    {
+        try {
+            // Find the form template by ID
+            $form = FormTemplate::findOrFail($id);
 
+            // Delete the form template
+            $form->delete();
 
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Data Berhasil Dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            // Return error response if something goes wrong
+            return response()->json([
+                'status' => 'error',
+                'success' => false,
+                'message' => 'Data Gagal dihapus!',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }
