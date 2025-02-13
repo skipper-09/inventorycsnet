@@ -48,10 +48,14 @@
                                 <li><a href="{{ route('productrole') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
                             @endcan
+                            <li><a href="{{ route('deductiontype') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
+                            <li><a href="{{ route('allowancetype') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
                         </ul>
                     </li>
                 @endcanany
-                
+
                 <li>
                     <a href="{{ route('formbuilder') }}" class="">
                         <i class="fas fa-user-alt"></i>

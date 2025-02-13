@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
+use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\UnitProductController;
@@ -117,7 +119,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
 
-
         Route::prefix('form-builder')->group(function () {
             Route::get('', [FormTemplateBuilderController::class, 'index'])->name('formbuilder');
             Route::get('getdata', [FormTemplateBuilderController::class, 'getData'])->name('formbuilder.getdata');
@@ -128,6 +129,26 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [FormTemplateBuilderController::class, 'update'])->name('formbuilder.update');
             Route::delete('/delete/{id}', [FormTemplateBuilderController::class, 'destroy'])->name('formbuilder.delete');
             // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
+        });
+
+        // Deduction Type
+        Route::prefix('deductiontype')->group(function () {
+            Route::get('', [DeductionTypeController::class, 'index'])->name('deductiontype');
+            Route::get('getdata', [DeductionTypeController::class, 'getData'])->name('deductiontype.getdata');
+            Route::post('store', [DeductionTypeController::class, 'store'])->name('deductiontype.store');
+            Route::get('/edit/{id}', [DeductionTypeController::class, 'show'])->name('deductiontype.edit');
+            Route::put('/update/{id}', [DeductionTypeController::class, 'update'])->name('deductiontype.update');
+            Route::delete('/delete/{id}', [DeductionTypeController::class, 'destroy'])->name('deductiontype.delete');
+        });
+
+        // Allowance Type
+        Route::prefix('allowancetype')->group(function () {
+            Route::get('', [AllowanceTypeController::class, 'index'])->name('allowancetype');
+            Route::get('getdata', [AllowanceTypeController::class, 'getData'])->name('allowancetype.getdata');
+            Route::post('store', [AllowanceTypeController::class, 'store'])->name('allowancetype.store');
+            Route::get('/edit/{id}', [AllowanceTypeController::class, 'show'])->name('allowancetype.edit');
+            Route::put('/update/{id}', [AllowanceTypeController::class, 'update'])->name('allowancetype.update');
+            Route::delete('/delete/{id}', [AllowanceTypeController::class, 'destroy'])->name('allowancetype.delete');
         });
     });
 
