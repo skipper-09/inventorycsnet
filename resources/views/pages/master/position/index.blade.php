@@ -34,23 +34,23 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @can('create-allowance-type')
+                    @can('create-position')
                         <div class="card-header">
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                                data-action="create" data-proses="{{ route('allowancetype.store') }}"
+                                data-action="create" data-proses="{{ route('position.store') }}"
                                 data-title="{{ $title }}">Tambah {{ $title }}</button>
                         </div>
                     @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('allowancetype.getdata') }}"
-                            data-has-action-permission="{{ auth()->user()->canany(['update-allowance-type', 'delete-allowance-type'])? 'true': 'false' }}">
+                            data-route="{{ route('position.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-position', 'delete-position'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
-                                    @canany(['update-allowance-type', 'delete-allowance-type'])
+                                    @canany(['update-position', 'delete-position'])
                                         <th>Action</th>
                                     @endcanany
                                 </tr>
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    @include('pages.master.allowancetype.form')
+    @include('pages.master.position.form')
 
 @endsection
 
@@ -76,5 +76,5 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 
     {{-- route datatable init and js definition --}}
-    <script src="{{ asset('assets/js/mods/allowancetype.js') }}"></script>
+    <script src="{{ asset('assets/js/mods/position.js') }}"></script>
 @endpush

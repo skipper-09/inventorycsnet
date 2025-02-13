@@ -6,6 +6,7 @@ use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
+use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -68,7 +69,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         // branch
         Route::prefix('cabang')->group(function () {
-            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');;
+            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');
+            ;
             Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
             Route::post('store', [BranchController::class, 'store'])->name('branch.store');
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit')->middleware('can:update-branch');
@@ -149,6 +151,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [AllowanceTypeController::class, 'show'])->name('allowancetype.edit');
             Route::put('/update/{id}', [AllowanceTypeController::class, 'update'])->name('allowancetype.update');
             Route::delete('/delete/{id}', [AllowanceTypeController::class, 'destroy'])->name('allowancetype.delete');
+        });
+
+        // Position
+        Route::prefix('position')->group(function () {
+            Route::get('', [PositionController::class, 'index'])->name('position');
+            Route::get('getdata', [PositionController::class, 'getData'])->name('position.getdata');
+            Route::post('store', [PositionController::class, 'store'])->name('position.store');
+            Route::get('/edit/{id}', [PositionController::class, 'show'])->name('position.edit');
+            Route::put('/update/{id}', [PositionController::class, 'update'])->name('position.update');
+            Route::delete('/delete/{id}', [PositionController::class, 'destroy'])->name('position.delete');
         });
     });
 

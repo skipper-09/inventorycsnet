@@ -56,6 +56,10 @@
                                 <li><a href="{{ route('allowancetype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
                             @endcan
+                            @can('read-position')
+                                <li><a href="{{ route('position') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
+                            @endcan
                         </ul>
                     </li>
                 @endcanany

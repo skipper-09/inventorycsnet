@@ -52,7 +52,7 @@ class DeductionTypeController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Deduction Type Berhasil dibuat.',
+                'message' => 'Tipe Deduksi Berhasil dibuat.',
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -83,7 +83,7 @@ class DeductionTypeController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Deduction Type Berhasil diupdate.',
+                'message' => 'Tipe Deduksi Berhasil diupdate.',
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -102,11 +102,11 @@ class DeductionTypeController extends Controller
             return response()->json([
                 'status' => 'success',
                 'success' => true,
-                'message' => 'Deduction Type Berhasil Dihapus!.',
+                'message' => 'Tipe Deduksi Berhasil Dihapus!.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Gagal Menghapus Data Deduction Type!',
+                'message' => 'Gagal Menghapus Data Tipe Deduksi!',
                 'trace' => $e->getTrace()
             ]);
         }

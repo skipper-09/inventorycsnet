@@ -34,11 +34,13 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="create" data-proses="{{ route('deductiontype.store') }}"
-                            data-title="{{ $title }}">Tambah {{ $title }}</button>
-                    </div>
+                    @can('create-deduction-type')
+                        <div class="card-header">
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                                data-action="create" data-proses="{{ route('deductiontype.store') }}"
+                                data-title="{{ $title }}">Tambah {{ $title }}</button>
+                        </div>
+                    @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"

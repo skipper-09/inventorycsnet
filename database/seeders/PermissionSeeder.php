@@ -49,6 +49,10 @@ class PermissionSeeder extends Seeder
             'create-allowance-type',
             'update-allowance-type',
             'delete-allowance-type',
+            'read-position',
+            'create-position',
+            'update-position',
+            'delete-position',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',

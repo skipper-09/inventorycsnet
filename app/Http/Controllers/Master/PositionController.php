@@ -3,37 +3,37 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\AllowanceType;
+use App\Models\Position;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
-class AllowanceTypeController extends Controller
+class PositionController extends Controller
 {
     public function index()
     {
         $data = [
-            "title" => "Tipe Tunjangan",
+            "title" => "Jabatan",
         ];
 
-        return view("pages.master.allowancetype.index", $data);
+        return view("pages.master.position.index", $data);
     }
 
     public function getData()
     {
-        $data = AllowanceType::orderByDesc('id')->get();
+        $data = Position::orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
-            if ($userauth->can('update-allowance-type')) {
-                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('allowancetype.edit', ['id' => $data->id]) . '" data-proses="' . route('allowancetype.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="edit" data-title="Tipe Tunjangan" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+            if ($userauth->can('update-position')) {
+                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('position.edit', ['id' => $data->id]) . '" data-proses="' . route('position.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+                            data-action="edit" data-title="Jabatan" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
             }
-            if ($userauth->can('delete-allowance-type')) {
-                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('allowancetype.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+            if ($userauth->can('delete-position')) {
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('position.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                 class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -47,12 +47,12 @@ class AllowanceTypeController extends Controller
         ]);
 
         try {
-            AllowanceType::create($validated);
+            position::create($validated);
 
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Tipe Tunjangan Berhasil dibuat.',
+                'message' => 'Jabatan Berhasil dibuat.',
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -65,9 +65,10 @@ class AllowanceTypeController extends Controller
 
     public function show($id)
     {
-        $allowanceType = AllowanceType::findOrFail($id);
+        $position = Position::findOrFail($id);
+
         return response()->json([
-            'allowanceType' => $allowanceType,
+            'position' => $position,
         ], 200);
     }
 
@@ -78,12 +79,12 @@ class AllowanceTypeController extends Controller
         ]);
 
         try {
-            AllowanceType::findOrFail($id)->update($validated);
+            Position::findOrFail($id)->update($validated);
 
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Tipe Tunjangan Berhasil diupdate.',
+                'message' => 'Jabatan Berhasil diupdate.',
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -97,16 +98,16 @@ class AllowanceTypeController extends Controller
     public function destroy($id)
     {
         try {
-            AllowanceType::findOrFail($id)->delete();
+            Position::findOrFail($id)->delete();
 
             return response()->json([
                 'status' => 'success',
                 'success' => true,
-                'message' => 'Tipe Tunjangan Berhasil Dihapus!.',
+                'message' => 'Jabatan Berhasil Dihapus!.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Gagal Menghapus Data Tipe Tunjangan!',
+                'message' => 'Gagal Menghapus Data Jabatan!',
                 'trace' => $e->getTrace()
             ]);
         }
