@@ -1,9 +1,13 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
+use App\Http\Controllers\Master\DeductionController;
+use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
+use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
@@ -67,7 +71,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         // branch
         Route::prefix('cabang')->group(function () {
-            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');;
+            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');
+            ;
             Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
             Route::post('store', [BranchController::class, 'store'])->name('branch.store');
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit')->middleware('can:update-branch');
@@ -118,7 +123,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
 
-
         Route::prefix('form-builder')->group(function () {
             Route::get('', [FormTemplateBuilderController::class, 'index'])->name('formbuilder');
             Route::get('getdata', [FormTemplateBuilderController::class, 'getData'])->name('formbuilder.getdata');
@@ -131,8 +135,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
 
-
-
         //TaskTemmplate
         Route::prefix('task-template')->group(function () {
             Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
@@ -141,6 +143,45 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
             Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
+        });    
+        // Deduction
+        Route::prefix('deduction')->group(function () {
+            Route::get('', [DeductionController::class, 'index'])->name('deduction');
+            Route::get('getdata', [DeductionController::class, 'getData'])->name('deduction.getdata');
+            Route::post('store', [DeductionController::class, 'store'])->name('deduction.store');
+            Route::get('/edit/{id}', [DeductionController::class, 'show'])->name('deduction.edit');
+            Route::put('/update/{id}', [DeductionController::class, 'update'])->name('deduction.update');
+            Route::delete('/delete/{id}', [DeductionController::class, 'destroy'])->name('deduction.delete');
+        });
+
+        // Deduction Type
+        Route::prefix('deductiontype')->group(function () {
+            Route::get('', [DeductionTypeController::class, 'index'])->name('deductiontype');
+            Route::get('getdata', [DeductionTypeController::class, 'getData'])->name('deductiontype.getdata');
+            Route::post('store', [DeductionTypeController::class, 'store'])->name('deductiontype.store');
+            Route::get('/edit/{id}', [DeductionTypeController::class, 'show'])->name('deductiontype.edit');
+            Route::put('/update/{id}', [DeductionTypeController::class, 'update'])->name('deductiontype.update');
+            Route::delete('/delete/{id}', [DeductionTypeController::class, 'destroy'])->name('deductiontype.delete');
+        });
+
+        // Allowance Type
+        Route::prefix('allowancetype')->group(function () {
+            Route::get('', [AllowanceTypeController::class, 'index'])->name('allowancetype');
+            Route::get('getdata', [AllowanceTypeController::class, 'getData'])->name('allowancetype.getdata');
+            Route::post('store', [AllowanceTypeController::class, 'store'])->name('allowancetype.store');
+            Route::get('/edit/{id}', [AllowanceTypeController::class, 'show'])->name('allowancetype.edit');
+            Route::put('/update/{id}', [AllowanceTypeController::class, 'update'])->name('allowancetype.update');
+            Route::delete('/delete/{id}', [AllowanceTypeController::class, 'destroy'])->name('allowancetype.delete');
+        });
+
+        // Position
+        Route::prefix('position')->group(function () {
+            Route::get('', [PositionController::class, 'index'])->name('position');
+            Route::get('getdata', [PositionController::class, 'getData'])->name('position.getdata');
+            Route::post('store', [PositionController::class, 'store'])->name('position.store');
+            Route::get('/edit/{id}', [PositionController::class, 'show'])->name('position.edit');
+            Route::put('/update/{id}', [PositionController::class, 'update'])->name('position.update');
+            Route::delete('/delete/{id}', [PositionController::class, 'destroy'])->name('position.delete');
         });
     });
 

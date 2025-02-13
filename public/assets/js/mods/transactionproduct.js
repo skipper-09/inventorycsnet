@@ -16,22 +16,20 @@ $(document).ready(function () {
         buttonsStyling: !1,
     });
 
-
-
-    $('#addBranchForm').on('submit', function(event) {
-        const startDate = $('#start_date').val();
-        const endDate = $('#end_date').val();
+    $("#addBranchForm").on("submit", function (event) {
+        const startDate = $("#start_date").val();
+        const endDate = $("#end_date").val();
         var formData = $(this).serialize();
-        
+
         if (!startDate || !endDate) {
-            event.preventDefault(); 
+            event.preventDefault();
             Swal.fire({
                 position: "center",
                 icon: "error",
                 title: "Error",
                 text: "Tanggal mulai dan tanggal akhir wajib diisi",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
             });
         } else if (new Date(startDate) > new Date(endDate)) {
             event.preventDefault();
@@ -41,33 +39,30 @@ $(document).ready(function () {
                 title: "Error",
                 text: "Tanggal mulai tidak boleh lebih besar dari tanggal akhir",
                 showConfirmButton: false,
-                timer: 1500
+                timer: 1500,
             });
         } else {
             $.ajax({
                 url: $(this).attr("action"),
-                method:'POST',
+                method: "POST",
                 data: formData,
                 processData: false,
                 success: function (response) {
                     if (response.success) {
                         // $("#modal8").modal("hide");
-                        resetForm(); 
+                        resetForm();
                     }
                 },
             });
         }
     });
 
-   
-function resetForm() {
-    $('#addBranchForm')[0].reset();
-    $('#type_transaction').val('').trigger('change');
-    $('#start_date').val('');
-    $('#end_date').val('');
-}
-
-
+    function resetForm() {
+        $("#addBranchForm")[0].reset();
+        $("#type_transaction").val("").trigger("change");
+        $("#start_date").val("");
+        $("#end_date").val("");
+    }
 
     var route = $("#scroll-sidebar-datatable").data("route");
 
@@ -128,27 +123,29 @@ function resetForm() {
 
     // Handle transaction filter change
     $("#FilterTransaction").on("change", function () {
-        $('#created_at').val('').trigger('change.select2'); // reset created_at
+        $("#created_at").val("").trigger("change.select2"); // reset created_at
         table.ajax.reload(null, false); // Reload table with updated filter
     });
 
     // Handle date filter change
     $("#created_at").on("change", function () {
-        $('#FilterTransaction').val('').trigger('change.select2'); // reset transaksi
+        $("#FilterTransaction").val("").trigger("change.select2"); // reset transaksi
         table.ajax.reload(null, false); // Reload table with updated filter
     });
 
-    document.getElementById("export-button").addEventListener("click", function () {
-        let baseUrl = $("#export-button").data("route");
-        // let transaksi = document.getElementById("FilterTransaction").value;
-        // let createdAt = document.getElementById("created_at").value;
+    document
+        .getElementById("export-button")
+        .addEventListener("click", function () {
+            let baseUrl = $("#export-button").data("route");
+            // let transaksi = document.getElementById("FilterTransaction").value;
+            // let createdAt = document.getElementById("created_at").value;
 
-        // if (!transaksi && !createdAt) {
-        //     Swal.fire("Perhatian", "Silakan pilih minimal satu filter sebelum ekspor.", "warning");
-        //     return;
-        // }
+            // if (!transaksi && !createdAt) {
+            //     Swal.fire("Perhatian", "Silakan pilih minimal satu filter sebelum ekspor.", "warning");
+            //     return;
+            // }
 
-        // let exportUrl = `${baseUrl}?transaksi=${transaksi}&created_at=${createdAt}`;
-        // window.location.href = exportUrl; // Redirect ke URL ekspor
-    });
+            // let exportUrl = `${baseUrl}?transaksi=${transaksi}&created_at=${createdAt}`;
+            // window.location.href = exportUrl; // Redirect ke URL ekspor
+        });
 });

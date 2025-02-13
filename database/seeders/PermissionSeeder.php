@@ -41,6 +41,22 @@ class PermissionSeeder extends Seeder
             'create-product-role',
             'update-product-role',
             'delete-product-role',
+            'read-deduction',
+            'create-deduction',
+            'update-deduction',
+            'delete-deduction',
+            'read-deduction-type',
+            'create-deduction-type',
+            'update-deduction-type',
+            'delete-deduction-type',
+            'read-allowance-type',
+            'create-allowance-type',
+            'update-allowance-type',
+            'delete-allowance-type',
+            'read-position',
+            'create-position',
+            'update-position',
+            'delete-position',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',
@@ -67,7 +83,7 @@ class PermissionSeeder extends Seeder
             'update-task-template',
             'delete-task-template',
         ];
-        
+
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {
             return ['name' => $permission, 'guard_name' => 'web'];
         });

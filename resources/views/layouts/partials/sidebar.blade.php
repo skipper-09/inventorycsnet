@@ -51,11 +51,26 @@
                             @can('read-task-template')
                             <li><a href="{{ route('tasktemplate') }}"><i
                                 class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
+                            @can('read-deduction')
+                                <li><a href="{{ route('deduction') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
+                            @endcan
+                            @can('read-deduction-type')
+                                <li><a href="{{ route('deductiontype') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
+                            @endcan
+                            @can('read-allowance-type')
+                                <li><a href="{{ route('allowancetype') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
+                            @endcan
+                            @can('read-position')
+                                <li><a href="{{ route('position') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
                             @endcan
                         </ul>
                     </li>
                 @endcanany
-                
+
                 <li>
                     <a href="{{ route('formbuilder') }}" class="">
                         <i class="fas fa-user-alt"></i>
