@@ -48,6 +48,10 @@
                                 <li><a href="{{ route('productrole') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
                             @endcan
+                            @can('read-deduction')
+                                <li><a href="{{ route('deduction') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
+                            @endcan
                             @can('read-deduction-type')
                                 <li><a href="{{ route('deductiontype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>

@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
+use App\Http\Controllers\Master\DeductionController;
 use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
@@ -131,6 +132,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [FormTemplateBuilderController::class, 'update'])->name('formbuilder.update');
             Route::delete('/delete/{id}', [FormTemplateBuilderController::class, 'destroy'])->name('formbuilder.delete');
             // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
+        });
+
+        // Deduction
+        Route::prefix('deduction')->group(function () {
+            Route::get('', [DeductionController::class, 'index'])->name('deduction');
+            Route::get('getdata', [DeductionController::class, 'getData'])->name('deduction.getdata');
+            Route::post('store', [DeductionController::class, 'store'])->name('deduction.store');
+            Route::get('/edit/{id}', [DeductionController::class, 'show'])->name('deduction.edit');
+            Route::put('/update/{id}', [DeductionController::class, 'update'])->name('deduction.update');
+            Route::delete('/delete/{id}', [DeductionController::class, 'destroy'])->name('deduction.delete');
         });
 
         // Deduction Type
