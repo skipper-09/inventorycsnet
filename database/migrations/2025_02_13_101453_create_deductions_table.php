@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('deductions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employe_id');
+            $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('deduction_type_id');
             $table->decimal('amount',10,2);
-            $table->timestamps();
-            $table->foreign('employe_id')->references('id')->on('employes')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('deduction_type_id')->references('id')->on(table: 'deduction_types')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('deduction_type_id')->references('id')->on('deduction_types')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

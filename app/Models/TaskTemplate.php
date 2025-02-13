@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DeductionType extends Model
+class TaskTemplate extends Model
 {
     protected $primaryKey = "id";
 
     protected $fillable = [
         "name",
+        "description",
     ];
 
-    public function deductions()
+    public function tasks()
     {
-        return $this->hasMany(Deduction::class);
+        return $this->hasMany(Task::class);
     }
 }

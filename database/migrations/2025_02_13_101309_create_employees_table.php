@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('employes', function (Blueprint $table) {
+        Schema::create('employees', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('departement_id');
+            $table->unsignedBigInteger('department_id');
             $table->unsignedBigInteger('position_id');
             $table->string('name');
             $table->text('address');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('nik')->unique();
             $table->longText('identity_card');
             $table->timestamps();
-            $table->foreign('departement_id')->references('id')->on('departements')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('department_id')->references('id')->on('departments')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('position_id')->references('id')->on('positions')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('employes');
+        Schema::dropIfExists('employees');
     }
 };

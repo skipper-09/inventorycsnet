@@ -21,6 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'picture',
         'branch_id',
+        'employee_id',
         'name',
         'username',
         'email',
@@ -54,7 +55,12 @@ class User extends Authenticatable
     public function branch(){
         return $this->belongsTo(Branch::class);
     }
+
     public function Transaction(){
         return $this->hasOne(Transaction::class);
+    }
+
+    public function employee(){
+        return $this->belongsTo(Employee::class);
     }
 }

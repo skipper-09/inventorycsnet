@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taks', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('departement_id');
-            $table->unsignedBigInteger('employe_id');
+            $table->unsignedBigInteger('department_id');
+            $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('task_template_id');
             $table->enum('task_type',['daily','weekly','monthly']);
             $table->boolean('status')->default(true);
             $table->timestamps();
-            $table->foreign('departement_id')->references('id')->on('departements')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('employe_id')->references('id')->on('employes')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('task_template_id')->references('id')->on('taks_templates')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('department_id')->references('id')->on('departments')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('task_template_id')->references('id')->on('task_templates')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taks');
+        Schema::dropIfExists('tasks');
     }
 };

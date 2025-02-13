@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('leaves', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employe_id');
+            $table->unsignedBigInteger('employee_id');
             $table->date('start_date');
             $table->date('end_date');
             $table->text('reason')->nullable();
             $table->enum('status',['approved','pending'])->default('pending');
             $table->year('year');
             $table->timestamps();
-            $table->foreign('employe_id')->references('id')->on('employes')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

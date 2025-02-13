@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taks_templates', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->longText('description');
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taks_templates');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['employee_id']);
+        });
     }
 };

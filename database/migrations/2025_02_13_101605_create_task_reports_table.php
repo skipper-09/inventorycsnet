@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taks_reports', function (Blueprint $table) {
+        Schema::create('task_reports', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
             $table->enum('report_type',['before','after'])->default('before');
             $table->longText('report_image');
             $table->longText('report_content')->nullable();
             $table->timestamps();
-            $table->foreign('task_id')->references('id')->on('taks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('task_id')->references('id')->on('tasks')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taks_reports');
+        Schema::dropIfExists('task_reports');
     }
 };

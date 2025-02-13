@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('taks_schedules', function (Blueprint $table) {
+        Schema::create('departments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('task_id');
-            $table->enum('schedule_type',['daily','weekly','monthly']);
-            $table->date('next_execution');
+            $table->string('name');
+            $table->string('location');
             $table->timestamps();
-            $table->foreign('task_id')->references('id')->on('taks')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('taks_schedules');
+        Schema::dropIfExists('departments');
     }
 };
