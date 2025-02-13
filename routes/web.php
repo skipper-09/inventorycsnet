@@ -146,42 +146,42 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });    
         // Deduction
         Route::prefix('deduction')->group(function () {
-            Route::get('', [DeductionController::class, 'index'])->name('deduction');
+            Route::get('', [DeductionController::class, 'index'])->name('deduction')->middleware('can:read-deduction');
             Route::get('getdata', [DeductionController::class, 'getData'])->name('deduction.getdata');
             Route::post('store', [DeductionController::class, 'store'])->name('deduction.store');
-            Route::get('/edit/{id}', [DeductionController::class, 'show'])->name('deduction.edit');
+            Route::get('/edit/{id}', [DeductionController::class, 'show'])->name('deduction.edit')->middleware('can:update-deduction');
             Route::put('/update/{id}', [DeductionController::class, 'update'])->name('deduction.update');
-            Route::delete('/delete/{id}', [DeductionController::class, 'destroy'])->name('deduction.delete');
+            Route::delete('/delete/{id}', [DeductionController::class, 'destroy'])->name('deduction.delete')->middleware('can:delete-deduction');
         });
 
         // Deduction Type
         Route::prefix('deductiontype')->group(function () {
-            Route::get('', [DeductionTypeController::class, 'index'])->name('deductiontype');
+            Route::get('', [DeductionTypeController::class, 'index'])->name('deductiontype')->middleware('can:read-deduction-type');
             Route::get('getdata', [DeductionTypeController::class, 'getData'])->name('deductiontype.getdata');
             Route::post('store', [DeductionTypeController::class, 'store'])->name('deductiontype.store');
-            Route::get('/edit/{id}', [DeductionTypeController::class, 'show'])->name('deductiontype.edit');
+            Route::get('/edit/{id}', [DeductionTypeController::class, 'show'])->name('deductiontype.edit')->middleware('can:update-deduction-type');
             Route::put('/update/{id}', [DeductionTypeController::class, 'update'])->name('deductiontype.update');
-            Route::delete('/delete/{id}', [DeductionTypeController::class, 'destroy'])->name('deductiontype.delete');
+            Route::delete('/delete/{id}', [DeductionTypeController::class, 'destroy'])->name('deductiontype.delete')->middleware('can:delete-deduction-type');
         });
 
         // Allowance Type
         Route::prefix('allowancetype')->group(function () {
-            Route::get('', [AllowanceTypeController::class, 'index'])->name('allowancetype');
+            Route::get('', [AllowanceTypeController::class, 'index'])->name('allowancetype')->middleware('can:read-allowance-type');
             Route::get('getdata', [AllowanceTypeController::class, 'getData'])->name('allowancetype.getdata');
             Route::post('store', [AllowanceTypeController::class, 'store'])->name('allowancetype.store');
-            Route::get('/edit/{id}', [AllowanceTypeController::class, 'show'])->name('allowancetype.edit');
+            Route::get('/edit/{id}', [AllowanceTypeController::class, 'show'])->name('allowancetype.edit')->middleware('can:update-allowance-type');
             Route::put('/update/{id}', [AllowanceTypeController::class, 'update'])->name('allowancetype.update');
-            Route::delete('/delete/{id}', [AllowanceTypeController::class, 'destroy'])->name('allowancetype.delete');
+            Route::delete('/delete/{id}', [AllowanceTypeController::class, 'destroy'])->name('allowancetype.delete')->middleware('can:delete-allowance-type');
         });
 
         // Position
         Route::prefix('position')->group(function () {
-            Route::get('', [PositionController::class, 'index'])->name('position');
+            Route::get('', [PositionController::class, 'index'])->name('position')->middleware('can:read-position');
             Route::get('getdata', [PositionController::class, 'getData'])->name('position.getdata');
             Route::post('store', [PositionController::class, 'store'])->name('position.store');
-            Route::get('/edit/{id}', [PositionController::class, 'show'])->name('position.edit');
+            Route::get('/edit/{id}', [PositionController::class, 'show'])->name('position.edit')->middleware('can:update-position');
             Route::put('/update/{id}', [PositionController::class, 'update'])->name('position.update');
-            Route::delete('/delete/{id}', [PositionController::class, 'destroy'])->name('position.delete');
+            Route::delete('/delete/{id}', [PositionController::class, 'destroy'])->name('position.delete')->middleware('can:delete-position');
         });
     });
 
