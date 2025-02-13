@@ -62,6 +62,10 @@ class PermissionSeeder extends Seeder
             'update-role',
             'delete-role',
             'read-setting',
+            'read-task-template',
+            'create-task-template',
+            'update-task-template',
+            'delete-task-template',
         ];
         
         $permissions = collect($arrayOfPermissionNames)->map(function ($permission) {

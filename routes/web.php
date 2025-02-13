@@ -5,6 +5,7 @@ use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\ProductRoleController;
+use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Settings\SettingController;
@@ -128,6 +129,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [FormTemplateBuilderController::class, 'update'])->name('formbuilder.update');
             Route::delete('/delete/{id}', [FormTemplateBuilderController::class, 'destroy'])->name('formbuilder.delete');
             // Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
+        });
+
+
+
+        //TaskTemmplate
+        Route::prefix('task-template')->group(function () {
+            Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
+            Route::get('getdata', [TaskTemplateController::class, 'getData'])->name('tasktemplate.getdata');
+            Route::post('store', [TaskTemplateController::class, 'store'])->name('tasktemplate.store');
+            Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
+            Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
+            Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
         });
     });
 

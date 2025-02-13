@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Http\Controllers\Master;
+
+use App\Http\Controllers\Controller;
+use App\Models\TaskTemplate;
+use App\Models\User;
+use Exception;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\DataTables;
+
+class TaskTemplateController extends Controller
+{
+    public function index()
+    {
+        $data = [
+            'title' => 'Task Template',
+        ];
+        return view('pages.master.tasktemplate.index', $data);
+    }
+
+
+    public function getData()
+    {
+        $data = TaskTemplate::orderByDesc('id')->get();
+        return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $button = '';
+
+            if ($userauth->can('update-task-template')) {
+                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('tasktemplate.edit', ['id' => $data->id]) . '" data-proses="' . route('tasktemplate.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+                            data-action="edit" data-title="Task Template" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+                                                        class="fas fa-pen "></i></button>';
+            }
+            if ($userauth->can('delete-task-template')) {
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('tasktemplate.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                                                        class="fas fa-trash "></i></button>';
+            }
+            return '<div class="d-flex gap-2">' . $button . '</div>';
+        })->rawColumns(['action'])->make(true);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+        ], [
+            'name.required' => 'Nama Task harus diisi.',
+            'description.required' => 'Deskripsi Task harus diisi.',
+        ]);
+
+        try {
+            $unit = new TaskTemplate();
+            $unit->create($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Template Task Berhasil dibuat.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+    public function show($id)
+    {
+        $tasktemplate = TaskTemplate::findOrFail($id);
+        return response()->json([
+            'tasktemplate' => $tasktemplate,
+        ], 200);
+    }
+
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+        ], [
+            'name.required' => 'Nama Task harus diisi.',
+            'description.required' => 'Deskripsi Task harus diisi.',
+        ]);
+        try {
+            $unit = TaskTemplate::findOrFail($id);
+            $unit->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Taks Template Berhasil diupdate.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+
+
+     //destroy data
+     public function destroy($id)
+     {
+         try {
+             $tasktemplate = TaskTemplate::findOrFail($id);
+             $tasktemplate->delete();
+             //return response
+             return response()->json([
+                 'status' => 'success',
+                 'success' => true,
+                 'message' => 'Task Template Berhasil Dihapus!.',
+             ]);
+         } catch (Exception $e) {
+             return response()->json([
+                 'message' => 'Gagal Menghapus Task Template!',
+                 'trace' => $e->getTrace()
+             ]);
+         }
+     }
+}

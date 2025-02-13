@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             BranchSeeder::class,
             SettingSeeder::class,
+            TaskTemplateSeeder::class,
             // BranchProductStockSeeder::class,
             // OutcomeProductSeeder::class,
             // TransferProductSeeder::class,

@@ -15,7 +15,7 @@
                     </li>
                 @endcan
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
-                    'read-product-role'])
+                    'read-product-role','read-task-template'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
@@ -47,6 +47,10 @@
                             @can('read-product-role')
                                 <li><a href="{{ route('productrole') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
+                            @endcan
+                            @can('read-task-template')
+                            <li><a href="{{ route('tasktemplate') }}"><i
+                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
                             @endcan
                         </ul>
                     </li>
