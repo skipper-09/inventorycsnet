@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Employee;
 use App\Models\Leave;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,12 +17,13 @@ class EmployeeLeaveSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        $startDate = $faker->date();
-
-        $endDate = date('Y-m-d', strtotime($startDate . ' +5 days'));
+        $employeeIds = Employee::pluck('id')->toArray();
         for ($i = 0; $i < 10; $i++) {
+            $startDate = $faker->date();
+            $endDate = date('Y-m-d', strtotime($startDate . ' +5 days'));
+            $employeeId = $faker->randomElement($employeeIds);
             Leave::insert([
-                'employee_id' => $faker->randomNumber(1),
+                'employee_id' => $employeeId,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'reason' => $faker->sentence(),
