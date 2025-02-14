@@ -8,6 +8,7 @@ use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\DeductionController;
 use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\DepartmentController;
+use App\Http\Controllers\Master\EmployeeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
@@ -206,6 +207,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [DepartmentController::class, 'show'])->name('department.edit')->middleware('can:update-department');
             Route::put('/update/{id}', [DepartmentController::class, 'update'])->name('department.update');
             Route::delete('/delete/{id}', [DepartmentController::class, 'destroy'])->name('department.delete')->middleware('can:delete-department');
+        });
+
+        // Employee
+        Route::prefix('employee')->group(function () {
+            Route::get('', [EmployeeController::class, 'index'])->name('employee')->middleware('can:read-employee');
+            Route::get('getdata', [EmployeeController::class, 'getData'])->name('employee.getdata');
+            Route::post('store', [EmployeeController::class, 'store'])->name('employee.store');
+            Route::get('/edit/{id}', [EmployeeController::class, 'show'])->name('employee.edit')->middleware('can:update-employee');
+            Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
+            Route::delete('/delete/{id}', [EmployeeController::class, 'destroy'])->name('employee.delete')->middleware('can:delete-employee');
         });
     });
 

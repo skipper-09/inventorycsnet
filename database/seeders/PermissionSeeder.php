@@ -65,6 +65,10 @@ class PermissionSeeder extends Seeder
             'create-department',
             'update-department',
             'delete-department',
+            'read-employee',
+            'create-employee',
+            'update-employee',
+            'delete-employee',
             //tasktemplate
             'read-task-template',
             'create-task-template',
