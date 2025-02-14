@@ -35,25 +35,25 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @can('create-deduction')
+                    @can('create-allowance')
                         <div class="card-header">
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                                data-action="create" data-proses="{{ route('deduction.store') }}"
+                                data-action="create" data-proses="{{ route('allowance.store') }}"
                                 data-title="{{ $title }}">Tambah {{ $title }}</button>
                         </div>
                     @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('deduction.getdata') }}"
-                            data-has-action-permission="{{ auth()->user()->canany(['update-deduction', 'delete-deduction'])? 'true': 'false' }}">
+                            data-route="{{ route('allowance.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-allowance', 'delete-allowance'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
                                     <th>Karyawan</th>
-                                    <th>Tipe Deduksi</th>
+                                    <th>Tipe Tunjangan</th>
                                     <th>Jumlah</th>
-                                    @canany(['update-deduction', 'delete-deduction'])
+                                    @canany(['update-allowance', 'delete-allowance'])
                                         <th>Action</th>
                                     @endcanany
                                 </tr>
@@ -65,7 +65,7 @@
         </div>
     </div>
 
-    @include('pages.master.deduction.form')
+    @include('pages.master.allowance.form')
 
 @endsection
 
@@ -79,7 +79,7 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 
     {{-- route datatable init and js definition --}}
-    <script src="{{ asset('assets/js/mods/deduction.js') }}"></script>
+    <script src="{{ asset('assets/js/mods/allowance.js') }}"></script>
     {{-- select 2 deifinition --}}
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>

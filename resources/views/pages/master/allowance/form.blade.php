@@ -8,7 +8,7 @@
                 </button>
             </div>
             <!-- Form untuk pengiriman data -->
-            <form id="addDeductionForm" action="" method="POST">
+            <form id="addAllowanceForm" action="" method="POST">
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
@@ -23,20 +23,20 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label w-100" for="deduction_type_id">Tipe Deduksi</label>
-                        <select name="deduction_type_id" id="deduction_type_id" class="form-control select2">
-                            <option value="">Pilih Tipe Deduksi</option>
-                            @foreach ($deductionTypes as $type)
+                        <label class="form-label w-100" for="allowance_type_id">Tipe Tunjangan</label>
+                        <select name="allowance_type_id" id="allowance_type_id" class="form-control select2">
+                            <option value="">Pilih Tipe Tunjangan</option>
+                            @foreach ($allowanceTypes as $type)
                                 <option value="{{ $type->id }}">{{ $type->name }}</option>
                             @endforeach
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label" for="amount">Jumlah Deduksi</label>
+                        <label class="form-label" for="amount">Jumlah Tunjangan</label>
                         <div class="input-group">
                             <input class="form-control" type="text" name="amount" id="amount"
-                                placeholder="Masukkan jumlah deduksi">
+                                placeholder="Masukkan jumlah tunjangan">
                         </div>
                     </div>
                 </div>

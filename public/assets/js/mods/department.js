@@ -15,7 +15,7 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addDeductionForm");
+        var form = $("#addDepartmentForm");
 
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
@@ -27,8 +27,6 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addDeductionForm #employee_id").val("").trigger("change");
-            $("#addDeductionForm #deduction_type_id").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -38,16 +36,9 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.deduction) {
-                        $("#addDeductionForm #employee_id")
-                            .val(response.deduction.employee_id)
-                            .trigger("change");
-                        $("#addDeductionForm #deduction_type_id")
-                            .val(response.deduction.deduction_type_id)
-                            .trigger("change");
-                        $("#addDeductionForm #amount").val(
-                            numberFormat(response.deduction.amount)
-                        );
+                    if (response.department) {
+                        $("#addDepartmentForm #name").val(response.department.name);
+                        $("#addDepartmentForm #location").val(response.department.location);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -56,11 +47,6 @@ $(document).ready(function () {
             });
         }
     });
-
-    function numberFormat(number) {
-        if (!number && number !== 0) return '';
-        return Math.round(number);
-    }
 
     var route = $("#scroll-sidebar-datatable").data("route");
     var hasActionPermission = $("#scroll-sidebar-datatable").data(
@@ -75,20 +61,16 @@ $(document).ready(function () {
             class: "text-center",
         },
         {
-            data: "employee_name",
-            name: "employee_name",
+            data: "name",
+            name: "name",
         },
         {
-            data: "deduction_type_name",
-            name: "deduction_type_name",
-        },
-        {
-            data: "formatted_amount",
-            name: "formatted_amount",
-        },
+            data: "location",
+            name: "location",
+        }
     ];
 
-    // Only add action column if user has permission
+    // add action with permission and not permission
     if (hasActionPermission) {
         columns.push({
             data: "action",
@@ -117,7 +99,7 @@ $(document).ready(function () {
         columns: columns,
     });
 
-    $("#addDeductionForm").on("submit", function (e) {
+    $("#addDepartmentForm").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -128,7 +110,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addDeductionForm")[0].reset();
+                    $("#addDepartmentForm")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",

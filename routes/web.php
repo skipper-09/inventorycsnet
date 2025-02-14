@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Master\AllowanceController;
 use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\DeductionController;
 use App\Http\Controllers\Master\DeductionTypeController;
+use App\Http\Controllers\Master\DepartmentController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
@@ -144,7 +146,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
             Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
-        });    
+        });
+
         // Deduction
         Route::prefix('deduction')->group(function () {
             Route::get('', [DeductionController::class, 'index'])->name('deduction')->middleware('can:read-deduction');
@@ -165,6 +168,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [DeductionTypeController::class, 'destroy'])->name('deductiontype.delete')->middleware('can:delete-deduction-type');
         });
 
+        // Allowance
+        Route::prefix('allowance')->group(function () {
+            Route::get('', [AllowanceController::class, 'index'])->name('allowance')->middleware('can:read-allowance');
+            Route::get('getdata', [AllowanceController::class, 'getData'])->name('allowance.getdata');
+            Route::post('store', [AllowanceController::class, 'store'])->name('allowance.store');
+            Route::get('/edit/{id}', [AllowanceController::class, 'show'])->name('allowance.edit')->middleware('can:update-allowance');
+            Route::put('/update/{id}', [AllowanceController::class, 'update'])->name('allowance.update');
+            Route::delete('/delete/{id}', [AllowanceController::class, 'destroy'])->name('allowance.delete')->middleware('can:delete-allowance');
+        });
+
         // Allowance Type
         Route::prefix('allowancetype')->group(function () {
             Route::get('', [AllowanceTypeController::class, 'index'])->name('allowancetype')->middleware('can:read-allowance-type');
@@ -183,6 +196,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [PositionController::class, 'show'])->name('position.edit')->middleware('can:update-position');
             Route::put('/update/{id}', [PositionController::class, 'update'])->name('position.update');
             Route::delete('/delete/{id}', [PositionController::class, 'destroy'])->name('position.delete')->middleware('can:delete-position');
+        });
+
+        // Department
+        Route::prefix('department')->group(function () {
+            Route::get('', [DepartmentController::class, 'index'])->name('department')->middleware('can:read-department');
+            Route::get('getdata', [DepartmentController::class, 'getData'])->name('department.getdata');
+            Route::post('store', [DepartmentController::class, 'store'])->name('department.store');
+            Route::get('/edit/{id}', [DepartmentController::class, 'show'])->name('department.edit')->middleware('can:update-department');
+            Route::put('/update/{id}', [DepartmentController::class, 'update'])->name('department.update');
+            Route::delete('/delete/{id}', [DepartmentController::class, 'destroy'])->name('department.delete')->middleware('can:delete-department');
         });
     });
 

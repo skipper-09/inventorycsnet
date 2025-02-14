@@ -53,6 +53,10 @@ class RoleSeeder extends Seeder
             'create-deduction-type',
             'update-deduction-type',
             'delete-deduction-type',
+            'read-allowance',
+            'create-allowance',
+            'update-allowance',
+            'delete-allowance',
             'read-allowance-type',
             'create-allowance-type',
             'update-allowance-type',
@@ -66,6 +70,11 @@ class RoleSeeder extends Seeder
             'create-leave-report',
             'update-leave-report',
             'delete-leave-report',
+            //departement
+            'read-department',
+            'create-department',
+            'update-department',
+            'delete-department',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',

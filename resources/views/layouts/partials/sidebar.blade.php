@@ -16,7 +16,7 @@
                 @endcan
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
                     'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type',
-                    'read-allowance-type', 'read-position'])
+                    'read-allowance', 'read-allowance-type', 'read-position', 'read-department'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
@@ -61,6 +61,10 @@
                                 <li><a href="{{ route('deductiontype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
                             @endcan
+                            @can('read-allowance')
+                                <li><a href="{{ route('allowance') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
+                            @endcan
                             @can('read-allowance-type')
                                 <li><a href="{{ route('allowancetype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
@@ -68,6 +72,10 @@
                             @can('read-position')
                                 <li><a href="{{ route('position') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
+                            @endcan
+                            @can('read-department')
+                                <li><a href="{{ route('department') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
                             @endcan
                         </ul>
                     </li>

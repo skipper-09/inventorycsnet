@@ -15,7 +15,7 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addDeductionForm");
+        var form = $("#addAllowanceForm");
 
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
@@ -27,8 +27,8 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addDeductionForm #employee_id").val("").trigger("change");
-            $("#addDeductionForm #deduction_type_id").val("").trigger("change");
+            $("#addAllowanceForm #employee_id").val("").trigger("change");
+            $("#addAllowanceForm #allowance_type_id").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -38,15 +38,15 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.deduction) {
-                        $("#addDeductionForm #employee_id")
-                            .val(response.deduction.employee_id)
+                    if (response.allowance) {
+                        $("#addAllowanceForm #employee_id")
+                            .val(response.allowance.employee_id)
                             .trigger("change");
-                        $("#addDeductionForm #deduction_type_id")
-                            .val(response.deduction.deduction_type_id)
+                        $("#addAllowanceForm #allowance_type_id")
+                            .val(response.allowance.allowance_type_id)
                             .trigger("change");
-                        $("#addDeductionForm #amount").val(
-                            numberFormat(response.deduction.amount)
+                        $("#addAllowanceForm #amount").val(
+                            numberFormat(response.allowance.amount)
                         );
                     }
                 },
@@ -79,8 +79,8 @@ $(document).ready(function () {
             name: "employee_name",
         },
         {
-            data: "deduction_type_name",
-            name: "deduction_type_name",
+            data: "allowance_type_name",
+            name: "allowance_type_name",
         },
         {
             data: "formatted_amount",
@@ -117,7 +117,7 @@ $(document).ready(function () {
         columns: columns,
     });
 
-    $("#addDeductionForm").on("submit", function (e) {
+    $("#addAllowanceForm").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -128,7 +128,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addDeductionForm")[0].reset();
+                    $("#addAllowanceForm")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",
