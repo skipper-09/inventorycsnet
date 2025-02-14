@@ -26,6 +26,8 @@ class DatabaseSeeder extends Seeder
             PositionSeeder::class,
             EmployeeSeeder::class,
             DeductionTypeSeeder::class,
+            AllowanceTypeSeeder::class,
+            DeductionTypeSeeder::class,
             // BranchProductStockSeeder::class,
             // OutcomeProductSeeder::class,
             // TransferProductSeeder::class,

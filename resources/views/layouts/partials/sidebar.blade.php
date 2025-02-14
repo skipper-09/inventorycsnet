@@ -61,6 +61,10 @@
                                 <li><a href="{{ route('deductiontype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
                             @endcan
+                            @can('read-allowance')
+                                <li><a href="{{ route('allowance') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
+                            @endcan
                             @can('read-allowance-type')
                                 <li><a href="{{ route('allowancetype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>

@@ -14,16 +14,12 @@ class DeductionTypeSeeder extends Seeder
     public function run(): void
     {
         $deductionTypes = [
-            ['name' => 'Late Arrival'],
-            ['name' => 'Early Departure'],
-            ['name' => 'Absence'],
-            ['name' => 'Insurance Premium'],
-            ['name' => 'Tax Deduction'],
-            ['name' => 'Loan Payment'],
-            ['name' => 'Equipment Damage'],
-            ['name' => 'Uniform Cost'],
-            ['name' => 'Administrative Fee'],
-            ['name' => 'Performance Penalty'],
+            ['name' => 'Potongan BPJS'],
+            ['name' => 'Potongan PPh 21'],
+            ['name' => 'Potongan Keterlambatan'],
+            ['name' => 'Potongan Pinjaman'],
+            ['name' => 'Potongan Absensi'],
+            ['name' => 'Sanksi/Denda'],
         ];
 
         foreach ($deductionTypes as $type) {
