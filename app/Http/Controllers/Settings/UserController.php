@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\Models\Employee;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -19,10 +20,11 @@ class UserController extends Controller
 {
     public function index()
     {
+        
         $data = [
             'title' => 'User',
             'roles' => Role::where('name', '!=', 'Developer')->get(),
-            'branch' => Branch::all(),
+            'employee' => Employee::whereDoesntHave('user')->get(),
         ];
 
         return view('pages.settings.user.index', $data);
@@ -30,7 +32,7 @@ class UserController extends Controller
 
     public function getData()
     {
-        $user = User::with(['roles', 'branch'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
+        $user = User::with(['roles', 'employee'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
 
         return DataTables::of($user)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
@@ -49,13 +51,13 @@ class UserController extends Controller
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
             return $data->roles[0]->name;
-        })->addColumn('branch', function ($data) {
-            return $data->branch->name ?? '-';
+        })->addColumn('employee', function ($data) {
+            return $data->employee->name ?? '-';
         })->addColumn('status', function ($data) {
             return $data->is_block == 0 ? '<span class="badge badge-label-primary">Aktif</span>' : '<span class="badge badge-label-danger">Blokir</span>';
         })->editColumn('picture', function ($data) {
             return $data->picture == null ? '<img src="' . asset('assets/images/users/avatar-1.png') . '" alt="Profile Image" class="rounded-circle header-profile-user">' : '<img src="' . asset("storage/images/user/$data->picture") . '" alt="Profile Image" class="rounded-circle header-profile-user">';
-        })->rawColumns(['action', 'role', 'picture', 'status'])->make(true);
+        })->rawColumns(['action', 'role', 'picture', 'status','employee'])->make(true);
     }
 
 
@@ -108,7 +110,7 @@ class UserController extends Controller
             $user = User::create([
                 'picture' => $filename,
                 'username' => $request->username,
-                'branch_id' => $request->branch,
+                'employee_id' => $request->employee_id,
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
@@ -133,8 +135,8 @@ class UserController extends Controller
 
     public function show($id)
     {
-        $user = User::with('roles')->findOrFail($id);
-        return response()->json(['user' => $user], 200);
+        $user = User::with(['roles'])->findOrFail($id);
+        return response()->json(['user' => $user,'employee'=>Employee::all()], 200);
     }
 
     public function update(Request $request, $id)
@@ -205,7 +207,7 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->is_block = $request->is_block;
-            $user->branch_id = $request->branch;
+            $user->employee_id = $request->employee_id == null ? $user->employee_id :$request->employee_id;
 
             // Only update password if provided
             if ($request->filled('password')) {

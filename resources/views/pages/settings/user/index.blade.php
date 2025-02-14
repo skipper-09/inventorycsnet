@@ -56,7 +56,7 @@
                                     <th>Name</th>
                                     <th>Role</th>
                                     <th>Status</th>
-                                    <th>Cabang</th>
+                                    <th>Karyawan</th>
                                     @canany(['update-user', 'delete-user'])
                                     <th>Action</th>
                                     @endcanany

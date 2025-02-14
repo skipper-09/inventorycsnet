@@ -29,18 +29,20 @@ $(document).ready(function () {
             form.attr("action", proses);
             form.attr("method", "POST");
             $("#imagePreview").addClass("d-none");
+            // $('#employe').removeClass('d-none');
             $("#addUserForm #role").val("").trigger("change");
-            $("#addUserForm #branch").val("").trigger("change");
+            $("#addUserForm #employee_id").val(" ").trigger("change");
             $("#addUserForm #is_block").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
             form.attr("method", "PUT");
-
+            // $('#employe').addClass('d-none');
             $.ajax({
                 url: route,
                 type: "GET",
                 success: function (response) {
+                    
                     if (response.user) {
                         $("#addUserForm #username").val(response.user.username);
                         $("#addUserForm #name").val(response.user.name);
@@ -48,9 +50,7 @@ $(document).ready(function () {
                         $("#addUserForm #role")
                             .val(response.user.roles[0].name)
                             .trigger("change");
-                        $("#addUserForm #branch")
-                            .val(response.user.branch_id)
-                            .trigger("change");
+                        $("#addUserForm #employee_id").val(response.user.employee_id).trigger("change");
 
                         $("#addUserForm #is_block")
                             .val(response.user.is_block)
@@ -102,7 +102,7 @@ $(document).ready(function () {
         { data: "name", name: "name" },
         { data: "role", name: "role" },
         { data: "status", name: "status" },
-        { data: "branch", name: "branch" },
+        { data: "employee", name: "employee" },
     ];
 
     // Only add action column if user has permission

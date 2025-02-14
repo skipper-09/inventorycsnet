@@ -45,11 +45,11 @@
                             id="password_confirmation" placeholder="Konfirmasi Password">
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label" for="branch">Pilih Cabang</label>
-                        <select class="form-control select2" id="branch" name="branch">
-                            <option value="">Pilih Cabang</option>
-                            @foreach ($branch as $item)
+                    <div class="mb-3" id="employe">
+                        <label class="form-label" for="employee_id">Pilih Karyawan</label>
+                        <select class="form-control select2" id="employee_id" name="employee_id">
+                            <option value="">Pilih Karyawan</option>
+                            @foreach ($employee as $item)
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
                         </select>

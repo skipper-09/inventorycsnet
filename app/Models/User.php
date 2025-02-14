@@ -20,7 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'picture',
-        'branch_id',
+        // 'branch_id',
         'employee_id',
         'name',
         'username',
@@ -52,9 +52,9 @@ class User extends Authenticatable
         ];
     }
 
-    public function branch(){
-        return $this->belongsTo(Branch::class);
-    }
+    // public function branch(){
+    //     return $this->belongsTo(Branch::class);
+    // }
 
     public function Transaction(){
         return $this->hasOne(Transaction::class);
