@@ -16,7 +16,7 @@
                 @endcan
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
                     'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type',
-                    'read-allowance-type', 'read-position', 'read-department'])
+                    'read-allowance', 'read-allowance-type', 'read-position', 'read-department'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
