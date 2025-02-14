@@ -65,6 +65,12 @@ class RoleSeeder extends Seeder
             'create-position',
             'update-position',
             'delete-position',
+            //leave report
+            'read-leave-report',
+            'create-leave-report',
+            'update-leave-report',
+            'delete-leave-report',
+            //departement
             'read-department',
             'create-department',
             'update-department',

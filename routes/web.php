@@ -15,6 +15,7 @@ use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
+use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Transaction\IncomeProductController;
 use Illuminate\Support\Facades\Route;
@@ -261,6 +262,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('/edit/{id}', [TransactionProductController::class, 'show'])->name('report.transaction-product.edit');
             // Route::put('/update/{id}', [TransactionProductController::class, 'update'])->name('report.transaction-product.update');
             // Route::delete('/delete/{id}', [TransactionProductController::class, 'destroy'])->name('report.transaction-product.delete');
+        });
+
+        //leave report
+        Route::prefix('leave-report')->group(function () {
+            Route::get('', [LeaveReportController::class, 'index'])->name('leavereport')->middleware('can:read-leave-report');
+            Route::get('getdata', [LeaveReportController::class, 'getData'])->name('leavereport.getdata');
+            Route::get('/edit/{id}', [LeaveReportController::class, 'show'])->name('leavereport.edit')->middleware('can:read-leave-report');
+            Route::put('/update/{id}', [LeaveReportController::class, 'update'])->name('leavereport.update');
         });
     });
 
