@@ -62,6 +62,11 @@ class PermissionSeeder extends Seeder
             'create-task-template',
             'update-task-template',
             'delete-task-template',
+            //leave report
+            'read-leave-report',
+            'create-leave-report',
+            'update-leave-report',
+            'delete-leave-report',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',

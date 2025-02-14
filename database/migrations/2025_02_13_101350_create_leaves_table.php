@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->text('reason')->nullable();
-            $table->enum('status',['approved','pending'])->default('pending');
+            $table->enum('status',['approved','pending','rejected'])->default('pending');
             $table->year('year');
             $table->timestamps();
             $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
