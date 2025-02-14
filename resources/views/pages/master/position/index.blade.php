@@ -49,7 +49,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
+                                    <th>Nama</th>
                                     @canany(['update-position', 'delete-position'])
                                         <th>Action</th>
                                     @endcanany

@@ -8,16 +8,20 @@
                 </button>
             </div>
             <!-- Form untuk pengiriman data -->
-            <form id="addPositionForm" action="" method="POST">
+            <form id="addDepartmentForm" action="" method="POST">
                 @csrf
                 <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
-
                     <div class="mb-3">
                         <label class="form-label" for="name">Nama</label>
                         <input class="form-control" type="text" name="name" id="name"
-                            placeholder="Nama Jabatan">
+                            placeholder="Nama Departemen">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="location">Lokasi</label>
+                        <input class="form-control" type="text" name="location" id="location"
+                            placeholder="Lokasi">
                     </div>
                 </div>
                 <div class="modal-footer">

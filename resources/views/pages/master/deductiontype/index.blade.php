@@ -49,7 +49,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
+                                    <th>Nama</th>
                                     @canany(['update-deduction-type', 'delete-deduction-type'])
                                         <th>Action</th>
                                     @endcanany
