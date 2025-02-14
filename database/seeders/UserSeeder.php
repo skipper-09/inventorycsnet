@@ -22,25 +22,25 @@ class UserSeeder extends Seeder
             'password' => Hash::make('csnetdev'),
         ])->assignRole('Developer');
 
-        User::create([
-            'name' => 'Teknisi',
-            'username' => 'teknisi',
-            'email' => 'teknisi@gmail.com',
-            'password' => Hash::make('teknisi'),
-        ])->assignRole('Teknisi');
+        // User::create([
+        //     'name' => 'Teknisi',
+        //     'username' => 'teknisi',
+        //     'email' => 'teknisi@gmail.com',
+        //     'password' => Hash::make('teknisi'),
+        // ])->assignRole('Teknisi');
 
-        User::create([
-            'name' => 'ODP',
-            'username' => 'odp123',
-            'email' => 'odp@gmail.com',
-            'password' => Hash::make('odp123'),
-        ])->assignRole('ODP');
+        // User::create([
+        //     'name' => 'ODP',
+        //     'username' => 'odp123',
+        //     'email' => 'odp@gmail.com',
+        //     'password' => Hash::make('odp123'),
+        // ])->assignRole('ODP');
 
-        User::create([
-            'name' => 'Admin',
-            'username' => 'admin',
-            'email' => 'admin@gmail.com',
-            'password' => Hash::make('admin'),
-        ])->assignRole('Administrator');
+        // User::create([
+        //     'name' => 'Admin',
+        //     'username' => 'admin',
+        //     'email' => 'admin@gmail.com',
+        //     'password' => Hash::make('admin'),
+        // ])->assignRole('Administrator');
     }
 }

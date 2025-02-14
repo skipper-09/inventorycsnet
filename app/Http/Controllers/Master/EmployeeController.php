@@ -10,6 +10,10 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeController extends Controller
@@ -26,7 +30,16 @@ class EmployeeController extends Controller
 
     public function getData()
     {
-        $data = Employee::with(['department', 'position'])->orderByDesc('id')->get();
+        $data = Employee::with([
+            'department',
+            'position',
+            'user.roles',
+            'allowances',
+            'deductions',
+            'salaries',
+            'leaves'
+        ])->orderByDesc('id')->get();
+
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('department_name', function ($row) {
@@ -39,16 +52,28 @@ class EmployeeController extends Controller
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
                 if ($userauth->can('update-employee')) {
-                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('employee.edit', ['id' => $data->id]) . '" data-proses="' . route('employee.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="edit" data-title="Deduksi" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                                                        class="fas fa-pen "></i></button>';
+                    $button .= ' <a href="' . route('employee.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
                 }
+                // if ($userauth->can('read-employee')) {
+                //     $button .= ' <a href="' . route('employee.details', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+                // }
                 if ($userauth->can('delete-employee')) {
                     $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('employee.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                                                        class="fas fa-trash "></i></button>';
+                        class="fas fa-trash "></i></button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })->rawColumns(['action'])->make(true);
+    }
+
+    public function create()
+    {
+        $data = [
+            'title' => 'Karyawan',
+            'departments' => Department::all(),
+            'positions' => Position::all(),
+            'roles' => Role::all()
+        ];
+        return view('pages.master.employee.add', $data);
     }
 
     public function store(Request $request)
@@ -64,6 +89,12 @@ class EmployeeController extends Controller
             'gender' => 'required|in:male,female',
             'nik' => 'required|string|unique:employees,nik',
             'identity_card' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            // User credentials
+            'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'username' => 'required|string|unique:users,username',
+            'password' => 'required|string|min:8',
+            'roles' => 'required|array',
+            'roles.*' => 'exists:roles,name'
         ], [
             "department_id.required" => "Departemen harus dipilih.",
             "position_id.required" => "Jabatan harus dipilih.",
@@ -84,18 +115,40 @@ class EmployeeController extends Controller
             "identity_card.file" => "Kartu identitas harus berupa file.",
             "identity_card.mimes" => "Format kartu identitas harus jpeg, png, jpg, atau pdf.",
             "identity_card.max" => "Ukuran kartu identitas maksimal 2MB.",
+            "picture.required" => "Foto harus diupload.",
+            "picture.image" => "Foto harus berupa gambar.",
+            "picture.mimes" => "Format gambar tidak valid.",
+            "picture.max" => "Ukuran gambar tidak boleh lebih dari 2MB.",
+            "username.required" => "Username harus diisi.",
+            "username.unique" => "Username sudah digunakan.",
+            "password.required" => "Password harus diisi.",
+            "password.min" => "Password minimal 8 karakter.",
+            "roles.required" => "Role harus dipilih.",
+            "roles.array" => "Format role tidak valid.",
+            "roles.*.exists" => "Role yang dipilih tidak valid.",
         ]);
 
         try {
-            // Handle image upload
-            $filename = '';
+            DB::beginTransaction();
+
+            // Handle identity card upload
+            $identityCard = '';
             if ($request->hasFile('identity_card')) {
                 $file = $request->file('identity_card');
-                $filename = 'identity_card_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('storage/files/identity_card'), $filename);
+                $identityCard = 'identity_card_' . time() . '_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/files/identity_card'), $identityCard);
             }
 
-            Employee::create([
+            // Handle picture upload
+            $picture = '';
+            if ($request->hasFile('picture')) {
+                $file = $request->file('picture');
+                $picture = 'picture_' . time() . '_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/files/picture'), $picture);
+            }
+
+            // Create employee record
+            $employee = Employee::create([
                 'department_id' => $request->department_id,
                 'position_id' => $request->position_id,
                 'name' => $request->name,
@@ -105,29 +158,75 @@ class EmployeeController extends Controller
                 'date_of_birth' => $request->date_of_birth,
                 'gender' => $request->gender,
                 'nik' => $request->nik,
-                'identity_card' => $filename,
+                'identity_card' => $identityCard,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Data Tunjangan Berhasil dibuat.'
+            // Create associated user account
+            $user = User::create([
+                'employee_id' => $employee->id,
+                'picture' => $picture,
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'is_block' => false,
             ]);
+
+            // Assign roles to user
+            $user->syncRoles($request->roles);
+
+            DB::commit();
+
+            return redirect()->route('employee')->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Menambahkan Data!'
+            ]);
+
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            DB::rollBack();
+
+            // Delete uploaded file if exists
+            if (!empty($filename) && file_exists(public_path('storage/files/identity_card/' . $filename))) {
+                unlink(public_path('storage/files/identity_card/' . $filename));
+            } else if (!empty($picture) && file_exists(public_path('storage/files/picture/' . $picture))) {
+                unlink(public_path('storage/files/picture/' . $picture));
+            }
+
+            Log::error($e);
+
+            return redirect()->route('employee')->with([
+                'status' => 'Error!',
+                'message' => 'Gagal Menambahkan Data!'
             ]);
         }
     }
 
     public function show($id)
     {
-        $employee = Employee::findOrFail($id);
-        return response()->json([
-            'employee' => $employee,
-        ], 200);
+        $data = [
+            "title" => "Karyawan",
+            "departments" => Department::all(),
+            "positions" => Position::all(),
+            "roles" => Role::all(),
+            "employee" => Employee::with([
+                'department',
+                'position',
+                'user.roles',
+                'allowances',
+                'deductions',
+                'salaries',
+                'leaves'
+            ])->findOrFail($id)
+        ];
+
+        if (!$data['employee']->user) {
+            return redirect()->route('employee')->with([
+                'status' => 'Error!',
+                'message' => 'Data user tidak ditemukan!'
+            ]);
+        }
+
+        return view('pages.master.employee.edit', $data);
     }
 
     public function update(Request $request, $id)
@@ -143,6 +242,11 @@ class EmployeeController extends Controller
             'gender' => 'required|in:male,female',
             'nik' => 'required|string|unique:employees,nik,' . $id,
             'identity_card' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'username' => 'required|string|unique:users,username,' . $id . ',employee_id',
+            'password' => 'nullable|string|min:8',
+            'roles' => 'required|array',
+            'roles.*' => 'exists:roles,name'
         ], [
             "department_id.required" => "Departemen harus dipilih.",
             "position_id.required" => "Jabatan harus dipilih.",
@@ -162,21 +266,51 @@ class EmployeeController extends Controller
             "identity_card.file" => "Kartu identitas harus berupa file.",
             "identity_card.mimes" => "Format kartu identitas harus jpeg, png, jpg, atau pdf.",
             "identity_card.max" => "Ukuran kartu identitas maksimal 2MB.",
+            "picture.image" => "Foto profil harus berupa gambar.",
+            "picture.mimes" => "Format foto profil tidak valid.",
+            "picture.max" => "Ukuran foto profil maksimal 2MB.",
+            "username.required" => "Username harus diisi.",
+            "username.unique" => "Username sudah digunakan.",
+            "password.min" => "Password minimal 8 karakter.",
+            "roles.required" => "Role harus dipilih.",
+            "roles.array" => "Format role tidak valid.",
+            "roles.*.exists" => "Role yang dipilih tidak valid.",
         ]);
 
         try {
-            // Find the employee to update
-            $employee = Employee::findOrFail($id);
+            DB::beginTransaction();
 
-            // Handle image upload if new file is provided
-            $filename = $employee->identity_card; // Retain existing image if no new file uploaded
+            // Find the employee and associated user
+            $employee = Employee::findOrFail($id);
+            $user = User::where('employee_id', $id)->firstOrFail();
+
+            // Handle identity card upload if new file is provided
             if ($request->hasFile('identity_card')) {
+                // Delete old file if exists
+                if ($employee->identity_card && file_exists(public_path('storage/files/identity_card/' . $employee->identity_card))) {
+                    unlink(public_path('storage/files/identity_card/' . $employee->identity_card));
+                }
+
                 $file = $request->file('identity_card');
-                $filename = 'identity_card_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('storage/files/identity_card'), $filename);
+                $identityCard = 'identity_card_' . time() . '_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/files/identity_card'), $identityCard);
+                $employee->identity_card = $identityCard;
             }
 
-            // Update the employee data
+            // Handle profile picture upload if new file is provided
+            if ($request->hasFile('picture')) {
+                // Delete old file if exists
+                if ($user->picture && file_exists(public_path('storage/files/picture/' . $user->picture))) {
+                    unlink(public_path('storage/files/picture/' . $user->picture));
+                }
+
+                $file = $request->file('picture');
+                $picture = 'picture_' . time() . '_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('storage/files/picture'), $picture);
+                $user->picture = $picture;
+            }
+
+            // Update employee data
             $employee->update([
                 'department_id' => $request->department_id,
                 'position_id' => $request->position_id,
@@ -187,19 +321,39 @@ class EmployeeController extends Controller
                 'date_of_birth' => $request->date_of_birth,
                 'gender' => $request->gender,
                 'nik' => $request->nik,
-                'identity_card' => $filename,
             ]);
 
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Data Pegawai Berhasil diperbarui.'
+            // Update user data
+            $userData = [
+                'name' => $request->name,
+                'username' => $request->username,
+                'email' => $request->email,
+            ];
+
+            // Only update password if provided
+            if ($request->filled('password')) {
+                $userData['password'] = Hash::make($request->password);
+            }
+
+            $user->update($userData);
+
+            // Update user roles
+            $user->syncRoles($request->roles);
+
+            DB::commit();
+
+            return redirect()->route('employee')->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Mengupdate Data!'
             ]);
+
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            DB::rollBack();
+            Log::error($e);
+
+            return redirect()->route('employee')->with([
+                'status' => 'Error!',
+                'message' => 'Gagal Mengupdate Data!'
             ]);
         }
     }
@@ -207,18 +361,50 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         try {
+            // Find the employee
             $employee = Employee::findOrFail($id);
+
+            // Delete associated user (if exists)
+            if ($employee->user) {
+                // Delete user profile picture if exists
+                if ($employee->user->picture && file_exists(public_path('storage/files/picture/' . $employee->user->picture))) {
+                    unlink(public_path('storage/files/picture/' . $employee->user->picture));
+                }
+
+                // Delete user record
+                $employee->user->delete();
+            }
+
+            // Delete associated identity card if exists
+            if ($employee->identity_card && file_exists(public_path('storage/files/identity_card/' . $employee->identity_card))) {
+                unlink(public_path('storage/files/identity_card/' . $employee->identity_card));
+            }
+
+            // Delete associated allowances, salaries, deductions, and leaves if needed
+            // Uncomment and adjust this block if you need to delete related records
+            // $employee->allowances()->delete();
+            // $employee->salaries()->delete();
+            // $employee->deductions()->delete();
+            // $employee->leaves()->delete();
+
+            // Delete employee record
             $employee->delete();
-            //return response
+
+            // Return success response
             return response()->json([
                 'status' => 'success',
-                'success' => true,
-                'message' => 'Data Pegawai Berhasil Dihapus!.',
+                'message' => 'Data Pegawai Berhasil Dihapus!'
             ]);
+
         } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error deleting employee: ' . $e->getMessage());
+
+            // Return error response
             return response()->json([
+                'status' => 'error',
                 'message' => 'Gagal Menghapus Data Pegawai!',
-                'trace' => $e->getTrace()
+                'trace' => $e->getTrace() // Return trace for debugging purposes
             ]);
         }
     }

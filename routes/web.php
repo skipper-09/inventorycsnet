@@ -213,6 +213,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::prefix('employee')->group(function () {
             Route::get('', [EmployeeController::class, 'index'])->name('employee')->middleware('can:read-employee');
             Route::get('getdata', [EmployeeController::class, 'getData'])->name('employee.getdata');
+            // Route::get('/details/{id}', [EmployeeController::class, 'details'])->name('employee.details')->middleware('can:read-employee');
+            Route::get('/add', [EmployeeController::class, 'create'])->name('employee.add')->middleware('can:create-employee');
             Route::post('store', [EmployeeController::class, 'store'])->name('employee.store');
             Route::get('/edit/{id}', [EmployeeController::class, 'show'])->name('employee.edit')->middleware('can:update-employee');
             Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employee.update');

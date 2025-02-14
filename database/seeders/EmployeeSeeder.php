@@ -3,9 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Employee;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeSeeder extends Seeder
 {
@@ -16,10 +18,12 @@ class EmployeeSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        for ($i = 0; $i < 50; $i++) {
-            Employee::create([
-                'department_id' => rand(1, 5),
-                'position_id' => rand(1, 8),
+        // Create 10 employees with associated users
+        for ($i = 0; $i < 10; $i++) {
+            // Create employee data
+            $employee = Employee::create([
+                'department_id' => rand(1, 5), // Assuming there are 5 departments
+                'position_id' => rand(1, 8), // Assuming there are 8 positions
                 'name' => $faker->name,
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
@@ -27,8 +31,22 @@ class EmployeeSeeder extends Seeder
                 'date_of_birth' => $faker->date('Y-m-d', '-20 years'),
                 'gender' => $faker->randomElement(['male', 'female']),
                 'nik' => $faker->unique()->numerify('##############'),
-                'identity_card' => $faker->unique()->numerify('################'),
+                'identity_card' => 'identity_card_' . $i . '.pdf', // Use a placeholder for file
             ]);
+
+            // Create associated user data
+            $user = User::create([
+                'employee_id' => $employee->id, // Link user to employee
+                'name' => $employee->name,
+                'username' => Str::lower(Str::random(10)), // Random username
+                'email' => $employee->email,
+                'password' => Hash::make('password'), // Default password
+                'picture' => 'picture_' . $i . '.jpg', // Use a placeholder for file
+                'is_block' => false, // Default user status
+            ]);
+
+            // Optionally assign roles to the user (e.g., 'employee' role)
+            $user->assignRole('Employee'); // Assuming the 'employee' role exists
         }
     }
 }

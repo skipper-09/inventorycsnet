@@ -126,9 +126,9 @@ class WorkProductController extends Controller
             'branch_id.exists' => 'ID cabang tidak ditemukan.',
         ]);
 
-        DB::beginTransaction();
-
         try {
+            DB::beginTransaction();
+            
             $work = Work::create([
                 'name' => $request->name,
             ]);

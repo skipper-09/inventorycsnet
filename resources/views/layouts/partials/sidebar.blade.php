@@ -15,8 +15,8 @@
                     </li>
                 @endcan
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
-                    'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type',
-                    'read-allowance', 'read-allowance-type', 'read-position', 'read-department', 'read-employee'])
+                    'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type', 'read-allowance',
+                    'read-allowance-type', 'read-position', 'read-department', 'read-employee'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
@@ -49,6 +49,15 @@
                                 <li><a href="{{ route('productrole') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
                             @endcan
+                        </ul>
+                    </li>
+
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow ">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Data Karyawan</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
                             @can('read-task-template')
                                 <li><a href="{{ route('tasktemplate') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
@@ -84,7 +93,7 @@
                         </ul>
                     </li>
                 @endcanany
-
+                
                 <li>
                     <a href="{{ route('formbuilder') }}" class="">
                         <i class="fas fa-user-alt"></i>
@@ -120,7 +129,7 @@
                     @endcan
                 @endcanany
 
-                @canany(['read-transaction-product','read-leave-report'])
+                @canany(['read-transaction-product', 'read-leave-report'])
                     <li class="menu-title">Laporan</li>
                     @can('read-transaction-product')
                         <li>
@@ -131,12 +140,12 @@
                         </li>
                     @endcan
                     @can('read-leave-report')
-                    <li>
-                        <a href="{{ route('leavereport') }}" class="">
-                            <i class="fas fa-box"></i>
-                            <span>Cuti Karyawan</span>
-                        </a>
-                    </li>
+                        <li>
+                            <a href="{{ route('leavereport') }}" class="">
+                                <i class="fas fa-box"></i>
+                                <span>Cuti Karyawan</span>
+                            </a>
+                        </li>
                     @endcan
                 @endcanany
                 {{-- <li class="menu-title">Laporan</li>

@@ -25,6 +25,7 @@ class Employee extends Model
     {
         return $this->belongsTo(Department::class);
     }
+    
     public function user()
     {
         return $this->hasOne(User::class);
@@ -33,11 +34,6 @@ class Employee extends Model
     public function position()
     {
         return $this->belongsTo(Position::class);
-    }
-
-    public function users()
-    {
-        return $this->belongsToMany(User::class);
     }
 
     public function salaries()

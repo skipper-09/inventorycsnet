@@ -56,11 +56,13 @@ class User extends Authenticatable
     //     return $this->belongsTo(Branch::class);
     // }
 
-    public function Transaction(){
+    public function Transaction()
+    {
         return $this->hasOne(Transaction::class);
     }
 
-    public function employee(){
+    public function employee()
+    {
         return $this->belongsTo(Employee::class);
     }
 }
