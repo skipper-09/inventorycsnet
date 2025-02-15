@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_schedules', function (Blueprint $table) {
+        Schema::create('task_assigns', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
-            $table->enum('schedule_type',['daily','weekly','monthly']);
-            $table->date('next_execution');
-            $table->timestamps();
+            $table->unsignedBigInteger('assignee_id');
+            $table->enum('assignee_type',['departement','employee']);
             $table->foreign('task_id')->references('id')->on('tasks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_schedules');
+        Schema::dropIfExists('task_assigns');
     }
 };

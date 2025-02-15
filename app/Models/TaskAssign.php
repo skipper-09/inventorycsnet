@@ -4,18 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TaskSchedule extends Model
+class TaskAssign extends Model
 {
     protected $primaryKey = "id";
 
     protected $fillable = [
         "task_id",
-        "schedule_type",
-        "next_execution",
+        "assignee_id",
+        "assignee_type"
     ];
 
     public function task()
     {
-        return $this->belongsTo(related: Task::class);
+        return $this->belongsTo(Task::class);
+    }
+
+    public function assignee()
+    {
+        return $this->morphTo();
     }
 }

@@ -11,6 +11,7 @@ class TaskTemplate extends Model
     protected $fillable = [
         "name",
         "description",
+        "frequency",
     ];
 
     public function tasks()

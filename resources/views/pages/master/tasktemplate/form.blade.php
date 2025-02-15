@@ -21,6 +21,15 @@
                         <label class="form-label" for="description">Deskripsi</label>
                         <textarea class="form-control" name="description" id="description" placeholder="Deskripsi Task"></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label w-100" for="frequency">Frequency Task</label>
+                        <select name="frequency" id="frequency" class="form-control select2">
+                            <option value="">PIlih Frequency</option>
+                                <option value="daily">Harian</option>
+                                <option value="weekly">Mingguan</option>
+                                <option value="monthly">Bulanan</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>

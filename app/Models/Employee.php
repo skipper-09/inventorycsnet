@@ -60,4 +60,9 @@ class Employee extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    public function taskAssignments()
+    {
+        return $this->morphMany(TaskAssign::class,'assignee');
+    }
 }

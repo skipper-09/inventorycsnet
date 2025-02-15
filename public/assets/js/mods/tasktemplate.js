@@ -21,12 +21,13 @@ $(document).ready(function () {
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
-
+        
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
+            $("#addForm #frequency").val("").trigger('change');
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -39,6 +40,7 @@ $(document).ready(function () {
                     if (response.tasktemplate) {
                         $("#addForm #name").val(response.tasktemplate.name);
                         $("#addForm #description").val(response.tasktemplate.description);
+                        $("#addForm #frequency").val(response.tasktemplate.frequency).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {
@@ -65,6 +67,10 @@ $(document).ready(function () {
         {
             data: "description",
             name: "description",
+        },
+        {
+            data: "frequency",
+            name: "frequency",
         },
     ];
 

@@ -9,30 +9,18 @@ class Task extends Model
     protected $primaryKey = "id";
 
     protected $fillable = [
-        "department_id",
-        "employee_id",
         "task_template_id",
-        "task_type",
+        "start_date",
+        "end_date",
         "status",
     ];
-
-    public function department()
-    {
-        return $this->belongsTo(Department::class);
-    }
-
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
-    }
 
     public function taskTemplate()
     {
         return $this->belongsTo(TaskTemplate::class);
     }
-
-    public function taskSchedules()
+    public function assignes()
     {
-        return $this->hasMany(TaskSchedule::class);
+        return $this->hasMany(TaskAssign::class);
     }
 }

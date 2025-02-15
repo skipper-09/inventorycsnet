@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('department_id');
-            $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('task_template_id');
-            $table->enum('task_type',['daily','weekly','monthly']);
-            $table->boolean('status')->default(true);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('status',['pending','in_progress','completed','overdue'])->default('pending');
             $table->timestamps();
-            $table->foreign('department_id')->references('id')->on('departments')->cascadeOnDelete()->cascadeOnUpdate();
-            $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('task_template_id')->references('id')->on('task_templates')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }

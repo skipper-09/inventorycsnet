@@ -46,14 +46,16 @@ class TaskTemplateController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'required',
+            'frequency'=>'required',
         ], [
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
+            'frequency.required' => 'Frequency Task harus diisi.',
         ]);
 
         try {
-            $unit = new TaskTemplate();
-            $unit->create($request->all());
+            $templatetask = new TaskTemplate();
+            $templatetask->create($request->all());
 
             return response()->json([
                 'success' => true,

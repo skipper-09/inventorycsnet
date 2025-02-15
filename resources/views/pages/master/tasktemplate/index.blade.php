@@ -9,6 +9,10 @@
     <!-- Responsive datatable examples -->
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
+
+    {{-- select 2 --}}
+    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
+    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 @section('content')
     <div class="container-fluid">
@@ -49,6 +53,7 @@
                                     <th>No</th>
                                     <th>Name</th>
                                     <th>Deskripsi</th>
+                                    <th>frequency</th>
                                     @canany(['update-task-template', 'delete-task-template'])   
                                     <th>Action</th>
                                     @endcanany
@@ -76,4 +81,7 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/tasktemplate.js') }}"></script>
+    {{-- select 2 deifinition --}}
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 @endpush

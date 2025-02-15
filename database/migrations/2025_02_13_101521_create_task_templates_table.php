@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->longText('description');
+            $table->enum('frequency',['daily','weekly', 'monthly'])->default('daily');
             $table->timestamps();
         });
     }
