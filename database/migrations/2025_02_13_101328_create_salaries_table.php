@@ -14,11 +14,11 @@ return new class extends Migration {
             $table->id();
             $table->unsignedBigInteger('employee_id');
             $table->date('salary_month');
-            $table->decimal('basic_salary_amount', 10, 2);
-            $table->decimal('bonus', 10, 2);
-            $table->decimal('deduction', 10, 2);
-            $table->decimal('allowance', 10, 2);
-            $table->decimal('total_salary', 10, 2);
+            $table->decimal('basic_salary_amount', 11, 2);
+            $table->decimal('bonus', 11, 2);
+            $table->decimal('deduction', 11, 2);
+            $table->decimal('allowance', 11, 2);
+            $table->decimal('total_salary', 11, 2);
             $table->boolean('payment_status')->default(true);
             $table->timestamps();
             $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();

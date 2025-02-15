@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Allowance;
+use App\Models\AllowanceType;
 use App\Models\Deduction;
+use App\Models\DeductionType;
 use App\Models\Employee;
 use App\Models\Salary;
 use App\Models\User;
@@ -36,10 +38,10 @@ class SalaryController extends Controller
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('employee_name', function ($salary) {
-                return $salary->employee->name; // Assuming you have 'name' column in employees table
+                return $salary->employee->name;
             })
             ->addColumn('salary_month', function ($salary) {
-                return Carbon::parse($salary->salary_month)->format('d-M-Y'); // Format month as 'Month Year'
+                return Carbon::parse($salary->salary_month)->format('d-M-Y');
             })
             ->addColumn('total_salary', function ($salary) {
                 return 'Rp ' . number_format($salary->total_salary, 0, ',', '.');
@@ -56,12 +58,8 @@ class SalaryController extends Controller
                 if ($userauth->can('update-salary')) {
                     $button .= ' <a href="' . route('salary.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
                 }
-                // if ($userauth->can('read-salary')) {
-                //     $button .= ' <a href="' . route('salary.details', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-                // }
                 if ($userauth->can('delete-salary')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('salary.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                    class="fas fa-trash "></i></button>';
+                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('salary.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i class="fas fa-trash"></i></button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })->rawColumns(['action'])->make(true);
@@ -71,7 +69,9 @@ class SalaryController extends Controller
     {
         $data = [
             "title" => "Data Gaji Karyawan",
-            "employees" => Employee::with(['allowances', 'deductions'])->get(),
+            "employees" => Employee::all(),
+            "allowance_types" => AllowanceType::all(),
+            "deduction_types" => DeductionType::all(),
             "months" => collect(range(1, 12))->map(function ($month) {
                 return [
                     'value' => Carbon::create(null, $month, 1)->format('Y-m'),
@@ -90,17 +90,19 @@ class SalaryController extends Controller
             'salary_month' => 'required|date_format:Y-m',
             'basic_salary_amount' => 'required|numeric|min:0',
             'bonus' => 'required|numeric|min:0',
+            'allowances' => 'array',
+            'allowances.*.allowance_type_id' => 'required|exists:allowance_types,id',
+            'allowances.*.amount' => 'required|numeric|min:0',
+            'deductions' => 'array',
+            'deductions.*.deduction_type_id' => 'required|exists:deduction_types,id',
+            'deductions.*.amount' => 'required|numeric|min:0',
         ]);
 
         try {
-            // Begin transaction
             DB::beginTransaction();
 
-            // Parse the salary month to get start and end dates
             $salaryDate = Carbon::createFromFormat('Y-m', $request->salary_month);
-            $startDate = $salaryDate->copy()->startOfMonth();
-            $endDate = $salaryDate->copy()->endOfMonth();
-
+            
             // Check if salary already exists for this employee and month
             $existingSalary = Salary::where('employee_id', $request->employee_id)
                 ->whereYear('salary_month', $salaryDate->year)
@@ -111,31 +113,48 @@ class SalaryController extends Controller
                 throw new Exception('Gaji untuk karyawan ini pada bulan tersebut sudah ada.');
             }
 
-            // Fetch deductions for the employee in the given month
-            $totalDeductions = Deduction::where('employee_id', $request->employee_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('amount');
-
-            // Fetch allowances for the employee in the given month
-            $totalAllowances = Allowance::where('employee_id', $request->employee_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('amount');
-
-            // Calculate total salary
-            $totalSalary = $request->basic_salary_amount +
-                $request->bonus +
-                $totalAllowances -
-                $totalDeductions;
-
-            // Store the salary data
+            // Create Salary record
             $salary = Salary::create([
                 'employee_id' => $request->employee_id,
                 'salary_month' => $salaryDate->format('Y-m-d'),
                 'basic_salary_amount' => $request->basic_salary_amount,
                 'bonus' => $request->bonus,
-                'deduction' => $totalDeductions,
+                'deduction' => 0, // Will be updated after creating deductions
+                'allowance' => 0, // Will be updated after creating allowances
+                'total_salary' => $request->basic_salary_amount + $request->bonus,
+            ]);
+
+            // Create Allowances
+            $totalAllowances = 0;
+            if (!empty($request->allowances)) {
+                foreach ($request->allowances as $allowanceData) {
+                    Allowance::create([
+                        'employee_id' => $request->employee_id,
+                        'allowance_type_id' => $allowanceData['allowance_type_id'],
+                        'amount' => $allowanceData['amount'],
+                    ]);
+                    $totalAllowances += $allowanceData['amount'];
+                }
+            }
+
+            // Create Deductions
+            $totalDeductions = 0;
+            if (!empty($request->deductions)) {
+                foreach ($request->deductions as $deductionData) {
+                    Deduction::create([
+                        'employee_id' => $request->employee_id,
+                        'deduction_type_id' => $deductionData['deduction_type_id'],
+                        'amount' => $deductionData['amount'],
+                    ]);
+                    $totalDeductions += $deductionData['amount'];
+                }
+            }
+
+            // Update salary totals
+            $salary->update([
                 'allowance' => $totalAllowances,
-                'total_salary' => $totalSalary,
+                'deduction' => $totalDeductions,
+                'total_salary' => $request->basic_salary_amount + $request->bonus + $totalAllowances - $totalDeductions,
             ]);
 
             DB::commit();
@@ -146,6 +165,7 @@ class SalaryController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
             Log::error('Salary Creation Error: ' . $e->getMessage());
 
             return redirect()->route('salary')->with([
@@ -159,8 +179,10 @@ class SalaryController extends Controller
     {
         $data = [
             "title" => "Data Gaji Karyawan",
-            "salary" => Salary::findOrFail($id),
-            "employees" => Employee::with(['allowances', 'deductions'])->get(),
+            "salary" => Salary::with(['employee.allowances', 'employee.deductions'])->findOrFail($id),
+            "employees" => Employee::all(),
+            "allowance_types" => AllowanceType::all(),
+            "deduction_types" => DeductionType::all(),
             "months" => collect(range(1, 12))->map(function ($month) {
                 return [
                     'value' => Carbon::create(null, $month, 1)->format('Y-m'),
@@ -179,45 +201,59 @@ class SalaryController extends Controller
             'salary_month' => 'required|date_format:Y-m',
             'basic_salary_amount' => 'required|numeric|min:0',
             'bonus' => 'required|numeric|min:0',
+            'allowances' => 'array',
+            'allowances.*.allowance_type_id' => 'required|exists:allowance_types,id',
+            'allowances.*.amount' => 'required|numeric|min:0',
+            'deductions' => 'array',
+            'deductions.*.deduction_type_id' => 'required|exists:deduction_types,id',
+            'deductions.*.amount' => 'required|numeric|min:0',
         ]);
 
         try {
-            // Begin transaction
             DB::beginTransaction();
 
-            // Parse the salary month to get start and end dates
-            $salaryDate = Carbon::createFromFormat('Y-m', $request->salary_month);
-            $startDate = $salaryDate->copy()->startOfMonth();
-            $endDate = $salaryDate->copy()->endOfMonth();
-
-            // Fetch deductions for the employee in the given month
-            $totalDeductions = Deduction::where('employee_id', $request->employee_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('amount');
-
-            // Fetch allowances for the employee in the given month
-            $totalAllowances = Allowance::where('employee_id', $request->employee_id)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('amount');
-
-            // Calculate total salary
-            $totalSalary = $request->basic_salary_amount +
-                $request->bonus +
-                $totalAllowances -
-                $totalDeductions;
-
-            // Fetch the existing salary record
             $salary = Salary::findOrFail($id);
+            $salaryDate = Carbon::createFromFormat('Y-m', $request->salary_month);
 
-            // Update only the modified fields (bonus, basic_salary_amount)
+            // Delete existing allowances and deductions
+            Allowance::where('employee_id', $salary->employee_id)->delete();
+            Deduction::where('employee_id', $salary->employee_id)->delete();
+
+            // Create new Allowances
+            $totalAllowances = 0;
+            if (!empty($request->allowances)) {
+                foreach ($request->allowances as $allowanceData) {
+                    Allowance::create([
+                        'employee_id' => $request->employee_id,
+                        'allowance_type_id' => $allowanceData['allowance_type_id'],
+                        'amount' => $allowanceData['amount'],
+                    ]);
+                    $totalAllowances += $allowanceData['amount'];
+                }
+            }
+
+            // Create new Deductions
+            $totalDeductions = 0;
+            if (!empty($request->deductions)) {
+                foreach ($request->deductions as $deductionData) {
+                    Deduction::create([
+                        'employee_id' => $request->employee_id,
+                        'deduction_type_id' => $deductionData['deduction_type_id'],
+                        'amount' => $deductionData['amount'],
+                    ]);
+                    $totalDeductions += $deductionData['amount'];
+                }
+            }
+
+            // Update salary record
             $salary->update([
                 'employee_id' => $request->employee_id,
                 'salary_month' => $salaryDate->format('Y-m-d'),
                 'basic_salary_amount' => $request->basic_salary_amount,
-                'bonus' => $request->bonus,  // Only update bonus
-                'deduction' => $totalDeductions,  // Recalculate deduction
-                'allowance' => $totalAllowances,  // Recalculate allowance
-                'total_salary' => $totalSalary,  // Recalculate total salary
+                'bonus' => $request->bonus,
+                'allowance' => $totalAllowances,
+                'deduction' => $totalDeductions,
+                'total_salary' => $request->basic_salary_amount + $request->bonus + $totalAllowances - $totalDeductions,
             ]);
 
             DB::commit();
@@ -240,22 +276,27 @@ class SalaryController extends Controller
     public function destroy($id)
     {
         try {
-            // Find the salary
+            DB::beginTransaction();
+            
             $salary = Salary::findOrFail($id);
-
+            
+            // Delete related allowances and deductions
+            Allowance::where('employee_id', $salary->employee_id)->delete();
+            Deduction::where('employee_id', $salary->employee_id)->delete();
+            
+            // Delete salary
             $salary->delete();
+            
+            DB::commit();
 
-            // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data Gaji Berhasil Dihapus!'
             ]);
-
         } catch (Exception $e) {
-            // Log the error for debugging purposes
+            DB::rollBack();
             Log::error('Error deleting salary: ' . $e->getMessage());
 
-            // Return error response
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal Menghapus Data Gaji!',
