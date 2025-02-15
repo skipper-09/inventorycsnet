@@ -12,6 +12,7 @@ use App\Http\Controllers\Master\EmployeeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
+use App\Http\Controllers\Master\SalaryController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -219,6 +220,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [EmployeeController::class, 'show'])->name('employee.edit')->middleware('can:update-employee');
             Route::put('/update/{id}', [EmployeeController::class, 'update'])->name('employee.update');
             Route::delete('/delete/{id}', [EmployeeController::class, 'destroy'])->name('employee.delete')->middleware('can:delete-employee');
+        });
+
+        // Salary
+        Route::prefix('salary')->group(function () {
+            Route::get('', [SalaryController::class, 'index'])->name('salary')->middleware('can:read-salary');
+            Route::get('getdata', [SalaryController::class, 'getData'])->name('salary.getdata');
+            // Route::get('/details/{id}', [SalaryController::class, 'details'])->name('salary.details')->middleware('can:read-salary');
+            Route::get('/add', [SalaryController::class, 'create'])->name('salary.add')->middleware('can:create-salary');
+            Route::post('store', [SalaryController::class, 'store'])->name('salary.store');
+            Route::get('/edit/{id}', [SalaryController::class, 'show'])->name('salary.edit')->middleware('can:update-salary');
+            Route::put('/update/{id}', [SalaryController::class, 'update'])->name('salary.update');
+            Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
         });
     });
 

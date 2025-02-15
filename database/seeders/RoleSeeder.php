@@ -76,10 +76,16 @@ class RoleSeeder extends Seeder
             'create-department',
             'update-department',
             'delete-department',
+            // employee
             'read-employee',
             'create-employee',
             'update-employee',
             'delete-employee',
+            // salary
+            'read-salary',
+            'create-salary',
+            'update-salary',
+            'delete-salary',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',
