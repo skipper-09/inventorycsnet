@@ -121,7 +121,7 @@
                                             <label class="form-label">Kartu Identitas</label>
                                             <input type="file" name="identity_card"
                                                 class="form-control @error('identity_card') is-invalid @enderror">
-                                            <small class="text-muted">Format: JPG, PNG, PDF. Maksimal 2MB</small>
+                                            <small class="text-muted">Format: JPG, PNG, GIF. Maksimal 2MB</small>
                                             @if ($employee->identity_card)
                                                 <div class="mt-2">
                                                     <small class="text-muted">File saat ini:
@@ -215,17 +215,17 @@
 
                                         <div class="mb-3">
                                             <label class="form-label required">Role</label>
-                                            <select name="roles[]"
-                                                class="form-control select2form @error('roles') is-invalid @enderror"
-                                                multiple>
+                                            <select name="role"
+                                                class="form-control select2form @error('role') is-invalid @enderror">
+                                                <option value="">Pilih Role</option>
                                                 @foreach ($roles as $role)
                                                     <option value="{{ $role->name }}"
-                                                        {{ in_array($role->name, old('roles', $employee->user->roles->pluck('name')->toArray())) ? 'selected' : '' }}>
+                                                        {{ old('role', $employee->user->roles->first()->name ?? '') == $role->name ? 'selected' : '' }}>
                                                         {{ $role->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('roles')
+                                            @error('role')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

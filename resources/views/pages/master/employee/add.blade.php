@@ -197,17 +197,15 @@
 
                                         <div class="mb-3">
                                             <label class="form-label required">Role</label>
-                                            <select name="roles[]"
-                                                class="form-control select2form @error('roles') is-invalid @enderror"
-                                                multiple>
+                                            <select name="role" class="form-control select2form @error('role') is-invalid @enderror">
+                                                <option value="">Pilih Role</option>
                                                 @foreach ($roles as $role)
-                                                    <option value="{{ $role->name }}"
-                                                        {{ in_array($role->name, old('roles', [])) ? 'selected' : '' }}>
+                                                    <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
                                                         {{ $role->name }}
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('roles')
+                                            @error('role')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>

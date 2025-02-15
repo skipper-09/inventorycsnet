@@ -88,13 +88,12 @@ class EmployeeController extends Controller
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female',
             'nik' => 'required|string|unique:employees,nik',
-            'identity_card' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'identity_card' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             // User credentials
             'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:8',
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,name'
+            'role' => 'required|exists:roles,name',
         ], [
             "department_id.required" => "Departemen harus dipilih.",
             "position_id.required" => "Jabatan harus dipilih.",
@@ -113,7 +112,7 @@ class EmployeeController extends Controller
             "nik.unique" => "Nomor induk kependudukan sudah digunakan.",
             "identity_card.required" => "Kartu identitas harus diupload.",
             "identity_card.file" => "Kartu identitas harus berupa file.",
-            "identity_card.mimes" => "Format kartu identitas harus jpeg, png, jpg, atau pdf.",
+            "identity_card.mimes" => "Format kartu identitas tidak valid.",
             "identity_card.max" => "Ukuran kartu identitas maksimal 2MB.",
             "picture.required" => "Foto harus diupload.",
             "picture.image" => "Foto harus berupa gambar.",
@@ -124,7 +123,6 @@ class EmployeeController extends Controller
             "password.required" => "Password harus diisi.",
             "password.min" => "Password minimal 8 karakter.",
             "roles.required" => "Role harus dipilih.",
-            "roles.array" => "Format role tidak valid.",
             "roles.*.exists" => "Role yang dipilih tidak valid.",
         ]);
 
@@ -173,7 +171,7 @@ class EmployeeController extends Controller
             ]);
 
             // Assign roles to user
-            $user->syncRoles($request->roles);
+            $user->assignRole($request->role);
 
             DB::commit();
 
@@ -241,12 +239,11 @@ class EmployeeController extends Controller
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female',
             'nik' => 'required|string|unique:employees,nik,' . $id,
-            'identity_card' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
+            'identity_card' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|unique:users,username,' . $id . ',employee_id',
             'password' => 'nullable|string|min:8',
-            'roles' => 'required|array',
-            'roles.*' => 'exists:roles,name'
+            'role' => 'required|exists:roles,name',
         ], [
             "department_id.required" => "Departemen harus dipilih.",
             "position_id.required" => "Jabatan harus dipilih.",
@@ -264,7 +261,7 @@ class EmployeeController extends Controller
             "nik.required" => "Nomor induk kependudukan harus diisi.",
             "nik.unique" => "Nomor induk kependudukan sudah digunakan.",
             "identity_card.file" => "Kartu identitas harus berupa file.",
-            "identity_card.mimes" => "Format kartu identitas harus jpeg, png, jpg, atau pdf.",
+            "identity_card.mimes" => "Format kartu identitas tidak valid.",
             "identity_card.max" => "Ukuran kartu identitas maksimal 2MB.",
             "picture.image" => "Foto profil harus berupa gambar.",
             "picture.mimes" => "Format foto profil tidak valid.",
@@ -273,8 +270,7 @@ class EmployeeController extends Controller
             "username.unique" => "Username sudah digunakan.",
             "password.min" => "Password minimal 8 karakter.",
             "roles.required" => "Role harus dipilih.",
-            "roles.array" => "Format role tidak valid.",
-            "roles.*.exists" => "Role yang dipilih tidak valid.",
+            "roles.exists"=> "Role yang dipilih tidak valid.",
         ]);
 
         try {
@@ -338,7 +334,8 @@ class EmployeeController extends Controller
             $user->update($userData);
 
             // Update user roles
-            $user->syncRoles($request->roles);
+            $user->roles()->detach();
+            $user->assignRole($request->role);
 
             DB::commit();
 
