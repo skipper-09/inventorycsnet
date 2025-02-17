@@ -9,14 +9,14 @@ class TaskReport extends Model
     protected $primaryKey = "id";
 
     protected $fillable = [
-        "task_id",
+        "task_assign_id",
         "report_type",
         "report_image",
         "report_content",
     ];
 
-    public function task()
+    public function taskassign()
     {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(TaskAssign::class);
     }
 }

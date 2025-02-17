@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('task_assigns', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('task_template_id');
             $table->unsignedBigInteger('assignee_id');
-            $table->enum('assignee_type',['departement','employee']);
-            $table->foreign('task_id')->references('id')->on('tasks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->string('assignee_type');
+            $table->date('assign_date');
+            $table->foreign('task_template_id')->references('id')->on('task_templates')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

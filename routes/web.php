@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\AllowanceController;
 use App\Http\Controllers\Master\AllowanceTypeController;
+use App\Http\Controllers\Master\AssignmentController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\DeductionController;
@@ -148,6 +149,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
             Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
+        });
+
+        //assignment
+        Route::prefix('assignment')->group(function () {
+            Route::get('', [AssignmentController::class, 'index'])->name('assignment');
+            Route::get('getdata', [AssignmentController::class, 'getData'])->name('assignment.getdata');
+            Route::get('add', [AssignmentController::class, 'create'])->name('assignment.add');
+            Route::post('store', [AssignmentController::class, 'store'])->name('assignment.store');
+            Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit');
+            Route::put('/update/{id}', [AssignmentController::class, 'update'])->name('assignment.update');
+            Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete');
         });
 
         // Deduction

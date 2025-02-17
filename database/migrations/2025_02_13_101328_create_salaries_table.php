@@ -15,9 +15,9 @@ return new class extends Migration {
             $table->unsignedBigInteger('employee_id');
             $table->date('salary_month');
             $table->decimal('basic_salary_amount', 11, 2);
-            $table->decimal('bonus', 11, 2);
-            $table->decimal('deduction', 11, 2);
-            $table->decimal('allowance', 11, 2);
+            $table->decimal('bonus', 11, 2)->default(0);
+            $table->decimal('deduction', 11, 2)->default(0);
+            $table->decimal('allowance', 11, 2)->default(0);
             $table->decimal('total_salary', 11, 2);
             $table->boolean('payment_status')->default(true);
             $table->timestamps();

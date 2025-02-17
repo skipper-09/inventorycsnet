@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('task_reports', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('task_assign_id');
             $table->enum('report_type',['before','after'])->default('before');
             $table->longText('report_image');
             $table->longText('report_content')->nullable();
             $table->timestamps();
-            $table->foreign('task_id')->references('id')->on('tasks')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('task_assign_id')->references('id')->on('task_assigns')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 

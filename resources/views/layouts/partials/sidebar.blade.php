@@ -58,10 +58,7 @@
                             <span>Data Karyawan</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
-                            @can('read-task-template')
-                                <li><a href="{{ route('tasktemplate') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
-                            @endcan
+                            
                             @can('read-deduction')
                                 <li><a href="{{ route('deduction') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
@@ -93,6 +90,24 @@
                             @can('read-employee')
                                 <li><a href="{{ route('employee') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
+                            @endcan
+                        </ul>
+                    </li>
+
+
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow ">
+                            <i class="fa fa-palette"></i>
+                            <span>Task Master</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @can('read-task-template')
+                            <li><a href="{{ route('tasktemplate') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
+                            @endcan
+                            @can('read-task-template')
+                            <li><a href="{{ route('assignment') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                             @endcan
                         </ul>
                     </li>

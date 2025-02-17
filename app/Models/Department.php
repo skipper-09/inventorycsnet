@@ -18,11 +18,6 @@ class Department extends Model
         return $this->hasMany(Employee::class);
     }
 
-    public function tasks()
-    {
-        return $this->hasMany(Task::class);
-    }
-
     public function taskAssignments()
     {
         return $this->morphMany(TaskAssign::class,'assignee');

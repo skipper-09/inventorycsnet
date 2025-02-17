@@ -56,10 +56,6 @@ class Employee extends Model
         return $this->hasMany(Allowance::class);
     }
 
-    public function tasks()
-    {
-        return $this->hasMany(Task::class);
-    }
 
     public function taskAssignments()
     {
