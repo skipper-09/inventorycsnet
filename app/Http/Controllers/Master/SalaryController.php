@@ -55,14 +55,131 @@ class SalaryController extends Controller
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
+                if ($userauth->can('read-salary')) {
+                    $button .= '<a href="' . route('salary.details', ['id' => $data->id]) . '"
+                      class="btn btn-sm btn-info"
+                       data-id="' . $data->id . '"
+                       data-type="details"
+                       data-toggle="tooltip"
+                       data-placement="bottom"
+                       title="Details">
+                       <i class="fas fa-eye"></i>
+                   </a>';
+                }
                 if ($userauth->can('update-salary')) {
-                    $button .= ' <a href="' . route('salary.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+                    $button .= '<a href="' . route('salary.edit', ['id' => $data->id]) . '"
+                      class="btn btn-sm btn-success"
+                       data-id="' . $data->id . '"
+                       data-type="edit"
+                       data-toggle="tooltip"
+                       data-placement="bottom"
+                       title="Edit Data">
+                       <i class="fas fa-pen"></i>
+                   </a>';
                 }
                 if ($userauth->can('delete-salary')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('salary.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i class="fas fa-trash"></i></button>';
+                    $button .= ' <button class="btn btn-sm btn-danger action"
+                            data-id="' . $data->id . '"
+                            data-type="delete"
+                            data-route="' . route('salary.delete', ['id' => $data->id]) . '"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="Delete Data">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })->rawColumns(['action'])->make(true);
+    }
+
+    public function details($id)
+    {
+        try {
+            // Find salary with relationships
+            $salary = Salary::with([
+                'employee',
+                'employee.allowances.allowanceType',
+                'employee.deductions.deductionType',
+                'employee.position',
+                'employee.department'
+            ])->findOrFail($id);
+
+            // Calculate percentages for visualization
+            $totalIncome = $salary->basic_salary_amount + $salary->bonus + $salary->allowance;
+            $netSalary = $salary->total_salary;
+
+            $statistics = [
+                'basic_salary_percentage' => ($salary->basic_salary_amount / $totalIncome) * 100,
+                'bonus_percentage' => ($salary->bonus / $totalIncome) * 100,
+                'allowance_percentage' => ($salary->allowance / $totalIncome) * 100,
+                'deduction_percentage' => ($salary->deduction / $totalIncome) * 100,
+                'net_percentage' => ($netSalary / $totalIncome) * 100
+            ];
+
+            // Group allowances by type for better organization
+            $groupedAllowances = $salary->employee->allowances->groupBy('allowance_type_id')
+                ->map(function ($items) {
+                    return [
+                        'type' => $items->first()->allowanceType->name,
+                        'total' => $items->sum('amount'),
+                        'items' => $items
+                    ];
+                });
+
+            // Group deductions by type
+            $groupedDeductions = $salary->employee->deductions->groupBy('deduction_type_id')
+                ->map(function ($items) {
+                    return [
+                        'type' => $items->first()->deductionType->name,
+                        'total' => $items->sum('amount'),
+                        'items' => $items
+                    ];
+                });
+
+            // Prepare salary history (last 6 months)
+            $salaryHistory = Salary::where('employee_id', $salary->employee_id)
+                ->where('salary_month', '<=', $salary->salary_month)
+                ->orderByDesc('salary_month')
+                ->limit(6)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'month' => Carbon::parse($item->salary_month)->format('M Y'),
+                        'amount' => $item->total_salary,
+                        'basic_salary' => $item->basic_salary_amount,
+                        'bonus' => $item->bonus,
+                        'allowance' => $item->allowance,
+                        'deduction' => $item->deduction
+                    ];
+                });
+
+            $data = [
+                'title' => 'Detail Gaji Karyawan',
+                'salary' => $salary,
+                'statistics' => $statistics,
+                'grouped_allowances' => $groupedAllowances,
+                'grouped_deductions' => $groupedDeductions,
+                'salary_history' => $salaryHistory,
+                'formatted' => [
+                    'basic_salary' => 'Rp ' . number_format($salary->basic_salary_amount, 0, ',', '.'),
+                    'bonus' => 'Rp ' . number_format($salary->bonus, 0, ',', '.'),
+                    'total_allowance' => 'Rp ' . number_format($salary->allowance, 0, ',', '.'),
+                    'total_deduction' => 'Rp ' . number_format($salary->deduction, 0, ',', '.'),
+                    'net_salary' => 'Rp ' . number_format($salary->total_salary, 0, ',', '.'),
+                    'salary_month' => Carbon::parse($salary->salary_month)->format('F Y')
+                ]
+            ];
+
+            return view('pages.master.salary.details', $data);
+
+        } catch (Exception $e) {
+            Log::error('Salary Detail Error: ' . $e->getMessage());
+
+            return redirect()->route('salary')->with([
+                'status' => 'Error!',
+                'message' => 'Gagal Menampilkan Detail Gaji: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function create()
@@ -102,7 +219,7 @@ class SalaryController extends Controller
             DB::beginTransaction();
 
             $salaryDate = Carbon::createFromFormat('Y-m', $request->salary_month);
-            
+
             // Check if salary already exists for this employee and month
             $existingSalary = Salary::where('employee_id', $request->employee_id)
                 ->whereYear('salary_month', $salaryDate->year)
@@ -277,16 +394,16 @@ class SalaryController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $salary = Salary::findOrFail($id);
-            
+
             // Delete related allowances and deductions
             Allowance::where('employee_id', $salary->employee_id)->delete();
             Deduction::where('employee_id', $salary->employee_id)->delete();
-            
+
             // Delete salary
             $salary->delete();
-            
+
             DB::commit();
 
             return response()->json([

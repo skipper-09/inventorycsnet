@@ -229,6 +229,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('/details/{id}', [SalaryController::class, 'details'])->name('salary.details')->middleware('can:read-salary');
             Route::get('/add', [SalaryController::class, 'create'])->name('salary.add')->middleware('can:create-salary');
             Route::post('store', [SalaryController::class, 'store'])->name('salary.store');
+            Route::get('/details/{id}', [SalaryController::class, 'details'])->name('salary.details')->middleware('can:read-salary');
             Route::get('/edit/{id}', [SalaryController::class, 'show'])->name('salary.edit')->middleware('can:update-salary');
             Route::put('/update/{id}', [SalaryController::class, 'update'])->name('salary.update');
             Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
