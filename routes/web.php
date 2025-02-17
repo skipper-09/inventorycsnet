@@ -52,6 +52,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     //route dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('can:read-dashboard');
+    
 
     //route master group
     Route::prefix('master')->group(function () {
