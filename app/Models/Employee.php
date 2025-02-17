@@ -25,7 +25,7 @@ class Employee extends Model
     {
         return $this->belongsTo(Department::class);
     }
-    
+
     public function user()
     {
         return $this->hasOne(User::class);
@@ -58,11 +58,18 @@ class Employee extends Model
 
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasManyThrough(
+            Task::class, // Target model
+            TaskAssign::class, // Intermediate model
+            'assignee_id', // Foreign key on the intermediate model
+            'id', // Foreign key on the target model
+            'id', // Local key on this model
+            'task_id' // Local key on the intermediate model
+        )->where('task_assigns.assignee_type', 'employee');
     }
 
     public function taskAssignments()
     {
-        return $this->morphMany(TaskAssign::class,'assignee');
+        return $this->morphMany(TaskAssign::class, 'assignee');
     }
 }
