@@ -14,6 +14,7 @@ use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\SalaryController;
+use App\Http\Controllers\Master\TaskController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -153,16 +154,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
         });
 
-        //  //Task
-        //  Route::prefix('task-template')->group(function () {
-        //     Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
-        //     Route::get('getdata', [TaskTemplateController::class, 'getData'])->name('tasktemplate.getdata');
-        //     Route::post('store', [TaskTemplateController::class, 'store'])->name('tasktemplate.store');
-        //     Route::get('/detail/{slug}', [TaskTemplateController::class, 'detail'])->name('tasktemplate.detail');
-        //     Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
-        //     Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
-        //     Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
-        // });
+         //Task
+         Route::prefix('detail-task')->group(function () {
+            // Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
+            Route::get('getdata', [TaskController::class, 'getData'])->name('task.getdata');
+            // Route::post('store', [TaskController::class, 'store'])->name('task.store');
+            // Route::get('/detail/{slug}', [TaskController::class, 'detail'])->name('task.detail');
+            // Route::get('/edit/{id}', [TaskController::class, 'show'])->name('task.edit')->middleware('can:update-task-template');
+            // Route::put('/update/{id}', [TaskController::class, 'update'])->name('task.update');
+            // Route::delete('/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete')->middleware('can:delete-task-template');
+        });
 
 
         //assignment

@@ -62,7 +62,7 @@
                                             <div class="card-body">
                                                 <table id="scroll-sidebar-datatable"
                                                     class="table dt-responsive nowrap w-100 table-hover table-striped"
-                                                    data-route="{{ route('tasktemplate.getdata') }}"
+                                                    data-route="{{ route('task.getdata') }}"
                                                     data-has-action-permission="{{ auth()->user()->canany(['update-task-template', 'delete-task-template'])? 'true': 'false' }}">
                                                     <thead>
                                                         <tr>

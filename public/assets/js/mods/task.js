@@ -61,6 +61,14 @@ $(document).ready(function () {
             data: "name",
             name: "name",
         },
+        {
+            data: "name",
+            name: "name",
+        },
+        {
+            data: "name",
+            name: "name",
+        },
     ];
 
     // Only add action column if user has permission
