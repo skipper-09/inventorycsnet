@@ -58,6 +58,7 @@ class SalaryController extends Controller
                 $button = '';
 
                 $button .= ' <a href="' . route('salary.generate-slip', ['employeeId' => $data->employee_id, 'salaryMonth' => $data->salary_month]) . '"
+                        target="_blank"
                         class="btn btn-sm btn-primary"
                         data-id="' . $data->id . '"
                         data-type="generate-slip"
@@ -66,6 +67,8 @@ class SalaryController extends Controller
                         title="Generate Salary Slip">
                     <i class="fas fa-file-pdf"></i> Generate Slip
                 </a>';
+
+
                 if ($userauth->can('read-salary')) {
                     $button .= '<a href="' . route('salary.details', ['id' => $data->id]) . '"
                       class="btn btn-sm btn-info"
@@ -417,49 +420,76 @@ class SalaryController extends Controller
 
     public function generateSalarySlip($employeeId, $salaryMonth)
     {
-        // Ambil data gaji berdasarkan employee_id dan salary_month
-        $salary = Salary::where('employee_id', $employeeId)
-            ->where('salary_month', $salaryMonth)
-            ->first();
+        // Ensure salaryMonth is a valid date format
+        try {
+            $salaryDate = Carbon::parse($salaryMonth); // Parse once here
+        } catch (\Exception $e) {
+            return redirect()->back()->with([
+                'status' => 'error',
+                'message' => 'Invalid salary month format.'
+            ]);
+        }
 
+        $year = $salaryDate->year;
+        $month = (int) $salaryDate->month; // Cast to integer to avoid string issues
+
+        // Get employee with their salary data for the specified month
+        $employee = Employee::with([
+            'salaries' => function ($query) use ($salaryMonth) {
+                $query->where('salary_month', $salaryMonth);
+            }
+        ])->findOrFail($employeeId);
+
+        $salary = $employee->salaries->first();
+
+        // Handle case where no salary data is found for the month
         if (!$salary) {
             return redirect()->back()->with([
-                'status' => 'Error!',
+                'status' => 'error',
                 'message' => 'Data gaji tidak ditemukan untuk bulan tersebut.'
             ]);
         }
 
-        // Ambil data tunjangan dan potongan
-        $allowances = Allowance::where('employee_id', $employeeId)
-            ->whereYear('created_at', Carbon::parse($salaryMonth)->year)
-            ->whereMonth('created_at', Carbon::parse($salaryMonth)->month)
+        // Get the salaryMonth from the salary record
+        $salaryMonth = Carbon::parse($salary->salary_month);
+        $year = $salaryMonth->year;
+        $month = (int) $salaryMonth->month; // Cast to integer for filtering
+
+        // Get allowances for the specific month based on salary_month in salary record
+        $allowances = Allowance::with('allowanceType')
+            ->where('employee_id', $employeeId)
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
             ->get();
 
-        $deductions = Deduction::where('employee_id', $employeeId)
-            ->whereYear('created_at', Carbon::parse($salaryMonth)->year)
-            ->whereMonth('created_at', Carbon::parse($salaryMonth)->month)
+        // Get deductions for the specific month based on salary_month in salary record
+        $deductions = Deduction::with('deductionType')
+            ->where('employee_id', $employeeId)
+            ->whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
             ->get();
 
-        // Data untuk slip gaji
+        // Calculate totals from filtered data
+        $total_allowances = $allowances->sum('amount');
+        $total_deductions = $deductions->sum('amount');
+
+        // Calculate net salary
+        $net_salary = $salary->basic_salary_amount + $total_allowances - $total_deductions + $salary->bonus;
+
+        // Prepare data for the PDF
         $data = [
+            'employee' => $employee,
             'salary' => $salary,
             'allowances' => $allowances,
             'deductions' => $deductions,
-            'salaryMonth' => Carbon::parse($salaryMonth)->format('F Y'), // Format bulan (contoh: "January 2023")
+            'total_allowances' => $total_allowances,
+            'total_deductions' => $total_deductions,
+            'net_salary' => $net_salary,
+            'salaryMonth' => $salaryMonth->format('F Y'),
         ];
 
-        // Generate PDF menggunakan DomPDF, specify the correct view path
+        // Generate and stream the PDF
         $pdf = Pdf::loadView('pages.master.salary.salary_slip', $data);
-
-        // Opsi 1: Download PDF
-        // return $pdf->download('salary_slip_' . $employeeId . '_' . $salaryMonth . '.pdf');
-
-        // Opsi 2: Simpan ke storage
-        // $pdfPath = 'salary_slips/salary_slip_' . $employeeId . '_' . $salaryMonth . '.pdf';
-        // Storage::put($pdfPath, $pdf->output());
-        // return 'Slip gaji berhasil disimpan di: ' . $pdfPath;
-
-        // Opsi 3: Tampilkan PDF di browser
-        return $pdf->stream('salary_slip_' . $employeeId . '_' . $salaryMonth . '.pdf');
+        return $pdf->stream("salary_slip_{$employee->name}_{$salaryMonth->format('Y-m')}.pdf");
     }
 }

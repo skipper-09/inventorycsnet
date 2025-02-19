@@ -12,6 +12,7 @@ class Allowance extends Model
         "employee_id",
         "allowance_type_id",
         "amount",
+        "created_at",
     ];
 
     public function employee()

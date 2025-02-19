@@ -12,6 +12,7 @@ class Deduction extends Model
         "employee_id",
         "deduction_type_id",
         "amount",
+        "created_at",
     ];
 
     public function employee()
