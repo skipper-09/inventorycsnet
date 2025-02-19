@@ -12,8 +12,10 @@
                     <div class="page-title-right">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb m-0 bg-transparent">
-                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-primary">Dashboard</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('salary') }}" class="text-primary">Data Gaji</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}"
+                                        class="text-primary">Dashboard</a></li>
+                                <li class="breadcrumb-item"><a href="{{ route('salary') }}" class="text-primary">Data
+                                        Gaji</a></li>
                                 <li class="breadcrumb-item active">{{ $title }}</li>
                             </ol>
                         </nav>
@@ -87,17 +89,20 @@
                                                     <tr>
                                                         <td class="text-muted">Total Tunjangan</td>
                                                         <td>:</td>
-                                                        <td class="fw-bold text-success">{{ $formatted['total_allowance'] }}</td>
+                                                        <td class="fw-bold text-success">
+                                                            {{ $formatted['total_allowance'] }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td class="text-muted">Total Potongan</td>
                                                         <td>:</td>
-                                                        <td class="fw-bold text-danger">{{ $formatted['total_deduction'] }}</td>
+                                                        <td class="fw-bold text-danger">{{ $formatted['total_deduction'] }}
+                                                        </td>
                                                     </tr>
                                                     <tr class="border-top">
                                                         <td class="text-muted">Gaji Bersih</td>
                                                         <td>:</td>
-                                                        <td class="fw-bold fs-5 text-primary">{{ $formatted['net_salary'] }}</td>
+                                                        <td class="fw-bold fs-5 text-primary">
+                                                            {{ $formatted['net_salary'] }}</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -125,7 +130,8 @@
                                                     @foreach ($grouped_allowances as $allowance)
                                                         <tr>
                                                             <td>{{ $allowance['type'] }}</td>
-                                                            <td class="text-end fw-medium">Rp {{ number_format($allowance['total'], 0, ',', '.') }}</td>
+                                                            <td class="text-end fw-medium">Rp
+                                                                {{ number_format($allowance['total'], 0, ',', '.') }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
@@ -150,44 +156,8 @@
                                                     @foreach ($grouped_deductions as $deduction)
                                                         <tr>
                                                             <td>{{ $deduction['type'] }}</td>
-                                                            <td class="text-end fw-medium">Rp {{ number_format($deduction['total'], 0, ',', '.') }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Salary History -->
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="card bg-light border-0">
-                                    <div class="card-body">
-                                        <h5 class="card-title mb-4 fw-bold">Riwayat Gaji (6 Bulan Terakhir)</h5>
-                                        <div class="table-responsive">
-                                            <table class="table table-striped mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>Periode</th>
-                                                        <th class="text-end">Gaji Pokok</th>
-                                                        <th class="text-end">Bonus</th>
-                                                        <th class="text-end">Tunjangan</th>
-                                                        <th class="text-end">Potongan</th>
-                                                        <th class="text-end">Total</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach ($salary_history as $history)
-                                                        <tr>
-                                                            <td>{{ $history['month'] }}</td>
-                                                            <td class="text-end">Rp {{ number_format($history['basic_salary'], 0, ',', '.') }}</td>
-                                                            <td class="text-end">Rp {{ number_format($history['bonus'], 0, ',', '.') }}</td>
-                                                            <td class="text-end">Rp {{ number_format($history['allowance'], 0, ',', '.') }}</td>
-                                                            <td class="text-end">Rp {{ number_format($history['deduction'], 0, ',', '.') }}</td>
-                                                            <td class="text-end fw-bold">Rp {{ number_format($history['amount'], 0, ',', '.') }}</td>
+                                                            <td class="text-end fw-medium">Rp
+                                                                {{ number_format($deduction['total'], 0, ',', '.') }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
