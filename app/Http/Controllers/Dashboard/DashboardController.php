@@ -72,11 +72,6 @@ class DashboardController extends Controller
         $employee = Employee::with(['department', 'position', 'tasks', 'leaves', 'salaries'])
             ->findOrFail($currentUser->employee_id);
 
-        // Menghitung jumlah tugas aktif
-        $activeTasks = $employee->tasks()
-            ->whereIn('status', ['pending', 'in_progress'])
-            ->count();
-
         // Menghitung sisa cuti
         $usedLeaves = $employee->leaves()
             ->whereYear('created_at', date('Y'))
@@ -95,30 +90,6 @@ class DashboardController extends Controller
             ->first();
 
         $netSalary = $currentSalary ? ($currentSalary->basic_salary_amount + $currentSalary->bonus + $currentSalary->allowance - $currentSalary->deduction) : 0;
-
-        // Menghitung jumlah tugas dengan tenggat waktu yang akan datang
-        $upcomingDeadlines = $employee->tasks()
-            ->where('end_date', '>=', now())
-            ->where('end_date', '<=', now()->addDays(7))
-            ->count();
-
-        // Mengambil tugas terbaru
-        $recentTasks = $employee->tasks()
-            ->with('assignes') // Load task assignments
-            ->whereIn('status', ['pending', 'in_progress'])
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(function ($task) {
-                $task->status_color = [
-                    'pending' => 'warning',
-                    'in_progress' => 'info',
-                    'completed' => 'success',
-                    'cancelled' => 'danger'
-                ][$task->status] ?? 'secondary';
-                $task->deadline_formatted = Carbon::parse($task->end_date)->format('d M Y');
-                return $task;
-            });
 
         // Mengambil cuti terbaru
         $recentLeaves = $employee->leaves()
@@ -167,11 +138,8 @@ class DashboardController extends Controller
             'title' => 'Dashboard',
             'greeting' => $greeting,
             'employee' => $employee,
-            'activeTasks' => $activeTasks,
             'remainingLeaves' => $remainingLeaves,
             'currentSalary' => $currentSalary,
-            'upcomingDeadlines' => $upcomingDeadlines,
-            'recentTasks' => $recentTasks,
             'recentLeaves' => $recentLeaves,
             'salaryHistory' => $salaryHistory,
         ];
