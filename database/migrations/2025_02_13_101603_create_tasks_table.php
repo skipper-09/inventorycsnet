@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('task_template_id');
             $table->string('name');
             $table->longText('description')->nullable();
-            $table->boolean('status')->default(true);
+            $table->boolean('status')->default(1);
             $table->foreign('task_template_id')->references('id')->on('task_templates')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });

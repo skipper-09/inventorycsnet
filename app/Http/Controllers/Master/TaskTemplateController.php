@@ -39,7 +39,17 @@ class TaskTemplateController extends Controller
                                                         class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
-        })->rawColumns(['action'])->make(true);
+        })->editColumn('frequency',function($data){
+            $dt ="";
+            if ($data->frequency == 'daily') {
+                $dt ='<span class="badge badge-label-primary">Harian</span>';
+            }else if($data->frequency == "weekly"){
+                $dt ='<span class="badge badge-label-info">Mingguan</span>';
+            }else{
+                $dt ='<span class="badge badge-label-warning">Bulanan</span>';
+            }
+            return $dt;
+        })->rawColumns(['action','frequency'])->make(true);
     }
 
     public function store(Request $request)

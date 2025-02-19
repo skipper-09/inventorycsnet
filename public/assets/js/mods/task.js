@@ -23,26 +23,29 @@ $(document).ready(function () {
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
-
+        $("#addForm #statustask").val('').trigger('change');
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
             modal.find('#idtasktemplate').val(taskId);
+            modal.find('#statusTask').addClass('d-none');
             form.attr("action", proses);
             form.attr("method", "POST");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             modal.find('#idtasktemplate').val(taskId);
+            modal.find('#statusTask').removeClass('d-none');
             form.attr("action", proses);
             form.attr("method", "PUT");
-
             //get data ajax
             $.ajax({
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.unit) {
-                        $("#addForm #name").val(response.unit.name);
+                    if (response.task) {
+                        $("#addForm #name").val(response.task.name);
+                        $("#addForm #description").val(response.task.description);
+                        $("#addForm #statustask").val(response.task.status).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {

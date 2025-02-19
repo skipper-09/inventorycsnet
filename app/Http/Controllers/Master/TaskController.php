@@ -12,17 +12,18 @@ use Yajra\DataTables\DataTables;
 
 class TaskController extends Controller
 {
-    public function getData()
+    public function getData(request $request,$templateid)
     {
-        $data = Task::orderByDesc('id')->get();
+
+        $data = Task::where('task_template_id',$templateid)->orderByDesc('id')->get();
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
                 if ($userauth->can(abilities: 'update-product')) {
-                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('produk.edit', ['id' => $data->id]) . '" data-proses="' . route('produk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="edit" data-title="Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('task.edit', ['id' => $data->id]) . '" data-proses="' . route('task.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+                            data-action="edit" data-title="Task" data-toggle="tooltip" data-taskid='.$data->task_template_id.' data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
                 }
                 if ($userauth->can('delete-product')) {
@@ -48,7 +49,11 @@ class TaskController extends Controller
 
         try {
             $task = new Task();
-            $task->create($request->all());
+            $task->create([
+                'name'=>$request->name,
+                'description'=>$request->description,
+                'task_template_id'=>$request->task_template_id
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -63,6 +68,47 @@ class TaskController extends Controller
             ]);
         }
     }
+
+
+
+
+    public function show($id)
+    {
+        $task = Task::findOrFail($id);
+        return response()->json([
+            'task' => $task,
+        ], 200);
+    }
+
+
+    public function update(Request $request,$id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required',
+        ], [
+            'name.required' => 'Nama Task harus diisi.',
+            'description.required' => 'Deskripsi Task harus diisi.',
+        ]);
+
+        try {
+            $task = Task::findOrFail($id);
+            $task->update($request->all());
+
+            return response()->json([
+                'success' => true,
+                'status' => "Berhasil",
+                'message' => 'Task Berhasil diupdate.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 
 
 

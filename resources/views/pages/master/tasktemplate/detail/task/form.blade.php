@@ -22,15 +22,14 @@
                         <label class="form-label" for="description">Deskripsi</label>
                         <textarea class="form-control" name="description" id="description" placeholder="Deskripsi Task"></textarea>
                     </div>
-                    {{-- <div class="mb-3">
-                        <label class="form-label w-100" for="frequency">Frequency Task</label>
-                        <select name="frequency" id="frequency" class="form-control select2">
-                            <option value="">PIlih Frequency</option>
-                                <option value="daily">Harian</option>
-                                <option value="weekly">Mingguan</option>
-                                <option value="monthly">Bulanan</option>
+                    <div class="mb-3" id="statusTask">
+                        <label class="form-label w-100" for="statustask">Status Task</label>
+                        <select name="status" id="statustask" class="form-control select2">
+                            <option value="">PIlih Status</option>
+                                <option value="1">Aktif</option>
+                                <option value="0">Tidak Aktif</option>
                         </select>
-                    </div> --}}
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
