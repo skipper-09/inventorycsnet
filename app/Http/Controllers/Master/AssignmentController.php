@@ -79,7 +79,5 @@ class AssignmentController extends Controller
                 'message' => 'An error occurred: ' . $e->getMessage()
             ]);
         }
-}
-
-
+    }
 }

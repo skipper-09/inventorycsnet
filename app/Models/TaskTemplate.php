@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class TaskTemplate extends Model
 {
@@ -10,6 +11,7 @@ class TaskTemplate extends Model
 
     protected $fillable = [
         "name",
+        "slug",
         "description",
         "frequency",
     ];
@@ -17,5 +19,24 @@ class TaskTemplate extends Model
     public function taksassign()
     {
         return $this->hasMany(TaskAssign::class);
+    }
+
+
+    public function setSlugAttribute($value)
+    {
+        if (empty($this->attributes['slug']) || $this->isDirty('name')) {
+            $this->attributes['slug'] = Str::slug($this->name);
+        }
+    }
+
+    public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            if (empty($model->slug)) {
+                $model->slug = Str::slug($model->name);
+            }
+        });
     }
 }

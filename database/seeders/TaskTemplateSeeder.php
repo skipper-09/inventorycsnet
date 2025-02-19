@@ -13,9 +13,10 @@ class TaskTemplateSeeder extends Seeder
      */
     public function run(): void
     {
-        TaskTemplate::insert([
+        TaskTemplate::create([
             'name'=>'Testing',
             'description'=>'Testing',
+            'slug'=>'Testing',
         ]);
     }
 }

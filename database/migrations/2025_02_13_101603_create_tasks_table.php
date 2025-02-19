@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_templates', function (Blueprint $table) {
+        Schema::create('tasks', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('task_template_id');
             $table->string('name');
-            $table->string('slug');
-            $table->longText('description');
-            $table->enum('frequency',['daily','weekly', 'monthly'])->default('daily');
+            $table->longText('description')->nullable();
+            $table->boolean('status')->default(true);
+            $table->foreign('task_template_id')->references('id')->on('task_templates')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_templates');
+        Schema::dropIfExists('tasks');
     }
 };
