@@ -25,7 +25,7 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-md-3">
+            {{-- <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -39,7 +39,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body">
@@ -70,7 +70,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            {{-- <div class="col-md-3">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -84,10 +84,10 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
 
-        <div class="row mb-4">
+        {{-- <div class="row mb-4">
             <!-- Current Tasks -->
             <div class="col-md-8">
                 <div class="card shadow-sm">
@@ -168,7 +168,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
 
         {{-- <div class="row">
             <div class="col-12">
