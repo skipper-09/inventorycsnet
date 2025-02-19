@@ -158,11 +158,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
          Route::prefix('detail-task')->group(function () {
             // Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
             Route::get('getdata', [TaskController::class, 'getData'])->name('task.getdata');
-            // Route::post('store', [TaskController::class, 'store'])->name('task.store');
+            Route::post('store', [TaskController::class, 'store'])->name('task.store');
             // Route::get('/detail/{slug}', [TaskController::class, 'detail'])->name('task.detail');
             // Route::get('/edit/{id}', [TaskController::class, 'show'])->name('task.edit')->middleware('can:update-task-template');
             // Route::put('/update/{id}', [TaskController::class, 'update'])->name('task.update');
-            // Route::delete('/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete')->middleware('can:delete-task-template');
+            Route::delete('/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
         });
 
 

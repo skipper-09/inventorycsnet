@@ -112,8 +112,10 @@ class TaskTemplateController extends Controller
 
 
     public function detail($slug){
+        $tasktemplate = TaskTemplate::where('slug',$slug)->first();
         $data = [
             'title' => 'Detail Task Template',
+            'tasktempalte'=>$tasktemplate->id,
         ];
         return view('pages.master.tasktemplate.detail', $data);
     }

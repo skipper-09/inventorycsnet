@@ -41,21 +41,21 @@
                             {{-- <h3 class="card-title">Tab</h3> --}}
                             <div class="">
                                 <div class="nav nav-tabs card-nav" id="card3-tab">
-                                    <a class="nav-item nav-link active" id="card3-home-tab" data-bs-toggle="tab" href="#card3-home">Home</a>
-                                    <a class="nav-item nav-link" id="card3-profile-tab" data-bs-toggle="tab" href="#card3-profile">Profile</a>
-                                    <a class="nav-item nav-link" id="card3-contact-tab" data-bs-toggle="tab" href="#card3-contact">Contact</a>
+                                    <a class="nav-item nav-link active" id="card3-home-tab" data-bs-toggle="tab" href="#card-task">Task</a>
+                                    <a class="nav-item nav-link" id="card3-profile-tab" data-bs-toggle="tab" href="#card-penugasan">Penugasan</a>
+                                    {{-- <a class="nav-item nav-link" id="card3-contact-tab" data-bs-toggle="tab" href="#card3-contact">Contact</a> --}}
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="tab-content">
-                                <div class="tab-pane fade show active" id="card3-home">
+                                <div class="tab-pane fade show active" id="card-task">
                                     <div class="col-12">
                                         <div class="card">
                                             @can('create-unit-product')
                                                 <div class="card-header">
                                                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                                                        data-action="create" data-proses="{{ route('tasktemplate.store') }}"
+                                                        data-action="create" data-taskid="{{ $tasktempalte }}" data-proses="{{ route('task.store') }}"
                                                         data-title="{{ $title }}">Tambah {{ $title }}</button>
                                                 </div>
                                             @endcan
@@ -80,20 +80,20 @@
                                         </div> <!-- end card -->
                                     </div><!-- end col-->
                                 </div>
-                                <div class="tab-pane fade" id="card3-profile">
+                                <div class="tab-pane fade" id="card-penugasan">
                                     <p class="text-muted mb-0">
                                         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
                                         galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged
                                     </p>
                                 </div>
-                                <div class="tab-pane fade" id="card3-contact">
+                                {{-- <div class="tab-pane fade" id="card3-contact">
                                     <p class="text-muted mb-0">
                                         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a
                                         galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It
                                         was popularised in the 1960s with the release of Letraset sheets containLorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of
                                         Lorem Ipsum.
                                     </p>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -101,6 +101,8 @@
             </div>
         </div>
     </div>
+
+    @include('pages.master.tasktemplate.detail.task.form')
 @endsection
 
 @push('js')

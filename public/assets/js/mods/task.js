@@ -15,8 +15,10 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addUnitForm");
-
+        var form = $("#addForm");
+        var taskId = button.data('taskid');
+        var modal = $(this);
+       
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
@@ -25,19 +27,22 @@ $(document).ready(function () {
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
+            modal.find('#idtasktemplate').val(taskId);
             form.attr("action", proses);
             form.attr("method", "POST");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
+            modal.find('#idtasktemplate').val(taskId);
             form.attr("action", proses);
             form.attr("method", "PUT");
+
             //get data ajax
             $.ajax({
                 url: route,
                 type: "GET",
                 success: function (response) {
                     if (response.unit) {
-                        $("#addUnitForm #name").val(response.unit.name);
+                        $("#addForm #name").val(response.unit.name);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -62,12 +67,12 @@ $(document).ready(function () {
             name: "name",
         },
         {
-            data: "name",
-            name: "name",
+            data: "description",
+            name: "description",
         },
         {
-            data: "name",
-            name: "name",
+            data: "status",
+            name: "status",
         },
     ];
 
@@ -100,7 +105,7 @@ $(document).ready(function () {
         columns: columns,
     });
 
-    $("#addUnitForm").on("submit", function (e) {
+    $("#addForm").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -111,7 +116,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addUnitForm")[0].reset();
+                    $("#addForm")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",
