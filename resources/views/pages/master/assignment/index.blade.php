@@ -46,6 +46,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Name</th>
+                                    <th>Type</th>
                                     @canany(['update-unit-product', 'delete-unit-product'])   
                                     <th>Action</th>
                                     @endcanany

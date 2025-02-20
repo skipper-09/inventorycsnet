@@ -76,6 +76,10 @@ $(document).ready(function () {
                 name: "name",
             },
             {
+                data: "type",
+                name: "type",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,

@@ -16,9 +16,9 @@ class TaskTemplate extends Model
         "frequency",
     ];
 
-    public function taksassign()
+    public function task()
     {
-        return $this->hasMany(TaskAssign::class);
+        return $this->hasMany(Task::class);
     }
 
 
