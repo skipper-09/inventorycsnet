@@ -13,7 +13,6 @@ class TaskTemplate extends Model
         "name",
         "slug",
         "description",
-        "frequency",
     ];
 
     public function task()
