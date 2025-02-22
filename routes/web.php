@@ -20,6 +20,7 @@ use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Settings\SettingController;
+use App\Http\Controllers\Submission\LeaveController;
 use App\Http\Controllers\Transaction\IncomeProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -53,7 +54,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     //route dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('can:read-dashboard');
-    
 
     //route master group
     Route::prefix('master')->group(function () {
@@ -260,6 +260,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [SalaryController::class, 'update'])->name('salary.update');
             Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
             Route::get('/generate-slip/{employeeId}/{salaryMonth}', [SalaryController::class, 'generateSalarySlip'])->name('salary.generate-slip');
+        });
+    });
+
+    Route::prefix('submission')->group(function () {
+        Route::prefix('leave')->group(function () {
+            Route::get('', [LeaveController::class, 'index'])->name('leave')->middleware('can:read-leave');
+            Route::get('getdata', [LeaveController::class, 'getData'])->name('leave.getdata');
+            Route::post('store', [LeaveController::class, 'store'])->name('leave.store');
+            Route::get('/edit/{id}', [LeaveController::class, 'show'])->name('leave.edit')->middleware('can:update-leave');
+            Route::put('/update/{id}', [LeaveController::class, 'update'])->name('leave.update');
+            Route::delete('/delete/{id}', [LeaveController::class, 'destroy'])->name('leave.delete')->middleware('can:delete-leave');
         });
     });
 

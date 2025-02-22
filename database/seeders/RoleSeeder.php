@@ -66,6 +66,11 @@ class RoleSeeder extends Seeder
             'create-position',
             'update-position',
             'delete-position',
+            //leave
+            'read-leave',
+            'create-leave',
+            'update-leave',
+            'delete-leave',
             //leave report
             'read-leave-report',
             'create-leave-report',
@@ -178,6 +183,9 @@ class RoleSeeder extends Seeder
 
         $employee->givePermissionTo([
             'read-dashboard',
+            'read-leave',
+            'create-leave',
+            'update-leave',
         ]);
     }
 }

@@ -14,6 +14,7 @@
                         </a>
                     </li>
                 @endcan
+                
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
                     'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type', 'read-allowance',
                     'read-allowance-type', 'read-position', 'read-department', 'read-employee', 'read-salary'])
@@ -126,6 +127,18 @@
                         <span>Customer</span>
                     </a>
                 </li>
+
+                @canany(['read-leave'])
+                    <li class="menu-title">Pengajuan</li>
+                    @can('read-leave')
+                        <li>
+                            <a href="{{ route('leave') }}" class="">
+                                <i class="fas fa-file-contract"></i>
+                                <span>Cuti</span>
+                            </a>
+                        </li>
+                    @endcan
+                @endcanany
 
                 @canany(['read-transfer-product', 'read-work-product'])
                     <li class="menu-title">Transaksi</li>
