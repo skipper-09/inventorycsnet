@@ -69,9 +69,10 @@ $(document).ready(function () {
             name: "description",
         },
         {
-            data: "frequency",
-            name: "frequency",
+            data: "task",
+            name: "task",
         },
+     
     ];
 
     // Only add action column if user has permission

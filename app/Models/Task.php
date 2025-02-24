@@ -9,14 +9,15 @@ class Task extends Model
     protected $primaryKey = "id";
 
     protected $fillable = [
-        "task_template_id",
         "name",
         "description",
         'status'
     ];
 
-    public function taskTemplate()
+    public function templateTas()
     {
-        return $this->belongsTo(TaskTemplate::class);
+        return $this->hasMany(Template_task::class,'task_id','id');
     }
+
+    
 }

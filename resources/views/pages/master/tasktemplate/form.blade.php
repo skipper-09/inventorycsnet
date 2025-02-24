@@ -22,12 +22,11 @@
                         <textarea class="form-control" name="description" id="description" placeholder="Deskripsi Task"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label w-100" for="frequency">Frequency Task</label>
-                        <select name="frequency" id="frequency" class="form-control select2">
-                            <option value="">PIlih Frequency</option>
-                                <option value="daily">Harian</option>
-                                <option value="weekly">Mingguan</option>
-                                <option value="monthly">Bulanan</option>
+                        <label class="form-label w-100" for="task">Task</label>
+                        <select name="taskdata[]" id="taskdata" class="form-control select2" multiple>
+                            @foreach ($taskdata as $item)
+                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>

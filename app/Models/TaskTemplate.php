@@ -15,9 +15,9 @@ class TaskTemplate extends Model
         "description",
     ];
 
-    public function task()
+    public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Template_task::class,'task_template_id','id');
     }
 
 

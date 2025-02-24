@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\Task;
 use App\Models\TaskTemplate;
+use App\Models\Template_task;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
 class TaskTemplateController extends Controller
@@ -16,6 +19,7 @@ class TaskTemplateController extends Controller
     {
         $data = [
             'title' => 'Task Template',
+            'taskdata' => Task::where('status', 1)->get(),
         ];
         return view('pages.master.tasktemplate.index', $data);
     }
@@ -23,50 +27,66 @@ class TaskTemplateController extends Controller
 
     public function getData()
     {
-        $data = TaskTemplate::orderByDesc('id')->get();
-        return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
-            $userauth = User::with('roles')->where('id', Auth::id())->first();
-            $button = '';
+        $data = TaskTemplate::with(['tasks.task'])->orderByDesc('id')->get();
+        return DataTables::of($data)
+            ->addIndexColumn()
+            ->addColumn('action', function ($data) {
+                $userauth = User::with('roles')->where('id', Auth::id())->first();
+                $button = '';
 
-            if ($userauth->can('update-task-template')) {
-                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('tasktemplate.edit', ['id' => $data->id]) . '" data-proses="' . route('tasktemplate.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+                if ($userauth->can('update-task-template')) {
+                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('tasktemplate.edit', ['id' => $data->id]) . '" data-proses="' . route('tasktemplate.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Task Template" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
-            }
-            $button .= ' <a href="' . route('tasktemplate.detail', ['slug' => $data->slug]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-            if ($userauth->can('delete-task-template')) {
-                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('tasktemplate.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                }
+                $button .= ' <a href="' . route('tasktemplate.detail', ['slug' => $data->slug]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+                if ($userauth->can('delete-task-template')) {
+                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('tasktemplate.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
-            }
-            return '<div class="d-flex gap-2">' . $button . '</div>';
-        })->editColumn('frequency',function($data){
-            $dt ="";
-            if ($data->frequency == 'daily') {
-                $dt ='<span class="badge badge-label-primary">Harian</span>';
-            }else if($data->frequency == "weekly"){
-                $dt ='<span class="badge badge-label-info">Mingguan</span>';
-            }else{
-                $dt ='<span class="badge badge-label-warning">Bulanan</span>';
-            }
-            return $dt;
-        })->rawColumns(['action','frequency'])->make(true);
+                }
+                return '<div class="d-flex gap-2">' . $button . '</div>';
+            })
+            ->editColumn('task', function ($data) {
+                $taskNames = [];
+                foreach ($data->tasks as $task) {
+                        $taskNames[] = $task->task->name;
+                }
+                return implode(', ', $taskNames); 
+            })
+            ->rawColumns(['action', 'task'])
+            ->make(true);
     }
+
+
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'description' => 'required',
-            'frequency'=>'required',
         ], [
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
-            'frequency.required' => 'Frequency Task harus diisi.',
         ]);
 
+        DB::beginTransaction();
         try {
-            $templatetask = new TaskTemplate();
-            $templatetask->create($request->all());
+            $templatetask = TaskTemplate::create([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            $templateTasks = [];
+            foreach ($request->taskdata as $taskId) {
+                $templateTasks[] = [
+                    'task_template_id' => $templatetask->id,
+                    'task_id' => $taskId,
+                ];
+            }
+
+            Template_task::insert($templateTasks);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
@@ -74,6 +94,8 @@ class TaskTemplateController extends Controller
                 'message' => 'Template Task Berhasil dibuat.'
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -81,6 +103,7 @@ class TaskTemplateController extends Controller
             ]);
         }
     }
+
 
 
     public function show($id)
@@ -121,11 +144,12 @@ class TaskTemplateController extends Controller
 
 
 
-    public function detail($slug){
-        $tasktemplate = TaskTemplate::where('slug',$slug)->first();
+    public function detail($slug)
+    {
+        $tasktemplate = TaskTemplate::where('slug', $slug)->first();
         $data = [
             'title' => 'Detail Task Template',
-            'tasktempalte'=>$tasktemplate->id,
+            'tasktempalte' => $tasktemplate->id,
         ];
         return view('pages.master.tasktemplate.detail', $data);
     }
@@ -133,23 +157,23 @@ class TaskTemplateController extends Controller
 
 
 
-     //destroy data
-     public function destroy($id)
-     {
-         try {
-             $tasktemplate = TaskTemplate::findOrFail($id);
-             $tasktemplate->delete();
-             //return response
-             return response()->json([
-                 'status' => 'success',
-                 'success' => true,
-                 'message' => 'Task Template Berhasil Dihapus!.',
-             ]);
-         } catch (Exception $e) {
-             return response()->json([
-                 'message' => 'Gagal Menghapus Task Template!',
-                 'trace' => $e->getTrace()
-             ]);
-         }
-     }
+    //destroy data
+    public function destroy($id)
+    {
+        try {
+            $tasktemplate = TaskTemplate::findOrFail($id);
+            $tasktemplate->delete();
+            //return response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Task Template Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Task Template!',
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
 }

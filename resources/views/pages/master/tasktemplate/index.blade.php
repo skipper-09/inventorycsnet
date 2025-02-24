@@ -53,7 +53,7 @@
                                     <th>No</th>
                                     <th>Name</th>
                                     <th>Deskripsi</th>
-                                    <th>frequency</th>
+                                    <th>Task</th>
                                     @canany(['update-task-template', 'delete-task-template'])   
                                     <th>Action</th>
                                     @endcanany
