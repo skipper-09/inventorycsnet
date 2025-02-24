@@ -16,25 +16,20 @@ $(document).ready(function () {
         var route = button.data("route");
         var proses = button.data("proses");
         var form = $("#addForm");
-        var taskId = button.data('taskid');
-        var modal = $(this);
-       
+
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
-        $("#addForm #statustask").val('').trigger('change');
+        
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
-            modal.find('#idtasktemplate').val(taskId);
-            modal.find('#statusTask').addClass('d-none');
             form.attr("action", proses);
             form.attr("method", "POST");
+            $("#addForm #frequency").val("").trigger('change');
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
-            modal.find('#idtasktemplate').val(taskId);
-            modal.find('#statusTask').removeClass('d-none');
             form.attr("action", proses);
             form.attr("method", "PUT");
             //get data ajax
@@ -42,10 +37,10 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.task) {
-                        $("#addForm #name").val(response.task.name);
-                        $("#addForm #description").val(response.task.description);
-                        $("#addForm #statustask").val(response.task.status).trigger('change');
+                    if (response.taskdata) {
+                        $("#addForm #name").val(response.taskdata.name);
+                        $("#addForm #description").val(response.taskdata.description);
+                        $("#addForm #status").val(response.taskdata.status).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {
@@ -77,6 +72,7 @@ $(document).ready(function () {
             data: "status",
             name: "status",
         },
+     
     ];
 
     // Only add action column if user has permission

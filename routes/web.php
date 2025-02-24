@@ -14,7 +14,8 @@ use App\Http\Controllers\Master\FormTemplateBuilderController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\SalaryController;
-use App\Http\Controllers\Master\TaskController;
+use App\Http\Controllers\Master\TaskDataController;
+use App\Http\Controllers\Master\TaskDetailController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
@@ -154,14 +155,25 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
         });
 
-         //Task
+        //Task Data
+        Route::prefix('task-data')->group(function () {
+            Route::get('', [TaskDataController::class, 'index'])->name('taskdata');
+            Route::get('getdata', [TaskDataController::class, 'getData'])->name('taskdata.getdata');
+            Route::post('store', [TaskDataController::class, 'store'])->name('taskdata.store');
+            Route::get('/detail/{id}', action: [TaskDataController::class, 'detail'])->name('taskdata.detail');
+            Route::get('/edit/{id}', [TaskDataController::class, 'show'])->name('taskdata.edit');
+            Route::put('/update/{id}', [TaskDataController::class, 'update'])->name('taskdata.update');
+            Route::delete('/delete/{id}', [TaskDataController::class, 'destroy'])->name('taskdata.delete');
+        });
+
+         //Task detail
          Route::prefix('detail-task')->group(function () {
             // Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
-            Route::get('getdata/{templateid}', [TaskController::class, 'getData'])->name('task.getdata');
-            Route::post('store', [TaskController::class, 'store'])->name('task.store');
-            Route::get('/edit/{id}', [TaskController::class, 'show'])->name('task.edit');
-            Route::put('/update/{id}', [TaskController::class, 'update'])->name('task.update');
-            Route::delete('/delete/{id}', [TaskController::class, 'destroy'])->name('task.delete');
+            Route::get('getdata/{taskdataid}', [TaskDetailController::class, 'getData'])->name('taskdetail.getdata');
+            Route::post('store', [TaskDetailController::class, 'store'])->name('taskdetail.store');
+            Route::get('/edit/{id}', [TaskDetailController::class, 'show'])->name('taskdetail.edit');
+            Route::put('/update/{id}', [TaskDetailController::class, 'update'])->name('taskdetail.update');
+            Route::delete('/delete/{id}', [TaskDetailController::class, 'destroy'])->name('taskdetail.delete');
         });
 
 

@@ -102,6 +102,8 @@
                             <span>Task Master</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
+                            <li><a href="{{ route('taskdata') }}"><i
+                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
                             @can('read-task-template')
                             <li><a href="{{ route('tasktemplate') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>

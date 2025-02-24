@@ -12,7 +12,7 @@
                 @csrf <!-- CSRF Token untuk keamanan -->
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
-                    <input hidden name="task_template_id" type="text" id="idtasktemplate">
+                    <input hidden name="task_data_id" type="text" id="idtasktemplate">
                     <div class="mb-3">
                         <label class="form-label" for="name">Nama Task</label>
                         <input class="form-control" type="text" name="name" id="name"
@@ -21,14 +21,6 @@
                     <div class="mb-3">
                         <label class="form-label" for="description">Deskripsi</label>
                         <textarea class="form-control" name="description" id="description" placeholder="Deskripsi Task"></textarea>
-                    </div>
-                    <div class="mb-3" id="statusTask">
-                        <label class="form-label w-100" for="statustask">Status Task</label>
-                        <select name="status" id="statustask" class="form-control select2">
-                            <option value="">PIlih Status</option>
-                                <option value="1">Aktif</option>
-                                <option value="0">Tidak Aktif</option>
-                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

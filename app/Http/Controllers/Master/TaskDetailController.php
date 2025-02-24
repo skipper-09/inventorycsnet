@@ -4,35 +4,34 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Models\TaskDetail;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
-class TaskController extends Controller
+class TaskDetailController extends Controller
 {
-    public function getData(request $request,$templateid)
+    public function getData(request $request,$taskdataid)
     {
 
-        $data = Task::where('task_template_id',$templateid)->orderByDesc('id')->get();
-        return DataTables::of($data)
+        $data = TaskDetail::where('task_id',$taskdataid)->orderByDesc('id')->get();
+                return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
                 if ($userauth->can(abilities: 'update-product')) {
-                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('task.edit', ['id' => $data->id]) . '" data-proses="' . route('task.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('taskdetail.edit', ['id' => $data->id]) . '" data-proses="' . route('taskdetail.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Task" data-toggle="tooltip" data-taskid='.$data->task_template_id.' data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
                 }
                 if ($userauth->can('delete-product')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('task.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('taskdetail.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
-            })->editColumn('status',function($data){
-                    return $data->status == 1 ? '<span class="badge badge-label-primary">Aktif</span>' : '<span class="badge badge-label-danger">Tidak Aktif</span>';
             })->rawColumns(['action','status'])->make(true);
     }
 
@@ -48,17 +47,17 @@ class TaskController extends Controller
         ]);
 
         try {
-            $task = new Task();
+            $task = new TaskDetail();
             $task->create([
                 'name'=>$request->name,
                 'description'=>$request->description,
-                'task_template_id'=>$request->task_template_id
+                'task_id'=>$request->task_data_id
             ]);
 
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Task Berhasil dibuat.'
+                'message' => 'Detail Task Berhasil dibuat.'
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -74,9 +73,9 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::findOrFail($id);
+        $taskdetail = TaskDetail::findOrFail($id);
         return response()->json([
-            'task' => $task,
+            'taskdetail' => $taskdetail,
         ], 200);
     }
 
@@ -92,13 +91,13 @@ class TaskController extends Controller
         ]);
 
         try {
-            $task = Task::findOrFail($id);
-            $task->update($request->all());
+            $taskdetail = TaskDetail::findOrFail($id);
+            $taskdetail->update($request->all());
 
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Task Berhasil diupdate.'
+                'message' => 'Detail Task Berhasil diupdate.'
             ]);
         } catch (Exception $e) {
             return response()->json([
@@ -117,13 +116,13 @@ class TaskController extends Controller
      public function destroy($id)
      {
          try {
-             $task = Task::findOrFail($id);
-             $task->delete();
+             $taskdetail = TaskDetail::findOrFail($id);
+             $taskdetail->delete();
              //return response
              return response()->json([
                  'status' => 'success',
                  'success' => true,
-                 'message' => 'Task Berhasil Dihapus!.',
+                 'message' => 'Detail Task Berhasil Dihapus!.',
              ]);
          } catch (Exception $e) {
              return response()->json([
