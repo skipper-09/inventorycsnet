@@ -80,8 +80,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         // branch
         Route::prefix('cabang')->group(function () {
-            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');
-            ;
+            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');;
             Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
             Route::post('store', [BranchController::class, 'store'])->name('branch.store');
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit')->middleware('can:update-branch');
@@ -149,7 +148,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
             Route::get('getdata', [TaskTemplateController::class, 'getData'])->name('tasktemplate.getdata');
             Route::post('store', [TaskTemplateController::class, 'store'])->name('tasktemplate.store');
-            Route::get('/detail/{slug}', [TaskTemplateController::class, 'detail'])->name('tasktemplate.detail');
+            // Route::get('/detail/{slug}', [TaskTemplateController::class, 'detail'])->name('tasktemplate.detail');
             Route::get('/edit/{id}', [TaskTemplateController::class, 'show'])->name('tasktemplate.edit')->middleware('can:update-task-template');
             Route::put('/update/{id}', [TaskTemplateController::class, 'update'])->name('tasktemplate.update');
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
@@ -166,8 +165,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [TaskDataController::class, 'destroy'])->name('taskdata.delete');
         });
 
-         //Task detail
-         Route::prefix('detail-task')->group(function () {
+        //Task detail
+        Route::prefix('detail-task')->group(function () {
             // Route::get('', [TaskTemplateController::class, 'index'])->name('tasktemplate')->middleware('can:read-task-template');
             Route::get('getdata/{taskdataid}', [TaskDetailController::class, 'getData'])->name('taskdetail.getdata');
             Route::post('store', [TaskDetailController::class, 'store'])->name('taskdetail.store');

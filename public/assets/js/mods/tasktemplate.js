@@ -21,13 +21,13 @@ $(document).ready(function () {
         $(".is-invalid").removeClass("is-invalid");
         $(".invalid-feedback").remove();
         $("#errorMessages").addClass("d-none");
-        
+
         if (action === "create") {
             modalTitle.text("Tambah " + title);
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addForm #frequency").val("").trigger('change');
+            $("#addForm #taskdata").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -37,10 +37,20 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
+                    console.log(response.tasktemplate);
+
                     if (response.tasktemplate) {
                         $("#addForm #name").val(response.tasktemplate.name);
-                        $("#addForm #description").val(response.tasktemplate.description);
-                        $("#addForm #frequency").val(response.tasktemplate.frequency).trigger('change');
+                        $("#addForm #description").val(
+                            response.tasktemplate.description
+                        );
+                        var taskSelect = $("#addForm #taskdata");
+                        var selectedTaskId = response.tasktemplate.tasks.map(
+                            function (task) {
+                                return task.task_id;
+                            }
+                        );
+                        taskSelect.val(selectedTaskId).trigger("change");
                     }
                 },
                 error: function (xhr, status, error) {
@@ -51,7 +61,9 @@ $(document).ready(function () {
     });
 
     var route = $("#scroll-sidebar-datatable").data("route");
-    var hasActionPermission = $("#scroll-sidebar-datatable").data("has-action-permission");
+    var hasActionPermission = $("#scroll-sidebar-datatable").data(
+        "has-action-permission"
+    );
 
     var columns = [
         {
@@ -72,7 +84,6 @@ $(document).ready(function () {
             data: "task",
             name: "task",
         },
-     
     ];
 
     // Only add action column if user has permission

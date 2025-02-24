@@ -39,7 +39,7 @@ class TaskTemplateController extends Controller
                             data-action="edit" data-title="Task Template" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
                 }
-                $button .= ' <a href="' . route('tasktemplate.detail', ['slug' => $data->slug]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+                // $button .= ' <a href="' . route('tasktemplate.detail', ['slug' => $data->slug]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
                 if ($userauth->can('delete-task-template')) {
                     $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('tasktemplate.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
@@ -49,9 +49,9 @@ class TaskTemplateController extends Controller
             ->editColumn('task', function ($data) {
                 $taskNames = [];
                 foreach ($data->tasks as $task) {
-                        $taskNames[] = $task->task->name;
+                    $taskNames[] = $task->task->name;
                 }
-                return implode(', ', $taskNames); 
+                return implode(', ', $taskNames);
             })
             ->rawColumns(['action', 'task'])
             ->make(true);
@@ -64,9 +64,11 @@ class TaskTemplateController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'required',
+            'taskdata' => 'required',
         ], [
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
+            'taskdata.required' => 'Task harus dipilih.',
         ]);
 
         DB::beginTransaction();
@@ -108,7 +110,7 @@ class TaskTemplateController extends Controller
 
     public function show($id)
     {
-        $tasktemplate = TaskTemplate::findOrFail($id);
+        $tasktemplate = TaskTemplate::with(['tasks.task'])->findOrFail($id);
         return response()->json([
             'tasktemplate' => $tasktemplate,
         ], 200);
@@ -120,39 +122,65 @@ class TaskTemplateController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'required',
+            'taskdata' => 'required', // Pastikan taskdata juga harus ada saat update
         ], [
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
+            'taskdata.required' => 'Task harus dipilih.',
         ]);
+
+        DB::beginTransaction();
         try {
-            $unit = TaskTemplate::findOrFail($id);
-            $unit->update($request->all());
+            $tasktemplate = TaskTemplate::findOrFail($id);
+
+            $tasktemplate->update([
+                'name' => $request->name,
+                'description' => $request->description,
+            ]);
+
+            Template_task::where('task_template_id', $tasktemplate->id)->delete();
+
+            $templateTasks = [];
+            foreach ($request->taskdata as $taskId) {
+                $templateTasks[] = [
+                    'task_template_id' => $tasktemplate->id,
+                    'task_id' => $taskId,
+                ];
+            }
+
+            Template_task::insert($templateTasks);
+
+            DB::commit();
 
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
-                'message' => 'Taks Template Berhasil diupdate.'
+                'message' => 'Task Template berhasil diupdate.'
             ]);
         } catch (Exception $e) {
+            // Rollback jika terjadi kesalahan
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
             ]);
         }
     }
 
 
 
-    public function detail($slug)
-    {
-        $tasktemplate = TaskTemplate::where('slug', $slug)->first();
-        $data = [
-            'title' => 'Detail Task Template',
-            'tasktempalte' => $tasktemplate->id,
-        ];
-        return view('pages.master.tasktemplate.detail', $data);
-    }
+
+    // public function detail($slug)
+    // {
+    //     $tasktemplate = TaskTemplate::where('slug', $slug)->first();
+    //     $data = [
+    //         'title' => 'Detail Task Template',
+    //         'tasktempalte' => $tasktemplate->id,
+    //     ];
+    //     return view('pages.master.tasktemplate.detail', $data);
+    // }
 
 
 

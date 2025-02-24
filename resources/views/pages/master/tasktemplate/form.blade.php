@@ -13,9 +13,9 @@
                 <div class="modal-body">
                     <div id="errorMessages" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
-                        <label class="form-label" for="name">Nama Task</label>
+                        <label class="form-label" for="name">Nama Template</label>
                         <input class="form-control" type="text" name="name" id="name"
-                            placeholder="Nama Task">
+                            placeholder="Nama Template">
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="description">Deskripsi</label>
@@ -25,7 +25,7 @@
                         <label class="form-label w-100" for="task">Task</label>
                         <select name="taskdata[]" id="taskdata" class="form-control select2" multiple>
                             @foreach ($taskdata as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                <option value="{{ $item->id }}">{{ $item->name }}</option>
                             @endforeach
                         </select>
                     </div>
