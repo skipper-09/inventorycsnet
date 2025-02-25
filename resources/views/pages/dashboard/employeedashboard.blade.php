@@ -25,22 +25,7 @@
         </div>
 
         <div class="row mb-4">
-            {{-- <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
-                                <i class="fas fa-tasks text-success fa-2x"></i>
-                            </div>
-                            <div>
-                                <h6 class="card-title text-muted mb-0">Tugas Aktif</h6>
-                                <h4 class="mb-0">{{ $activeTasks ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -55,7 +40,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-6">
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
@@ -64,124 +49,70 @@
                             </div>
                             <div>
                                 <h6 class="card-title text-muted mb-0">Gaji Bulan Ini</h6>
-                                <h4 class="mb-0">Rp {{ number_format($currentSalary, 0, ',', '.') }}</h4>
+                                <h4 class="mb-0">Rp {{ number_format($netSalary, 0, ',', '.') }}</h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {{-- <div class="col-md-3">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
-                                <i class="fas fa-clock text-danger fa-2x"></i>
-                            </div>
-                            <div>
-                                <h6 class="card-title text-muted mb-0">Task Deadline</h6>
-                                <h4 class="mb-0">{{ $upcomingDeadlines ?? 0 }}</h4>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
         </div>
 
-        {{-- <div class="row mb-4">
-            <!-- Current Tasks -->
-            <div class="col-md-8">
+        <!-- Recent Leaves Section -->
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Pengajuan Cuti Terbaru</h5>
+                    </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="card-title mb-0">Tugas Aktif</h5>
-                            <a href="#" class="btn btn-sm btn-primary">Lihat Semua</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Judul</th>
-                                        <th>Status</th>
-                                        <th>Deadline</th>
-                                        <th>Progress</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($recentTasks as $task)
+                        @if(count($recentLeaves) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $task->title }}</td>
-                                            <td>
-                                                <span class="badge bg-{{ $task->status_color }}">
-                                                    {{ $task->status }}
-                                                </span>
-                                            </td>
-                                            <td>{{ $task->deadline_formatted }}</td>
-                                            <td>
-                                                <div class="progress" style="height: 5px;">
-                                                    <div class="progress-bar" role="progressbar"
-                                                        style="width: {{ $task->progress }}%"
-                                                        aria-valuenow="{{ $task->progress }}" aria-valuemin="0"
-                                                        aria-valuemax="100">
-                                                    </div>
-                                                </div>
-                                            </td>
+                                            <th>Tanggal Pengajuan</th>
+                                            <th>Dari</th>
+                                            <th>Sampai</th>
+                                            <th>Status</th>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center">Tidak ada tugas aktif</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($recentLeaves as $leave)
+                                            <tr>
+                                                <td>{{ $leave->created_at_formatted }}</td>
+                                                <td>{{ $leave->start_date_formatted }}</td>
+                                                <td>{{ $leave->end_date_formatted }}</td>
+                                                <td>
+                                                    <span class="badge bg-{{ $leave->status_color }}">
+                                                        {{ ucfirst($leave->status) }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-center text-muted my-3">Tidak ada pengajuan cuti terbaru</p>
+                        @endif
                     </div>
                 </div>
             </div>
-
-            <!-- Leave Requests -->
-            <div class="col-md-4">
+            
+            <!-- Salary History Chart -->
+            <div class="col-md-6">
                 <div class="card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="card-title mb-0">Pengajuan Cuti</h5>
-                            <a href="#" class="btn btn-sm btn-primary">Ajukan Cuti</a>
-                        </div>
-                        <div class="leave-list">
-                            @forelse($recentLeaves as $leave)
-                                <div class="leave-item p-3 border rounded mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <span class="badge bg-{{ $leave->status_color }}">{{ $leave->status }}</span>
-                                        <small class="text-muted">{{ $leave->created_at_formatted }}</small>
-                                    </div>
-                                    <p class="mb-1">{{ $leave->reason }}</p>
-                                    <small class="text-muted">
-                                        {{ $leave->start_date_formatted }} - {{ $leave->end_date_formatted }}
-                                        ({{ $leave->duration }} hari)
-                                    </small>
-                                </div>
-                            @empty
-                                <div class="text-center text-muted">
-                                    Tidak ada pengajuan cuti terbaru
-                                </div>
-                            @endforelse
-                        </div>
+                    <div class="card-header bg-white">
+                        <h5 class="card-title mb-0">Riwayat Gaji</h5>
                     </div>
-                </div>
-            </div>
-        </div> --}}
-
-        {{-- <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
                     <div class="card-body">
-                        <h5 class="card-title mb-4">Riwayat Gaji (6 Bulan Terakhir)</h5>
-                        <div style="height: 300px">
+                        <div style="height: 250px;">
                             <canvas id="salaryChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </div>
 @endsection
 
@@ -193,7 +124,7 @@
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: {!! json_encode($salaryHistory->pluck('month')) !!}, // Use 'month' instead of 'salary_month'
+                labels: {!! json_encode($salaryHistory->pluck('month')) !!},
                 datasets: [{
                     label: 'Gaji Bersih',
                     data: {!! json_encode($salaryHistory->pluck('amount')) !!},
@@ -221,7 +152,7 @@
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return 'Rp ' + value.toLocaleString('id-ID'); // Add "Rp" prefix
+                                return 'Rp ' + value.toLocaleString('id-ID');
                             }
                         }
                     }

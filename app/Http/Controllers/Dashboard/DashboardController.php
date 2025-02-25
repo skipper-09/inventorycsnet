@@ -69,39 +69,50 @@ class DashboardController extends Controller
         }
 
         // Mengambil data employee berdasarkan ID yang terkait dengan user
-        $employee = Employee::with(['department', 'position', 'tasks', 'leaves', 'salaries'])
+        $employee = Employee::with(['department', 'position', 'leaves', 'salaries'])
             ->findOrFail($currentUser->employee_id);
 
         // Menghitung sisa cuti
+        $currentYear = date('Y');
         $usedLeaves = $employee->leaves()
-            ->whereYear('created_at', date('Y'))
+            ->whereYear('created_at', $currentYear)
             ->where('status', 'approved')
             ->get()
             ->sum(function ($leave) {
                 return Carbon::parse($leave->start_date)->diffInDays(Carbon::parse($leave->end_date)) + 1;
             });
 
-        $remainingLeaves = 12 - $usedLeaves; // Asumsi 12 hari cuti tahunan
+        $annualLeaveAllowance = 12; // Asumsi 12 hari cuti tahunan
+        $remainingLeaves = $annualLeaveAllowance - $usedLeaves;
 
         // Mengambil gaji bulan ini
+        $currentMonth = date('m');
         $currentSalary = $employee->salaries()
-            ->whereYear('salary_month', date('Y'))
-            ->whereMonth('salary_month', date('m'))
+            ->whereYear('salary_month', $currentYear)
+            ->whereMonth('salary_month', $currentMonth)
             ->first();
 
-        $netSalary = $currentSalary ? ($currentSalary->basic_salary_amount + $currentSalary->bonus + $currentSalary->allowance - $currentSalary->deduction) : 0;
+        $netSalary = 0;
+        if ($currentSalary) {
+            $netSalary = $currentSalary->basic_salary_amount +
+                $currentSalary->bonus +
+                $currentSalary->allowance -
+                $currentSalary->deduction;
+        }
 
         // Mengambil cuti terbaru
+        $statusColors = [
+            'pending' => 'warning',
+            'approved' => 'success',
+            'rejected' => 'danger'
+        ];
+
         $recentLeaves = $employee->leaves()
             ->latest()
             ->take(3)
             ->get()
-            ->map(function ($leave) {
-                $leave->status_color = [
-                    'pending' => 'warning',
-                    'approved' => 'success',
-                    'rejected' => 'danger'
-                ][$leave->status] ?? 'secondary';
+            ->map(function ($leave) use ($statusColors) {
+                $leave->status_color = $statusColors[$leave->status] ?? 'secondary';
                 $leave->created_at_formatted = Carbon::parse($leave->created_at)->format('d M Y');
                 $leave->start_date_formatted = Carbon::parse($leave->start_date)->format('d M Y');
                 $leave->end_date_formatted = Carbon::parse($leave->end_date)->format('d M Y');
@@ -110,35 +121,36 @@ class DashboardController extends Controller
 
         // Mengambil riwayat gaji
         $salaryHistory = $employee->salaries()
-            ->select('salary_month', 'basic_salary_amount', 'bonus', 'deduction', 'allowance') // Select required columns
+            ->select('salary_month', 'basic_salary_amount', 'bonus', 'deduction', 'allowance')
             ->orderBy('salary_month', 'desc')
             ->take(6)
             ->get()
             ->map(function ($salary) {
                 // Calculate net_salary dynamically
-                $salary->amount = $salary->basic_salary_amount + $salary->bonus + $salary->allowance - $salary->deduction;
-                $salary->month = Carbon::parse($salary->salary_month)->format('M Y'); // Format the date
+                $salary->amount = $salary->basic_salary_amount +
+                    $salary->bonus +
+                    $salary->allowance -
+                    $salary->deduction;
+                $salary->month = Carbon::parse($salary->salary_month)->format('M Y');
                 return $salary;
             })
             ->reverse();
 
         // Menentukan ucapan berdasarkan waktu
-        $hour = date('H');
-        if ($hour >= 5 && $hour < 11) {
-            $greeting = "Selamat Pagi";
-        } elseif ($hour >= 11 && $hour < 14) {
-            $greeting = "Selamat Siang";
-        } elseif ($hour >= 14 && $hour < 18) {
-            $greeting = "Selamat Sore";
-        } else {
-            $greeting = "Selamat Malam";
-        }
+        $hour = (int) date('H');
+        $greeting = match (true) {
+            $hour >= 5 && $hour < 11 => "Selamat Pagi",
+            $hour >= 11 && $hour < 14 => "Selamat Siang",
+            $hour >= 14 && $hour < 18 => "Selamat Sore",
+            default => "Selamat Malam"
+        };
 
         $data = [
             'title' => 'Dashboard',
             'greeting' => $greeting,
             'employee' => $employee,
             'remainingLeaves' => $remainingLeaves,
+            'netSalary' => $netSalary,
             'currentSalary' => $currentSalary,
             'recentLeaves' => $recentLeaves,
             'salaryHistory' => $salaryHistory,
