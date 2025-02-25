@@ -16,8 +16,7 @@
                 @endcan
                 
                 @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
-                    'read-product-role', 'read-task-template', 'read-deduction', 'read-deduction-type', 'read-allowance',
-                    'read-allowance-type', 'read-position', 'read-department', 'read-employee', 'read-salary'])
+                    'read-product-role', 'read-task-template'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
@@ -55,49 +54,6 @@
 
                     <li>
                         <a href="javascript: void(0);" class="has-arrow ">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Data Karyawan</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            
-                            @can('read-deduction')
-                                <li><a href="{{ route('deduction') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
-                            @endcan
-                            @can('read-deduction-type')
-                                <li><a href="{{ route('deductiontype') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
-                            @endcan
-                            @can('read-allowance')
-                                <li><a href="{{ route('allowance') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
-                            @endcan
-                            @can('read-allowance-type')
-                                <li><a href="{{ route('allowancetype') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
-                            @endcan
-                            @can('read-salary')
-                                <li><a href="{{ route('salary') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Gaji Karyawan</a></li>
-                            @endcan
-                            @can('read-position')
-                                <li><a href="{{ route('position') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
-                            @endcan
-                            @can('read-department')
-                                <li><a href="{{ route('department') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
-                            @endcan
-                            @can('read-employee')
-                                <li><a href="{{ route('employee') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
-                            @endcan
-                        </ul>
-                    </li>
-
-
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow ">
                             <i class="fa fa-palette"></i>
                             <span>Task Master</span>
                         </a>
@@ -114,6 +70,51 @@
                             @endcan
                         </ul>
                     </li>
+                @endcanany
+                
+                @canany(['read-deduction', 'read-deduction-type', 'read-allowance',
+                    'read-allowance-type', 'read-position', 'read-department', 'read-employee', 'read-salary'])
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow ">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Data Karyawan</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        
+                        @can('read-deduction')
+                            <li><a href="{{ route('deduction') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
+                        @endcan
+                        @can('read-deduction-type')
+                            <li><a href="{{ route('deductiontype') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
+                        @endcan
+                        @can('read-allowance')
+                            <li><a href="{{ route('allowance') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
+                        @endcan
+                        @can('read-allowance-type')
+                            <li><a href="{{ route('allowancetype') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
+                        @endcan
+                        @can('read-salary')
+                            <li><a href="{{ route('salary') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Gaji Karyawan</a></li>
+                        @endcan
+                        @can('read-position')
+                            <li><a href="{{ route('position') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
+                        @endcan
+                        @can('read-department')
+                            <li><a href="{{ route('department') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
+                        @endcan
+                        @can('read-employee')
+                            <li><a href="{{ route('employee') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
+                        @endcan
+                    </ul>
+                </li>
                 @endcanany
                 
                 <li>
@@ -163,7 +164,7 @@
                     @endcan
                 @endcanany
 
-                @canany(['read-transaction-product', 'read-leave-report'])
+                @canany(['read-transaction-product', 'read-leave-report', 'read-task-report'])
                     <li class="menu-title">Laporan</li>
                     @can('read-transaction-product')
                         <li>
@@ -178,6 +179,14 @@
                             <a href="{{ route('leavereport') }}" class="">
                                 <i class="fas fa-box"></i>
                                 <span>Cuti Karyawan</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('read-task-report')
+                        <li>
+                            <a href="{{ route('taskreport') }}" class="">
+                                <i class="fas fa-box"></i>
+                                <span>Tugas Karyawan</span>
                             </a>
                         </li>
                     @endcan

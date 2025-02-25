@@ -24,12 +24,12 @@ $(document).ready(function () {
             name: "name",
         },
         {
-            data: "department_name",
-            name: "department_name",
-        },
-        {
             data: "position_name",
             name: "position_name",
+        },
+        {
+            data: "department_name",
+            name: "department_name",
         }
     ];
 

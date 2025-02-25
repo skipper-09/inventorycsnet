@@ -76,6 +76,11 @@ class RoleSeeder extends Seeder
             'create-leave-report',
             'update-leave-report',
             'delete-leave-report',
+            //task report
+            'read-task-report',
+            'create-task-report',
+            'update-task-report',
+            'delete-task-report',
             //departement
             'read-department',
             'create-department',

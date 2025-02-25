@@ -20,6 +20,7 @@ use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Report\LeaveReportController;
+use App\Http\Controllers\Report\TaskReportController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Submission\LeaveController;
 use App\Http\Controllers\Transaction\IncomeProductController;
@@ -335,6 +336,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdata', [LeaveReportController::class, 'getData'])->name('leavereport.getdata');
             Route::get('/edit/{id}', [LeaveReportController::class, 'show'])->name('leavereport.edit')->middleware('can:read-leave-report');
             Route::put('/update/{id}', [LeaveReportController::class, 'update'])->name('leavereport.update');
+        });
+
+        //task report
+        Route::prefix('task-report')->group(function (){
+            Route::get('', [TaskReportController::class, 'index'])->name('taskreport')->middleware('can:read-task-report');
         });
     });
 
