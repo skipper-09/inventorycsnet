@@ -270,7 +270,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [SalaryController::class, 'show'])->name('salary.edit')->middleware('can:update-salary');
             Route::put('/update/{id}', [SalaryController::class, 'update'])->name('salary.update');
             Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
-            Route::get('/generate-slip/{employeeId}/{salaryMonth}', [SalaryController::class, 'generateSalarySlip'])->name('salary.generate-slip');
+            Route::get('/generate-slip/{id}', [SalaryController::class, 'generateSalarySlip'])->name('salary.generate-slip');
         });
     });
 

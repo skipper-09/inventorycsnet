@@ -28,6 +28,15 @@
             <div class="col-lg-12">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
+                        <!-- Action Buttons -->
+                        <div class="row mb-4">
+                            <div class="col-12 d-flex justify-content-end">
+                                <a href="{{ route('salary.generate-slip', ['id' => $salary->id]) }}" class="btn btn-primary" target="_blank">
+                                    <i class="fas fa-file-pdf me-2"></i> Generate Slip Gaji
+                                </a>
+                            </div>
+                        </div>
+                        
                         <!-- Employee Information -->
                         <div class="row mb-4">
                             <div class="col-md-6">

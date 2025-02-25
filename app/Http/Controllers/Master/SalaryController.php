@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalaryController extends Controller
@@ -56,18 +57,6 @@ class SalaryController extends Controller
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-
-                $button .= ' <a href="' . route('salary.generate-slip', ['employeeId' => $data->employee_id, 'salaryMonth' => $data->salary_month]) . '"
-                        target="_blank"
-                        class="btn btn-sm btn-primary"
-                        data-id="' . $data->id . '"
-                        data-type="generate-slip"
-                        data-toggle="tooltip"
-                        data-placement="bottom"
-                        title="Generate Salary Slip">
-                    <i class="fas fa-file-pdf"></i> Generate Slip
-                </a>';
-
 
                 if ($userauth->can('read-salary')) {
                     $button .= '<a href="' . route('salary.details', ['id' => $data->id]) . '"
@@ -418,56 +407,66 @@ class SalaryController extends Controller
         }
     }
 
-    public function generateSalarySlip($employeeId, $salaryMonth)
+    public function generateSalarySlip($id)
     {
-        // Ensure salaryMonth is a valid date format
-        try {
-            $salaryDate = Carbon::parse($salaryMonth); // Parse once here
-        } catch (\Exception $e) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Invalid salary month format.'
-            ]);
-        }
+        // Find the salary record
+        $salary = Salary::with('employee')->findOrFail($id);
 
-        $year = $salaryDate->year;
-        $month = (int) $salaryDate->month; // Cast to integer to avoid string issues
-
-        // Get employee with their salary data for the specified month
-        $employee = Employee::with([
-            'salaries' => function ($query) use ($salaryMonth) {
-                $query->where('salary_month', $salaryMonth);
-            }
-        ])->findOrFail($employeeId);
-
-        $salary = $employee->salaries->first();
-
-        // Handle case where no salary data is found for the month
-        if (!$salary) {
-            return redirect()->back()->with([
-                'status' => 'error',
-                'message' => 'Data gaji tidak ditemukan untuk bulan tersebut.'
-            ]);
-        }
-
-        // Get the salaryMonth from the salary record
+        // Get the salary_month from the salary record
         $salaryMonth = Carbon::parse($salary->salary_month);
         $year = $salaryMonth->year;
-        $month = (int) $salaryMonth->month; // Cast to integer for filtering
+        $month = $salaryMonth->month;
 
-        // Get allowances for the specific month based on salary_month in salary record
+        // Get employee
+        $employee = $salary->employee;
+
+        // Get allowances for the specific month using raw DB queries for the date parts
         $allowances = Allowance::with('allowanceType')
-            ->where('employee_id', $employeeId)
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
+            ->where('employee_id', $employee->id)
             ->get();
 
-        // Get deductions for the specific month based on salary_month in salary record
+        // Group allowances by type for the slip
+        $grouped_allowances = [];
+        foreach ($allowances as $allowance) {
+            $type = $allowance->allowanceType->name;
+            if (!isset($grouped_allowances[$type])) {
+                $grouped_allowances[$type] = 0;
+            }
+            $grouped_allowances[$type] += $allowance->amount;
+        }
+
+        // Format for view
+        $formatted_allowances = [];
+        foreach ($grouped_allowances as $type => $amount) {
+            $formatted_allowances[] = [
+                'type' => $type,
+                'amount' => $amount
+            ];
+        }
+
+        // Get deductions for the specific month using raw DB queries
         $deductions = Deduction::with('deductionType')
-            ->where('employee_id', $employeeId)
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
+            ->where('employee_id', $employee->id)
             ->get();
+
+        // Group deductions by type for the slip
+        $grouped_deductions = [];
+        foreach ($deductions as $deduction) {
+            $type = $deduction->deductionType->name;
+            if (!isset($grouped_deductions[$type])) {
+                $grouped_deductions[$type] = 0;
+            }
+            $grouped_deductions[$type] += $deduction->amount;
+        }
+
+        // Format for view
+        $formatted_deductions = [];
+        foreach ($grouped_deductions as $type => $amount) {
+            $formatted_deductions[] = [
+                'type' => $type,
+                'amount' => $amount
+            ];
+        }
 
         // Calculate totals from filtered data
         $total_allowances = $allowances->sum('amount');
@@ -480,12 +479,18 @@ class SalaryController extends Controller
         $data = [
             'employee' => $employee,
             'salary' => $salary,
-            'allowances' => $allowances,
-            'deductions' => $deductions,
+            'allowances' => $formatted_allowances,
+            'deductions' => $formatted_deductions,
             'total_allowances' => $total_allowances,
             'total_deductions' => $total_deductions,
             'net_salary' => $net_salary,
             'salaryMonth' => $salaryMonth->format('F Y'),
+            'company' => [
+                'name' => config('app.company_name', 'Your Company'),
+                'address' => config('app.company_address', 'Your Company Address'),
+                'phone' => config('app.company_phone', 'Your Company Phone'),
+                'email' => config('app.company_email', 'company@example.com'),
+            ]
         ];
 
         // Generate and stream the PDF
