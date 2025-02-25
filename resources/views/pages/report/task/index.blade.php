@@ -2,10 +2,46 @@
 
 @section('title', $title)
 
+@push('css')
+    <style>
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content {
+            border-radius: 10px;
+        }
+
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .modal-title {
+            font-weight: 600;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+    </style>
+@endpush
+
 @section('content')
     <div class="container-fluid">
         <!-- Page title -->
-        <div class="row mb-3">
+        <div class="row mb-4">
             <div class="col-12">
                 <div class="d-flex align-items-center justify-content-between">
                     <h4 class="mb-0">{{ $title }}</h4>
@@ -21,29 +57,31 @@
         <div class="row">
             <div class="col-12">
                 @if (count($taskReports) > 0)
-                    <div class="card-columns">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
                         @foreach ($taskReports as $report)
-                            <div class="card shadow-sm mb-4">
-                                <div class="card-body">
-                                    <h5 class="card-title">Report #{{ $report['id'] }}</h5>
-                                    <h6 class="card-subtitle mb-2 text-muted">
-                                        Task: {{ $report['assignment']['task']['name'] ?? 'Untitled Task' }}
-                                    </h6>
-                                    <p class="card-text">
-                                        <strong>Employee:</strong>
-                                        {{ $report['assignment']['employee']['name'] ?? 'Not Assigned' }}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Report Type:</strong> {{ ucfirst($report['report_type']) }}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Assigned Date:</strong> {{ $report['assignment']['assign_date'] }}
-                                    </p>
-                                    <p class="card-text">
-                                        <strong>Status:</strong> {!! $report['assignment']->getStatusBadge() !!}
-                                    </p>
-                                    <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#detailModal{{ $report['id'] }}">View Details</a>
+                            <div class="col">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Report #{{ $report['id'] }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">
+                                            Task: {{ $report['task']->name ?? 'Untitled Task' }}
+                                        </h6>
+                                        <p class="card-text">
+                                            <strong>Employee:</strong>
+                                            {{ $report['employee']['name'] ?? 'Not Assigned' }}
+                                        </p>
+                                        <p class="card-text">
+                                            <strong>Report Type:</strong> {{ ucfirst($report['report_type']) }}
+                                        </p>
+                                        <p class="card-text">
+                                            <strong>Assigned Date:</strong> {{ formatDate($report['taskAssign']['assign_date']) }}
+                                        </p>
+                                        <p class="card-text">
+                                            <strong>Status:</strong> {!! $report['statusBadge'] !!}
+                                        </p>
+                                        <a href="#" class="btn btn-info btn-sm" data-bs-toggle="modal"
+                                            data-bs-target="#detailModal{{ $report['id'] }}">View Details</a>
+                                    </div>
                                 </div>
                             </div>
 
@@ -53,7 +91,7 @@
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Report #{{ $report['id'] }} -
-                                                {{ $report['assignment']['task']['name'] ?? 'Untitled Task' }}</h5>
+                                                {{ $report['task']->name ?? 'Untitled Task' }}</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                 aria-label="Close"></button>
                                         </div>
@@ -87,23 +125,23 @@
                                                 <div class="col-md-6">
                                                     <h6 class="border-bottom pb-2 mb-3">Assignment Details</h6>
                                                     <div class="mb-2">
-                                                        <strong>ID:</strong> {{ $report['assignment']['id'] }}
+                                                        <strong>ID:</strong> {{ $report['taskAssign']['id'] }}
                                                     </div>
                                                     <div class="mb-2">
-                                                        <strong>Date:</strong> {{ formatDate($report['assignment']['assign_date']) }}
+                                                        <strong>Date:</strong> {{ $report['taskAssign']['assign_date'] }}
                                                     </div>
                                                     <div class="mb-2">
                                                         <strong>Employee:</strong>
-                                                        {{ $report['assignment']['employee']['name'] ?? 'Not Assigned' }}
+                                                        {{ $report['employee']['name'] ?? 'Not Assigned' }}
                                                     </div>
                                                     <div class="mb-2">
                                                         <strong>Task:</strong>
-                                                        {{ $report['assignment']['task']['name'] ?? 'Untitled Task' }}
+                                                        {{ $report['task']->name ?? 'Untitled Task' }}
                                                     </div>
                                                     <div>
                                                         <strong>Description:</strong>
                                                         <p class="mt-2">
-                                                            {{ $report['assignment']['task']['description'] ?? 'No description available' }}
+                                                            {{ $report['task']->description ?? 'No description available' }}
                                                         </p>
                                                     </div>
                                                 </div>

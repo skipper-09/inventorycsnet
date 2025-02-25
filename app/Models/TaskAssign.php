@@ -21,6 +21,11 @@ class TaskAssign extends Model
         return $this->belongsTo(TaskTemplate::class,'task_template_id','id');
     }
 
+    public function employeeTasks()
+    {
+        return $this->hasMany(EmployeeTask::class);
+    }
+
     public function assignee()
     {
         return $this->morphTo();

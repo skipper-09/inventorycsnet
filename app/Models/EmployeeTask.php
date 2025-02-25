@@ -20,4 +20,21 @@ class EmployeeTask extends Model
     {
         return $this->belongsTo(Employee::class,'employee_id','id');
     }
+
+    public function taskAssign()
+    {
+        return $this->belongsTo(TaskAssign::class,'task_assign_id','id');
+    }
+
+    public function getStatusBadge($value)
+    {
+        switch ($value) {
+            case 'complated':
+                return '<span class="badge badge-label-success">Completed</span>';
+            case 'pending':
+                return '<span class="badge badge-label-warning">Pending</span>';
+            default:
+                return '<span class="badge badge-label-danger">Overdue</span>';
+        }
+    }
 }

@@ -12,13 +12,14 @@ class TaskReportController extends Controller
         // Mengambil data task reports dengan relasi yang benar
         $taskReports = TaskReport::with([
             'employeeTask.employee',  // Relasi ke Employee melalui EmployeeTask
+            'employeeTask.taskAssign', // Relasi ke TaskAssign melalui EmployeeTask
             'employeeTask.taskDetail.task',  // Relasi ke Task melalui TaskDetail
         ])->get();
 
         // Format data untuk tampilan
         $formattedReports = $taskReports->map(function ($report) {
-            // Mengambil data terkait dengan relasi employeeTask
             $employeeTask = $report->employeeTask;
+            $taskAssign = $employeeTask->taskAssign;  // Mengambil TaskAssign melalui EmployeeTask
 
             // Menyusun data employee
             $employeeData = $employeeTask->employee ? [
@@ -30,24 +31,26 @@ class TaskReportController extends Controller
             $taskDetail = $employeeTask->taskDetail;
             $task = $taskDetail ? $taskDetail->task : null;
 
+            // Mengambil status dengan method getStatusBadge()
+            $statusBadge = $employeeTask->getStatusBadge($employeeTask->status);
+
             return [
                 'id' => $report->id,
                 'report_type' => $report->report_type,
                 'report_content' => $report->report_content,
                 'report_image' => $report->report_image,
-                'assignment' => $employeeTask,  // Langsung masukkan objek EmployeeTask
+                'taskAssign' => $taskAssign,  // Menyimpan data taskAssign
                 'employee' => $employeeData,  // Menyimpan data employee
                 'task' => $task,  // Menyimpan data task
+                'statusBadge' => $statusBadge,  // Menyimpan status badge
             ];
         });
 
-        // Data untuk dikirim ke tampilan
         $data = [
             'title' => 'Task Report',
             'taskReports' => $formattedReports
         ];
 
-        // Mengembalikan tampilan dengan data
         return view('pages.report.task.index', $data);
     }
 }

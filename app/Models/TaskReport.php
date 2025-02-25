@@ -19,4 +19,9 @@ class TaskReport extends Model
     {
         return $this->belongsTo(TaskAssign::class);
     }
+
+    public function employeeTask()
+    {
+        return $this->belongsTo(EmployeeTask::class);
+    }
 }
