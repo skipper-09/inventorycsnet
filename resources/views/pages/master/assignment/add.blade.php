@@ -13,6 +13,10 @@
 {{-- select 2 --}}
 <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+
+
+{{-- datepicker --}}
+<link href="{{ asset('assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 @endpush
 @section('content')
 <div class="container-fluid">
@@ -88,14 +92,33 @@
                                     @enderror
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label w-100" for="task">Piih Tugas</label>
-                                    <select name="task[]" id="task" multiple
+                                    <label class="form-label w-100" for="task">Piih Template Tugas</label>
+                                    <select name="task" id="task"
                                         class="form-control select2form @error('task') is-invalid @enderror">
+                                        <option value="">Pilih Template</option>
                                        @foreach ($task as $item)
                                         <option value="{{ $item->id }}">{{ $item->name }}</option>
                                        @endforeach
                                     </select>
                                     @error('task')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label w-100" for="assign_date">Tanggal Penugasan</label>
+                                   <input type="date" name="assign_date" class="form-control @error('assign_date') is-invalid @enderror"  />
+                                    @error('assign_date')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label w-100" for="place">Lokasi</label>
+                                   <input type="text" name="place" class="form-control @error('place') is-invalid @enderror"  />
+                                    @error('place')
                                     <div class="invalid-feedback">
                                         {{ $message }}
                                     </div>
@@ -125,6 +148,10 @@
 {{-- select 2 deifinition --}}
 <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+
+<!-- Bootstrap datepicker -->
+<script src="{{ asset('assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/form-datepicker.init.js') }}"></script>
 
 <script>
     $(document).ready(function() {

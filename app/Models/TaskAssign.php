@@ -9,15 +9,16 @@ class TaskAssign extends Model
     protected $primaryKey = "id";
 
     protected $fillable = [
-        "task_id",
+        "task_template_id",
         "assignee_id",
         "assignee_type",
-        'assign_date'
+        'assign_date',
+        'place'
     ];
 
-    public function task()
+    public function tasktemplate()
     {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(TaskTemplate::class);
     }
 
     public function assignee()
