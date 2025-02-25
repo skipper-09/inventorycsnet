@@ -28,13 +28,28 @@ $(document).ready(function () {
             modalTitle.text("Tambah " + title);
             form[0].reset();
             form.attr("action", proses);
+            // Set method to POST and remove _method field if it exists
             form.attr("method", "POST");
+            if ($("#method_field").length) {
+                $("#method_field").remove();
+            }
             $("#addLeaveForm #employee_id").val("").trigger("change");
             $("#addLeaveForm #status").val("").trigger("change");
+            $("#addLeaveForm #year").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
-            form.attr("method", "PUT");
+            // For edit, we need to use PUT method via _method field
+            form.attr("method", "POST");
+
+            // Add or update _method field for PUT
+            if ($("#method_field").length) {
+                $("#method_field").val("PUT");
+            } else {
+                form.prepend(
+                    '<input type="hidden" name="_method" value="PUT" id="method_field">'
+                );
+            }
 
             // Get data via AJAX for edit
             $.ajax({
@@ -55,11 +70,20 @@ $(document).ready(function () {
                         $("#addLeaveForm #status")
                             .val(response.leave.status)
                             .trigger("change");
-                        $("#addLeaveForm #year").val(response.leave.year);
+                        $("#addLeaveForm #year")
+                            .val(response.leave.year)
+                            .trigger("change");
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.log(xhr, error);
+                    console.error("Error fetching leave data:", error);
+                    n.fire({
+                        position: "center",
+                        icon: "error",
+                        title: "Error",
+                        text: "Failed to load leave data. Please try again.",
+                        showConfirmButton: true,
+                    });
                 },
             });
         }
@@ -131,23 +155,26 @@ $(document).ready(function () {
     // Handle form submission for add/edit leave
     $("#addLeaveForm").on("submit", function (e) {
         e.preventDefault();
-        var formData = $(this).serialize();
+        var form = $(this);
+        var url = form.attr("action");
+        var method = form.attr("method");
 
         $.ajax({
-            url: $(this).attr("action"),
-            type: $(this).attr("method"),
-            data: formData,
-            processData: false,
+            url: url,
+            type: method,
+            data: form.serialize(),
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addLeaveForm")[0].reset();
+                    form[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",
                         icon: "success",
-                        title: response.status,
-                        text: response.message,
+                        title: response.status || "Success",
+                        text:
+                            response.message ||
+                            "Operation completed successfully",
                         showConfirmButton: false,
                         timer: 1500,
                     });
@@ -158,7 +185,7 @@ $(document).ready(function () {
                 $(".invalid-feedback").remove();
                 $("#errorMessages").addClass("d-none");
 
-                if (response.responseJSON.errors) {
+                if (response.responseJSON && response.responseJSON.errors) {
                     $.each(
                         response.responseJSON.errors,
                         function (field, messages) {
@@ -174,7 +201,9 @@ $(document).ready(function () {
                 } else {
                     $("#errorMessages").removeClass("d-none");
                     $("#errorMessages").html(
-                        "Something went wrong. Please try again."
+                        response.responseJSON && response.responseJSON.message
+                            ? response.responseJSON.message
+                            : "Something went wrong. Please try again."
                     );
                 }
             },

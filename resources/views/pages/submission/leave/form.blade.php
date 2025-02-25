@@ -62,8 +62,15 @@
                     <!-- Field untuk memilih Tahun Cuti -->
                     <div class="mb-3">
                         <label class="form-label" for="year">Tahun Cuti</label>
-                        <input type="number" name="year" id="year" class="form-control"
-                            placeholder="Masukkan tahun cuti">
+                        <select name="year" id="year" class="form-control select2">
+                            <option value="" disabled selected>Pilih Tahun</option>
+                            <!-- Membuat rentang tahun 1999 sampai tahun diatas 1999 -->
+                            <?php
+                            for ($year = 1999; $year <= date('Y') + 10; $year++) {
+                                echo "<option value='$year'>$year</option>";
+                            }
+                            ?>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">

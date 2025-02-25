@@ -128,6 +128,7 @@
         }
 
         .signature-table td {
+            width: 30%;
             padding: 2px;
             text-align: center;
         }
@@ -137,7 +138,6 @@
         }
 
         .signature-line {
-            border-top: 1px solid #333;
             padding-top: 2px; /* Reduced padding */
         }
     </style>
@@ -259,21 +259,21 @@
         </div>
 
         <!-- Signature -->
-        <table class="signature-table">
+        <table class="signature-table" style="margin-top: 21rem;">
             <tr>
-                <td width="33%">Dibuat oleh,</td>
-                <td width="33%">Disetujui oleh,</td>
-                <td width="33%">Diterima oleh,</td>
+                <td width="66%">Dibuat oleh,</td>
+                <td width="66%">Disetujui oleh,</td>
+                {{-- <td width="33%">Diterima oleh,</td> --}}
             </tr>
             <tr>
                 <td class="signature-space"></td>
                 <td class="signature-space"></td>
-                <td class="signature-space"></td>
+                {{-- <td class="signature-space"></td> --}}
             </tr>
             <tr>
                 <td class="signature-line">HRD</td>
                 <td class="signature-line">Owner</td>
-                <td class="signature-line">{{ $employee->name }}</td>
+                {{-- <td class="signature-line">{{ $employee->name }}</td> --}}
             </tr>
         </table>
 
