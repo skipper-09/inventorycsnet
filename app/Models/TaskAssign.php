@@ -18,7 +18,7 @@ class TaskAssign extends Model
 
     public function tasktemplate()
     {
-        return $this->belongsTo(TaskTemplate::class);
+        return $this->belongsTo(TaskTemplate::class,'task_template_id','id');
     }
 
     public function assignee()

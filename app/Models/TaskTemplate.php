@@ -20,6 +20,11 @@ class TaskTemplate extends Model
         return $this->hasMany(Template_task::class,'task_template_id','id');
     }
 
+    public function taskAssign()
+    {
+        return $this->hasOne(TaskAssign::class);
+    }
+
 
     public function setSlugAttribute($value)
     {

@@ -31,21 +31,20 @@ class AssignmentController extends Controller
 
     public function getData()
     {
-        $data = TaskAssign::orderByDesc('id')->get();
-
+        $data = TaskAssign::with('tasktemplate')->orderByDesc('id')->get();
         $groupedData = $data->groupBy('assignee_id');
 
         return DataTables::of($groupedData)->addIndexColumn()->addColumn('action', function ($group) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
             $data = $group->first();
-            if ($userauth->can('update-unit-product')) {
-                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                        data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                                                    class="fas fa-pen "></i></button>';
-            }
+            // if ($userauth->can('update-unit-product')) {
+            //     $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            //             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
+            //                                         class="fas fa-pen "></i></button>';
+            // }
             if ($userauth->can('delete-unit-product')) {
-                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('unitproduk.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('assignment.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                     class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -53,7 +52,13 @@ class AssignmentController extends Controller
             return $data->first()->assignee->name;
         })->addColumn('type', function ($data) {
             return $data->first()->assignee_type == "App\Models\Employee" ? "Karyawan" : "Departement";
-        })->rawColumns(['action', 'name', 'type'])->make(true);
+        })->addColumn('template', function ($data) {
+            return $data->first()->tasktemplate->name;
+        })->addColumn('tgl', function ($data) {
+            return formatDate($data->first()->assign_date);
+        })->addColumn('place', function ($data) {
+            return $data->first()->place;
+        })->rawColumns(['action', 'name', 'type', 'template', 'tgl', 'place'])->make(true);
     }
 
 
@@ -84,7 +89,7 @@ class AssignmentController extends Controller
                 ]);
             }
 
-            TaskAssign::create([
+            $taskassign = TaskAssign::create([
                 "task_template_id" => $request->task,
                 "assignee_id" => $request->type == "departement" ? $request->departement : $request->employee,
                 "assignee_type" => $request->type == "departement" ? "App\Models\Department" : "App\Models\Employee",
@@ -92,22 +97,56 @@ class AssignmentController extends Controller
                 'place' => $request->place,
             ]);
 
-            foreach ($tasktemplate->tasks as $task) {
-                $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
+            if ($request->type == "departement") {
+                $employees = Employee::where('department_id', $request->departement)->get();
+                if ($employees->isEmpty()) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'status' => "Gagal",
+                        'message' => 'No employees found in the specified department.'
+                    ]);
+                }
 
-                foreach ($taskdetail as $item) {
-                    if (is_object($item) && isset($item)) {
-                        EmployeeTask::insert([
-                            'task_detail_id' => $item->id,
-                            'employee_id' => $request->employee
-                        ]);
-                    } else {
-                        DB::rollBack();
-                        return response()->json([
-                            'success' => false,
-                            'status' => "Gagal",
-                            'message' => 'Task detail not found for task ID ' . $task->id
-                        ]);
+                foreach ($employees as $employee) {
+                    foreach ($tasktemplate->tasks as $task) {
+                        $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
+                        foreach ($taskdetail as $item) {
+                            if (is_object($item) && isset($item)) {
+                                EmployeeTask::insert([
+                                    'task_assign_id' => $taskassign->id,
+                                    'task_detail_id' => $item->id,
+                                    'employee_id' => $employee->id
+                                ]);
+                            } else {
+                                DB::rollBack();
+                                return response()->json([
+                                    'success' => false,
+                                    'status' => "Gagal",
+                                    'message' => 'Task detail not found for task ID ' . $task->id
+                                ]);
+                            }
+                        }
+                    }
+                }
+            } else {
+                foreach ($tasktemplate->tasks as $task) {
+                    $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
+                    foreach ($taskdetail as $item) {
+                        if (is_object($item) && isset($item)) {
+                            EmployeeTask::insert([
+                                'task_assign_id' => $taskassign->id,
+                                'task_detail_id' => $item->id,
+                                'employee_id' => $request->employee
+                            ]);
+                        } else {
+                            DB::rollBack();
+                            return response()->json([
+                                'success' => false,
+                                'status' => "Gagal",
+                                'message' => 'Task detail not found for task ID ' . $task->id
+                            ]);
+                        }
                     }
                 }
             }
@@ -124,5 +163,27 @@ class AssignmentController extends Controller
         }
     }
 
+
+
+
+
+    public function destroy($id)
+    {
+        try {
+            $taskassign = TaskAssign::findOrFail($id);
+            $taskassign->delete();
+            //return response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Data Penugasan Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Data Penugasan!',
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
 
 }

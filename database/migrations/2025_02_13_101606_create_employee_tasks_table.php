@@ -15,9 +15,11 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('task_detail_id');
             $table->unsignedBigInteger('employee_id');
+            $table->unsignedBigInteger('task_assign_id');
             $table->enum('status',['complated','pending','overdue'])->default('pending');
             $table->foreign('task_detail_id')->references('id')->on('task_details')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('task_assign_id')->references('id')->on('task_assigns')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }

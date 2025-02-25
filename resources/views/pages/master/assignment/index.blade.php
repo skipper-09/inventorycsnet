@@ -47,6 +47,9 @@
                                     <th>No</th>
                                     <th>Name</th>
                                     <th>Type</th>
+                                    <th>Template Tugas</th>
+                                    <th>Tanggal</th>
+                                    <th>Lokasi</th>
                                     @canany(['update-unit-product', 'delete-unit-product'])   
                                     <th>Action</th>
                                     @endcanany

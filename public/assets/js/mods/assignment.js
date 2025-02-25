@@ -80,6 +80,18 @@ $(document).ready(function () {
                 name: "type",
             },
             {
+                data: "template",
+                name: "template",
+            },
+            {
+                data: "tgl",
+                name: "tgl",
+            },
+            {
+                data: "place",
+                name: "place",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,
