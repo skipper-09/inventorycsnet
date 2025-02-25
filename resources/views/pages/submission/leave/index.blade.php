@@ -12,6 +12,7 @@
     {{-- select 2 --}}
     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 @endpush
 
 @section('content')
@@ -81,6 +82,8 @@
     <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/leave.js') }}"></script>

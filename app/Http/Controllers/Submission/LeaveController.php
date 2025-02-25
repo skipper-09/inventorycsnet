@@ -84,19 +84,19 @@ class LeaveController extends Controller
         $currentUser = Auth::user();
         $currentUserRole = $currentUser->roles->first()?->name;
 
-        // Mencari data cuti berdasarkan ID
-        $leave = Leave::findOrFail($id);
+        // Find the leave record first
+        $leave = Leave::with('employee')->findOrFail($id);
 
-        // Cek jika role adalah 'Employee', hanya tampilkan data cuti miliknya sendiri
-        if ($currentUserRole === 'Employee' && $leave->employee_id !== $currentUser->id) {
+        if ($currentUserRole === 'Employee' && $leave->employee_id !== $currentUser->employee->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Anda tidak memiliki izin untuk mengakses cuti ini.',
-            ], 403); // HTTP status 403 (Forbidden)
+                'message' => 'Data cuti tidak ditemukan',
+            ]);
         }
-
+        
         // Jika role selain Employee atau jika milik Employee yang sedang login, tampilkan data cuti
         return response()->json([
+            'success' => true,
             'leave' => $leave,
         ], 200);
     }
