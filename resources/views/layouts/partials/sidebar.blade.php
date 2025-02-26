@@ -51,26 +51,30 @@
                             @endcan
                         </ul>
                     </li>
+                    @endcanany
 
+                    @canany(['read-task-template', 'read-task', 'read-assigment'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow ">
                             <i class="fa fa-palette"></i>
                             <span>Task Master</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
+                            @can('read-task')
                             <li><a href="{{ route('taskdata') }}"><i
                                 class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
+                            @endcan
                             @can('read-task-template')
                             <li><a href="{{ route('tasktemplate') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
                             @endcan
-                            @can('read-task-template')
+                            @can('read-assigment')
                             <li><a href="{{ route('assignment') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                             @endcan
                         </ul>
                     </li>
-                @endcanany
+                    @endcanany
                 
                 @canany(['read-deduction', 'read-deduction-type', 'read-allowance',
                     'read-allowance-type', 'read-position', 'read-department', 'read-employee', 'read-salary'])

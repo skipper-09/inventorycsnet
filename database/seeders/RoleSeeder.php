@@ -18,7 +18,7 @@ class RoleSeeder extends Seeder
         $admin = Role::create(['name' => 'Administrator']);
         $odp = Role::create(['name' => 'ODP']);
         $listrik = Role::create(['name' => 'Listrik']);
-        $employee = Role::create(['name'=> 'Employee']);
+        $employee = Role::create(['name' => 'Employee']);
 
         $developer->givePermissionTo([
             'read-dashboard',
@@ -86,6 +86,26 @@ class RoleSeeder extends Seeder
             'create-department',
             'update-department',
             'delete-department',
+            //task template
+            'read-task-template',
+            'create-task-template',
+            'update-task-template',
+            'delete-task-template',
+            //task
+            'read-task',
+            'create-task',
+            'update-task',
+            'delete-task',
+            //detailtask
+            'read-detail-task',
+            'create-detail-task',
+            'update-detail-task',
+            'delete-detail-task',
+            //assigment
+            'read-assigment',
+            'create-assigment',
+            'update-assigment',
+            'delete-assigment',
             // employee
             'read-employee',
             'create-employee',
@@ -117,10 +137,7 @@ class RoleSeeder extends Seeder
             'update-role',
             'delete-role',
             'read-setting',
-            'read-task-template',
-            'create-task-template',
-            'update-task-template',
-            'delete-task-template',
+
         ]);
 
         $admin->givePermissionTo([

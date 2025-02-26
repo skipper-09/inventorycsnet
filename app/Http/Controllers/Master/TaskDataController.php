@@ -17,12 +17,12 @@ class TaskDataController extends Controller
      */
     public function index()
     {
-        
-            $data = [
-                'title' => 'Task Data',
-            ];
-            return view('pages.master.task-data.index', $data);
-        
+
+        $data = [
+            'title' => 'Task Data',
+        ];
+        return view('pages.master.task-data.index', $data);
+
     }
 
     public function getData()
@@ -32,26 +32,28 @@ class TaskDataController extends Controller
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
 
-            if ($userauth->can('update-task-template')) {
+            if ($userauth->can('update-task')) {
                 $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('taskdata.edit', ['id' => $data->id]) . '" data-proses="' . route('taskdata.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Task Data" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
             }
-            $button .= ' <a href="' . route('taskdata.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
-            if ($userauth->can('delete-task-template')) {
+            if ($userauth->can('read-detail-task')) {
+                $button .= ' <a href="' . route('taskdata.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+            }
+            if ($userauth->can('delete-task')) {
                 $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('taskdata.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
-        })->editColumn('status',function($data){
-            $dt ="";
+        })->editColumn('status', function ($data) {
+            $dt = "";
             if ($data->status == 1) {
-                $dt ='<span class="badge badge-label-primary">Aktif</span>';
-            }else{
-                $dt ='<span class="badge badge-label-warning">Tidak Aktif</span>';
+                $dt = '<span class="badge badge-label-primary">Aktif</span>';
+            } else {
+                $dt = '<span class="badge badge-label-warning">Tidak Aktif</span>';
             }
             return $dt;
-        })->rawColumns(['action','status'])->make(true);
+        })->rawColumns(['action', 'status'])->make(true);
     }
 
     /**
@@ -126,11 +128,12 @@ class TaskDataController extends Controller
 
 
 
-    public function detail($id){
-        $taskdata = Task::where('id',$id)->first();
+    public function detail($id)
+    {
+        $taskdata = Task::where('id', $id)->first();
         $data = [
-            'title' => 'Detail Task '.$taskdata->name,
-            'taskdata'=>$taskdata->id,
+            'title' => 'Detail Task ' . $taskdata->name,
+            'taskdata' => $taskdata->id,
         ];
         return view('pages.master.task-data.detail', $data);
     }
@@ -140,21 +143,21 @@ class TaskDataController extends Controller
      */
     public function destroy(string $id)
     {
-     
-         try {
-             $task = Task::findOrFail($id);
-             $task->delete();
-             //return response
-             return response()->json([
-                 'status' => 'success',
-                 'success' => true,
-                 'message' => 'Task Data Berhasil Dihapus!.',
-             ]);
-         } catch (Exception $e) {
-             return response()->json([
-                 'message' => 'Gagal Menghapus Task Data!',
-                 'trace' => $e->getTrace()
-             ]);
-         }
+
+        try {
+            $task = Task::findOrFail($id);
+            $task->delete();
+            //return response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Task Data Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Task Data!',
+                'trace' => $e->getTrace()
+            ]);
+        }
     }
 }

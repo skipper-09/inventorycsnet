@@ -43,7 +43,7 @@ class AssignmentController extends Controller
             //             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                         class="fas fa-pen "></i></button>';
             // }
-            if ($userauth->can('delete-unit-product')) {
+            if ($userauth->can('delete-assigment')) {
                 $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('assignment.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                     class="fas fa-trash "></i></button>';
             }

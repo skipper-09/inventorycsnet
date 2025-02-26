@@ -80,6 +80,21 @@ class PermissionSeeder extends Seeder
             'create-task-template',
             'update-task-template',
             'delete-task-template',
+            //task
+            'read-task',
+            'create-task',
+            'update-task',
+            'delete-task',
+            //detailtask
+            'read-detail-task',
+            'create-detail-task',
+            'update-detail-task',
+            'delete-detail-task',
+            //assigment
+            'read-assigment',
+            'create-assigment',
+            'update-assigment',
+            'delete-assigment',
             //leave
             'read-leave',
             'create-leave',

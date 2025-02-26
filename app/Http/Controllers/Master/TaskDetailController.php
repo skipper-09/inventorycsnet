@@ -22,12 +22,12 @@ class TaskDetailController extends Controller
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-                if ($userauth->can(abilities: 'update-product')) {
+                if ($userauth->can(abilities: 'update-detail-task')) {
                     $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('taskdetail.edit', ['id' => $data->id]) . '" data-proses="' . route('taskdetail.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Task" data-toggle="tooltip" data-taskid='.$data->task_template_id.' data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
                 }
-                if ($userauth->can('delete-product')) {
+                if ($userauth->can('delete-detail-task')) {
                     $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('taskdetail.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
                 }
