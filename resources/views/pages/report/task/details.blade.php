@@ -110,12 +110,12 @@
                                                                 <div class="row mt-2">
                                                                     @foreach ($report->beforeImages as $image)
                                                                         <div class="col-md-3 col-sm-4 col-6 mb-3">
-                                                                            <a href="{{ asset('storage/' . $image->image) }}"
+                                                                            <a href="{{ asset('storage/report/' . $image->image) }}"
                                                                                 data-lightbox="report-before-{{ $report->id }}"
                                                                                 data-title="Laporan #{{ $index + 1 }} - Gambar Sebelum {{ $loop->iteration }}">
                                                                                 <div class="image-container border rounded position-relative"
                                                                                     style="height: 150px; overflow: hidden;">
-                                                                                    <img src="{{ asset('storage/' . $image->image) }}"
+                                                                                    <img src="{{ asset('storage/report/' . $image->image) }}"
                                                                                         alt="Before Image"
                                                                                         class="img-fluid w-100 h-100"
                                                                                         style="object-fit: cover;">
@@ -136,12 +136,12 @@
                                                                 <div class="row mt-2">
                                                                     @foreach ($report->afterImages as $image)
                                                                         <div class="col-md-3 col-sm-4 col-6 mb-3">
-                                                                            <a href="{{ asset('storage/' . $image->image) }}"
+                                                                            <a href="{{ asset('storage/report/' . $image->image) }}"
                                                                                 data-lightbox="report-after-{{ $report->id }}"
                                                                                 data-title="Laporan #{{ $index + 1 }} - Gambar Sesudah {{ $loop->iteration }}">
                                                                                 <div class="image-container border rounded position-relative"
                                                                                     style="height: 150px; overflow: hidden;">
-                                                                                    <img src="{{ asset('storage/' . $image->image) }}"
+                                                                                    <img src="{{ asset('storage/report/' . $image->image) }}"
                                                                                         alt="After Image"
                                                                                         class="img-fluid w-100 h-100"
                                                                                         style="object-fit: cover;">
