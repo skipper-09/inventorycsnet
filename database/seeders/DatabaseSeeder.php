@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             SettingSeeder::class,
             TaskTemplateSeeder::class,
+            TaskDataSeeder::class,
+            TaskDetailSeeder::class,
             DepartmentSeeder::class,
             PositionSeeder::class,
             EmployeeSeeder::class,

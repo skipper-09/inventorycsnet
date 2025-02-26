@@ -109,37 +109,33 @@ class TaskReportController extends Controller
 
     public function details($id)
     {
-        // Fetch the specific employee task with all related data
         $employeeTask = EmployeeTask::with([
-            'employee.position',
-            'employee.department',
+            'employee',
             'taskAssign',
             'taskDetail.task',
-            'taskReports' // Ambil semua task reports terkait
+            'taskReports.reportImage', // Load all report images
         ])->findOrFail($id);
-    
-        // Pisahkan task report sebelum (before) dan sesudah (after)
-        $beforeReport = $employeeTask->taskReports->where('report_type', 'before')->first();
-        $afterReport = $employeeTask->taskReports->where('report_type', 'after')->first();
-    
-        // Format the report data for display
+
+        // Mengambil nama tugas melalui taskDetail yang memiliki relasi task
+        $taskName = $employeeTask->taskDetail->task->name ?? 'N/A';
         $taskAssign = $employeeTask->taskAssign;
-        $employee = $employeeTask->employee;
-        $taskDetail = $employeeTask->taskDetail;
-        $task = $taskDetail ? $taskDetail->task : null;
-        $statusBadge = $employeeTask->getStatusBadge($employeeTask->status);
-    
+        $taskReports = $employeeTask->taskReports;
+
+        // Group the images by report_type for each report
+        foreach ($taskReports as $report) {
+            $report->beforeImages = $report->reportImage->where('report_type', 'before');
+            $report->afterImages = $report->reportImage->where('report_type', 'after');
+        }
+
+        // Prepare the data
         $data = [
-            'title' => 'Task Report Details',
-            'employeeTask' => $employeeTask,
-            'employee' => $employee,
-            'taskAssign' => $taskAssign,
-            'task' => $task,
-            'statusBadge' => $statusBadge,
-            'beforeReport' => $beforeReport, // Data laporan sebelum (before)
-            'afterReport' => $afterReport,   // Data laporan sesudah (after)
+            "title" => "Task Report Details",
+            "employeeTask" => $employeeTask,
+            "taskName" => $taskName,
+            "taskAssign" => $taskAssign,
+            "taskReports" => $taskReports,
         ];
-    
+
         return view('pages.report.task.details', $data);
     }
 }
