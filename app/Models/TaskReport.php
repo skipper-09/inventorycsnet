@@ -9,7 +9,7 @@ class TaskReport extends Model
     protected $primaryKey = "id";
 
     protected $fillable = [
-        "task_assign_id",
+        "employee_task_id",
         "report_content",
         "reason_not_complated",
     ];
