@@ -71,13 +71,13 @@
                                         <table id="scroll-sidebar-datatable"
                                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                                             data-route="{{ route('taskdetail.getdata',['taskdataid'=>$taskdata]) }}"
-                                            data-has-action-permission="{{ auth()->user()->canany(['update-task-template', 'delete-task-template'])? 'true': 'false' }}">
+                                            data-has-action-permission="{{ auth()->user()->canany(['update-detail-task', 'delete-detail-task'])? 'true': 'false' }}">
                                             <thead>
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Name</th>
                                                     <th>Deskripsi</th>
-                                                    @canany(['update-task-template', 'delete-task-template'])
+                                                    @canany(['update-detail-task', 'delete-detail-task'])
                                                     <th>Action</th>
                                                     @endcanany
                                                 </tr>

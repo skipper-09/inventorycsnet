@@ -75,7 +75,7 @@ class TaskReportSeeder extends Seeder
                     TaskAssign::create([
                         'task_template_id' => $taskTemplate->id,
                         'assignee_id' => $employee->id,
-                        'assignee_type' => 'Employee',
+                        'assignee_type' => 'App\Models\Employee',
                         'assign_date' => $faker->dateTimeBetween('-1 month', 'now'),
                         'place' => $faker->city,
                         'created_at' => now(),
