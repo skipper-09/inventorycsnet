@@ -72,6 +72,8 @@
                             <li><a href="{{ route('assignment') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                             @endcan
+                            <li><a href="{{ route('assigmentdata') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
                         </ul>
                     </li>
                     @endcanany

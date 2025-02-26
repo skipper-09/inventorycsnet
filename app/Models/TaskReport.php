@@ -10,9 +10,8 @@ class TaskReport extends Model
 
     protected $fillable = [
         "task_assign_id",
-        "report_type",
-        "report_image",
         "report_content",
+        "reason_not_complated",
     ];
 
     public function taskassign()
@@ -23,5 +22,9 @@ class TaskReport extends Model
     public function employeeTask()
     {
         return $this->belongsTo(EmployeeTask::class);
+    }
+
+    public function reportImage(){
+        return $this->hasMany(ReportImage::class);
     }
 }

@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('task_reports', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('employee_task_id');
-            $table->enum('report_type',['before','after'])->default('before');
-            $table->longText('report_image');
             $table->longText('report_content')->nullable();
+            $table->longText('reason_not_complated')->nullable();
             $table->timestamps();
             $table->foreign('employee_task_id')->references('id')->on('employee_tasks')->cascadeOnDelete()->cascadeOnUpdate();
         });

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\AllowanceController;
 use App\Http\Controllers\Master\AllowanceTypeController;
+use App\Http\Controllers\Master\AssigmentDataController;
 use App\Http\Controllers\Master\AssignmentController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CustomerController;
@@ -185,6 +186,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit')->middleware('can:update-assigment');;
             Route::put('/update/{id}', [AssignmentController::class, 'update'])->name('assignment.update');
             Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete')->middleware('can:delete-assigment');;
+        });
+
+        //assignment Data
+        Route::prefix('assignment-data')->group(function () {
+            Route::get('', [AssigmentDataController::class, 'index'])->name('assigmentdata')->middleware('can:read-assigment');
+            Route::get('getdata', [AssigmentDataController::class, 'getData'])->name('assigmentdata.getdata');
+            // Route::get('add', [AssigmentDataController::class, 'create'])->name('assigmentdata.add')->middleware('can:create-assigment');
+            // Route::post('store', [AssigmentDataController::class, 'store'])->name('assigmentdata.store');
+            Route::get('/report/{id}', [AssigmentDataController::class, 'show'])->name('assigmentdata.edit')->middleware('can:update-assigment');;
+            Route::put('/update/{id}', [AssigmentDataController::class, 'update'])->name('assigmentdata.update');
+            Route::delete('/delete/{id}', [AssigmentDataController::class, 'destroy'])->name('assigmentdata.delete')->middleware('can:delete-assigment');;
         });
 
         // Deduction
