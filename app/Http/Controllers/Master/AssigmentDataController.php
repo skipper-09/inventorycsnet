@@ -57,17 +57,11 @@ class AssigmentDataController extends Controller
             return $data->taskAssign->place;
         })->addColumn('employee', function ($data) {
             return $data->employee->name;
-        })->addColumn('status', function ($data) {
-            $dt = "";
-            if ($data->status == 'complated') {
-                $dt = '<span class="badge badge-label-primary">Complate</span>';
-            } else if ($data->status == 'pending') {
-                $dt = '<span class="badge badge-label-warning">Pending</span>';
-            } else {
-                $dt = '<span class="badge badge-label-danger">Overdue</span>';
-            }
-            return $dt;
-        })->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status'])->make(true);
+        }) ->editColumn('status', function ($data) {
+            return $data->getStatus();
+        })
+        ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
+        ->make(true);
     }
 
 
