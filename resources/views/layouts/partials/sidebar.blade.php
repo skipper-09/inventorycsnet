@@ -53,7 +53,7 @@
                     </li>
                     @endcanany
 
-                    @canany(['read-task-template', 'read-task', 'read-assigment'])
+                    @canany(['read-task-template', 'read-task', 'read-assigment','read-assigmentdata'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow ">
                             <i class="fa fa-palette"></i>
@@ -72,12 +72,14 @@
                             <li><a href="{{ route('assignment') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                             @endcan
+                            @can('read-assigmentdata')
                             <li><a href="{{ route('assigmentdata') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
+                            @endcan
                         </ul>
                     </li>
-                    @endcanany
-                
+                @endcanany
+
                 @canany(['read-deduction', 'read-deduction-type', 'read-allowance',
                     'read-allowance-type', 'read-position', 'read-department', 'read-employee', 'read-salary'])
                 <li>

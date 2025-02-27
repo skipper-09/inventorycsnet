@@ -106,6 +106,11 @@ class RoleSeeder extends Seeder
             'create-assigment',
             'update-assigment',
             'delete-assigment',
+            //assigment Data
+            'read-assigmentdata',
+            'create-assigmentdata',
+            'update-assigmentdata',
+            'delete-assigmentdata',
             // employee
             'read-employee',
             'create-employee',
@@ -208,6 +213,11 @@ class RoleSeeder extends Seeder
             'read-leave',
             'create-leave',
             'update-leave',
+            //assigment Data
+            'read-assigmentdata',
+            'create-assigmentdata',
+            'update-assigmentdata',
+            'delete-assigmentdata', 
         ]);
     }
 }

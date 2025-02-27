@@ -190,13 +190,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         //assignment Data
         Route::prefix('assignment-data')->group(function () {
-            Route::get('', [AssigmentDataController::class, 'index'])->name('assigmentdata')->middleware('can:read-assigment');
+            Route::get('', [AssigmentDataController::class, 'index'])->name('assigmentdata')->middleware('can:read-assigmentdata');
             Route::get('getdata', [AssigmentDataController::class, 'getData'])->name('assigmentdata.getdata');
             // Route::get('add', [AssigmentDataController::class, 'create'])->name('assigmentdata.add')->middleware('can:create-assigment');
             // Route::post('store', [AssigmentDataController::class, 'store'])->name('assigmentdata.store');
-            Route::get('/report/{id}', [AssigmentDataController::class, 'show'])->name('assigmentdata.edit')->middleware('can:update-assigment');;
+            Route::get('/report/{id}', [AssigmentDataController::class, 'show'])->name('assigmentdata.edit')->middleware('can:update-assigmentdata');;
             Route::put('/update/{id}', [AssigmentDataController::class, 'update'])->name('assigmentdata.update');
-            Route::delete('/delete/{id}', [AssigmentDataController::class, 'destroy'])->name('assigmentdata.delete')->middleware('can:delete-assigment');;
+            Route::delete('/delete/{id}', [AssigmentDataController::class, 'destroy'])->name('assigmentdata.delete')->middleware('can:delete-assigmentdata');;
         });
 
         // Deduction

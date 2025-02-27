@@ -95,6 +95,11 @@ class PermissionSeeder extends Seeder
             'create-assigment',
             'update-assigment',
             'delete-assigment',
+            //assigment Data
+            'read-assigmentdata',
+            'create-assigmentdata',
+            'update-assigmentdata',
+            'delete-assigmentdata',
             //leave
             'read-leave',
             'create-leave',

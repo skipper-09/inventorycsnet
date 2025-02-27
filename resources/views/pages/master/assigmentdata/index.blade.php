@@ -37,7 +37,7 @@
                     <table id="scroll-sidebar-datatable"
                         class="table dt-responsive nowrap w-100 table-hover table-striped"
                         data-route="{{ route('assigmentdata.getdata') }}"
-                        data-has-action-permission="{{ auth()->user()->canany(['update-unit-product', 'delete-unit-product'])? 'true': 'false' }}">
+                        data-has-action-permission="{{ auth()->user()->canany(['update-assigmentdata', 'delete-assigmentdata'])? 'true': 'false' }}">
                         <thead>
                             <tr>
                                 <th>No</th>
@@ -47,7 +47,7 @@
                                 <th>Tanggal</th>
                                 <th>Lokasi</th>
                                 <th>Status</th>
-                                @canany(['update-unit-product', 'delete-unit-product'])
+                                @canany(['update-assigmentdata', 'delete-assigmentdata'])
                                 <th>Action</th>
                                 @endcanany
                             </tr>
