@@ -46,7 +46,11 @@ class AssigmentDataController extends Controller
             return $data->taskAssign->place;
         })->addColumn('employee', function ($data) {
             return $data->employee->name;
-        })->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee'])->make(true);
+        }) ->editColumn('status', function ($data) {
+            return $data->getStatus(); // Now this uses the method correctly
+        })
+        ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
+        ->make(true);
     }
 
 
