@@ -11,62 +11,15 @@ use Yajra\DataTables\Facades\DataTables;
 
 class TaskReportController extends Controller
 {
-    // public function index()
-    // {
-    //     // Mengambil data task reports dengan relasi yang benar
-    //     $taskReports = TaskReport::with([
-    //         'employeeTask.employee',  // Relasi ke Employee melalui EmployeeTask
-    //         'employeeTask.taskAssign', // Relasi ke TaskAssign melalui EmployeeTask
-    //         'employeeTask.taskDetail.task',  // Relasi ke Task melalui TaskDetail
-    //     ])->get();
-
-    //     // Format data untuk tampilan
-    //     $formattedReports = $taskReports->map(function ($report) {
-    //         $employeeTask = $report->employeeTask;
-    //         $taskAssign = $employeeTask->taskAssign;  // Mengambil TaskAssign melalui EmployeeTask
-
-    //         // Menyusun data employee
-    //         $employeeData = $employeeTask->employee ? [
-    //             'id' => $employeeTask->employee->id,
-    //             'name' => $employeeTask->employee->name ?? 'Unknown',
-    //         ] : null;
-
-    //         // Menyusun data task melalui taskDetail
-    //         $taskDetail = $employeeTask->taskDetail;
-    //         $task = $taskDetail ? $taskDetail->task : null;
-
-    //         // Mengambil status dengan method getStatusBadge()
-    //         $statusBadge = $employeeTask->getStatusBadge($employeeTask->status);
-
-    //         return [
-    //             'id' => $report->id,
-    //             'report_type' => $report->report_type,
-    //             'report_content' => $report->report_content,
-    //             'report_image' => $report->report_image,
-    //             'taskAssign' => $taskAssign,  // Menyimpan data taskAssign
-    //             'employee' => $employeeData,  // Menyimpan data employee
-    //             'task' => $task,  // Menyimpan data task
-    //             'statusBadge' => $statusBadge,  // Menyimpan status badge
-    //         ];
-    //     });
-
-    //     $data = [
-    //         'title' => 'Task Report',
-    //         'taskReports' => $formattedReports
-    //     ];
-
-    //     return view('pages.report.task.index', $data);
-    // }
-
     public function index()
     {
         $data = [
             'title' => 'Task Report',
         ];
-
+        
         return view('pages.report.task.index', $data);
     }
-
+    
     public function getData()
     {
         $data = TaskReport::with([
@@ -74,13 +27,13 @@ class TaskReportController extends Controller
             'employeeTask.taskAssign',
             'employeeTask.taskDetail.task',
         ])->orderByDesc('id')->get();
-
+        
         return DataTables::of($data)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-
+                
                 if ($userauth->can('read-task-report')) {
                     $button .= '<a href="' . route('taskreport.details', ['id' => $data->id]) . '"
                         class="btn btn-sm btn-info" 
@@ -106,7 +59,7 @@ class TaskReportController extends Controller
             ->rawColumns(['action', 'employee_name', 'assignment_date', 'location'])
             ->make(true);
     }
-
+    
     public function details($id)
     {
         $employeeTask = EmployeeTask::with([
@@ -115,18 +68,39 @@ class TaskReportController extends Controller
             'taskDetail.task',
             'taskReports.reportImage', // Load all report images
         ])->findOrFail($id);
-
+        
         // Mengambil nama tugas melalui taskDetail yang memiliki relasi task
         $taskName = $employeeTask->taskDetail->task->name ?? 'N/A';
         $taskAssign = $employeeTask->taskAssign;
         $taskReports = $employeeTask->taskReports;
-
+        
         // Group the images by report_type for each report
         foreach ($taskReports as $report) {
             $report->beforeImages = $report->reportImage->where('report_type', 'before');
             $report->afterImages = $report->reportImage->where('report_type', 'after');
         }
-
+        
+        // Get all tasks with the same task_id and group them by assignment date
+        $taskDetailId = $employeeTask->taskDetail->task_id ?? null;
+        
+        $relatedTasks = null;
+        if ($taskDetailId) {
+            $relatedTasks = EmployeeTask::with([
+                'employee',
+                'taskAssign',
+                'taskDetail.task',
+                'taskReports'
+            ])
+            ->whereHas('taskDetail', function($query) use ($taskDetailId) {
+                $query->where('task_id', $taskDetailId);
+            })
+            ->get()
+            ->groupBy(function($item) {
+                // Group by assignment date
+                return $item->taskAssign->assignment_date ?? 'No Date';
+            });
+        }
+        
         // Prepare the data
         $data = [
             "title" => "Task Report Details",
@@ -134,8 +108,9 @@ class TaskReportController extends Controller
             "taskName" => $taskName,
             "taskAssign" => $taskAssign,
             "taskReports" => $taskReports,
+            "relatedTasks" => $relatedTasks, // Add the grouped related tasks
         ];
-
+        
         return view('pages.report.task.details', $data);
     }
 }
