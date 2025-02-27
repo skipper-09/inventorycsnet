@@ -7,6 +7,7 @@ use App\Models\EmployeeTask;
 use App\Models\TaskReport;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class TaskReportController extends Controller
@@ -16,34 +17,60 @@ class TaskReportController extends Controller
         $data = [
             'title' => 'Task Report',
         ];
-        
+
         return view('pages.report.task.index', $data);
     }
-    
-    public function getData()
+
+    public function getData(Request $request)
     {
-        $data = TaskReport::with([
+        // Mulai query utama untuk TaskReport, dengan memuat relasi yang diperlukan
+        $query = TaskReport::with([
             'employeeTask.employee',
             'employeeTask.taskAssign',
-            'employeeTask.taskDetail.task',
-        ])->orderByDesc('id')->get();
-        
-        return DataTables::of($data)
+            'employeeTask.taskDetail.task', // Pastikan untuk mengambil relasi task
+        ])->orderByDesc('id');
+
+        // Apply assign_date filter if provided
+        if ($request->filled('assign_date')) {
+            $query->whereHas('employeeTask.taskAssign', function ($q) use ($request) {
+                $q->whereDate('assign_date', $request->input('assign_date'));
+            });
+        }
+
+        // Apply status filter if provided
+        if ($request->filled('status')) {
+            $query->whereHas('employeeTask', function ($q) use ($request) {
+                $q->where('status', $request->input('status'));
+            });
+        }
+
+        // Ambil data dan kelompokkan berdasarkan task_id
+        $data = $query->get()->groupBy(function ($item) {
+            return $item->employeeTask->taskDetail->task->id;
+        });
+
+        // Ambil data pertama dari setiap grup berdasarkan task_id
+        $flattenedData = $data->map(function ($group) {
+            return $group->first();
+        });
+
+        // Kembalikan data yang telah dikelompokkan dan diproses
+        return DataTables::of($flattenedData)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-                
+
                 if ($userauth->can('read-task-report')) {
                     $button .= '<a href="' . route('taskreport.details', ['id' => $data->employee_task_id]) . '"
-                        class="btn btn-sm btn-info" 
-                        data-id="' . $data->id . '"
-                        data-type="details"
-                        data-toggle="tooltip"
-                        data-placement="bottom"
-                        title="Details">
-                        <i class="fas fa-eye"></i>
-                    </a>';
+                class="btn btn-sm btn-info" 
+                data-id="' . $data->id . '"
+                data-type="details"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Details">
+                <i class="fas fa-eye"></i>
+            </a>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
@@ -59,7 +86,7 @@ class TaskReportController extends Controller
             ->rawColumns(['action', 'employee_name', 'assignment_date', 'location'])
             ->make(true);
     }
-    
+
     public function details($id)
     {
         $employeeTask = EmployeeTask::with([
@@ -68,21 +95,21 @@ class TaskReportController extends Controller
             'taskDetail.task',
             'taskReports.reportImage', // Load all report images
         ])->findOrFail($id);
-        
+
         // Mengambil nama tugas melalui taskDetail yang memiliki relasi task
         $taskName = $employeeTask->taskDetail->task->name ?? 'N/A';
         $taskAssign = $employeeTask->taskAssign;
         $taskReports = $employeeTask->taskReports;
-        
+
         // Group the images by report_type for each report
         foreach ($taskReports as $report) {
             $report->beforeImages = $report->reportImage->where('report_type', 'before');
             $report->afterImages = $report->reportImage->where('report_type', 'after');
         }
-        
+
         // Get all tasks with the same task_id and group them by assignment date
         $taskDetailId = $employeeTask->taskDetail->task_id ?? null;
-        
+
         $relatedTasks = null;
         if ($taskDetailId) {
             $relatedTasks = EmployeeTask::with([
@@ -91,16 +118,25 @@ class TaskReportController extends Controller
                 'taskDetail.task',
                 'taskReports'
             ])
-            ->whereHas('taskDetail', function($query) use ($taskDetailId) {
-                $query->where('task_id', $taskDetailId);
-            })
-            ->get()
-            ->groupBy(function($item) {
-                // Group by assignment date
-                return $item->taskAssign->assignment_date ?? 'No Date';
-            });
+                ->whereHas('taskDetail', function ($query) use ($taskDetailId) {
+                    $query->where('task_id', $taskDetailId);
+                })
+                ->get()
+                ->groupBy(function ($item) {
+                    // Group by assignment date
+                    return $item->taskAssign->assignment_date ?? 'No Date';
+                });
         }
-        
+
+        $totalReports = $taskReports->count();
+        $completedReports = $taskReports->where('reason_not_complated', null)->count();
+        $progressPercentage = $totalReports > 0 ? round(($completedReports / $totalReports) * 100) : 0;
+
+        // If there are no reports but the task exists, set progress to 0%
+        if ($totalReports === 0) {
+            $progressPercentage = 0;
+        }
+
         // Prepare the data
         $data = [
             "title" => "Task Report Details",
@@ -108,9 +144,10 @@ class TaskReportController extends Controller
             "taskName" => $taskName,
             "taskAssign" => $taskAssign,
             "taskReports" => $taskReports,
-            "relatedTasks" => $relatedTasks, // Add the grouped related tasks
+            "relatedTasks" => $relatedTasks,
+            "progressPercentage" => $progressPercentage
         ];
-        
+
         return view('pages.report.task.details', $data);
     }
 }

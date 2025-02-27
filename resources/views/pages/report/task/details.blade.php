@@ -1,4 +1,4 @@
-@extends('layouts.base')
+{{-- @extends('layouts.base')
 
 @section('title', $title)
 
@@ -276,22 +276,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Task metadata -->
-                {{-- <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 bg-light p-3 rounded">
-                    <div>
-                        <i class="far fa-clock me-1 text-primary"></i>
-                        <span>Terakhir diperbarui: <span class="fw-bold">{{ date('d/m/Y H:i') }}</span></span>
-                    </div>
-                    <div class="d-flex mt-2 mt-md-0">
-                        <span class="badge-pill bg-success text-white me-2">
-                            <i class="fas fa-check-circle"></i> Aktif
-                        </span>
-                        <span class="badge-pill bg-primary text-white">
-                            <i class="fas fa-clock"></i> Dalam Proses
-                        </span>
-                    </div>
-                </div> --}}
             </div>
         </div>
 
@@ -518,9 +502,9 @@
             window.addEventListener('scroll', animateOnScroll);
         });
     </script>
-@endpush
+@endpush --}}
 
-{{-- @extends('layouts.base')
+@extends('layouts.base')
 
 @section('title', $title)
 
@@ -773,18 +757,18 @@
                 </div>
             </div>
             <div class="card-body p-3">
-                <!-- Progress bar -->
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                 <!-- Progress bar -->
+                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
                         <h6 class="mb-0 fw-bold">Progress Tugas</h6>
                         <small class="text-muted">Status penyelesaian</small>
                     </div>
                     <div class="text-end">
-                        <h6 class="mb-0 fw-bold">75%</h6>
+                        <h6 class="mb-0 fw-bold">{{ $progressPercentage }}%</h6>
                     </div>
                 </div>
                 <div class="progress mb-4">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: 75%" aria-valuenow="75"
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ $progressPercentage }}%" aria-valuenow="{{ $progressPercentage }}"
                         aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
 
@@ -864,8 +848,8 @@
                                                     <i class="fas fa-calendar-day"></i>
                                                 </span>
                                                 <div>
-                                                    <span class="fw-bold">{{ $date }}</span>
-                                                    <div class="d-flex align-items-center text-muted small">
+                                                    <span class="fw-bold">{{ formatDate($taskAssign->assignment_date) }}</span>
+                                                    <div class="d-flex align-items-center">
                                                         <i class="fas fa-tasks me-1"></i>
                                                         <span>{{ count($tasks) }} Tugas</span>
                                                     </div>
@@ -886,6 +870,7 @@
                                                         <th>No</th>
                                                         <th>Karyawan</th>
                                                         <th>Tugas</th>
+                                                        <th>Nama Grup Tugas</th>
                                                         <th>Lokasi</th>
                                                         <th>Status</th>
                                                         <th>Aksi</th>
@@ -907,18 +892,10 @@
                                                                 </div>
                                                             </td>
                                                             <td>{{ $task->taskDetail->task->name ?? 'N/A' }}</td>
+                                                            <td>{{ $task->taskDetail->name ?? 'N/A' }}</td>
                                                             <td>{{ $task->taskAssign->place ?? 'N/A' }}</td>
                                                             <td>
-                                                                @if ($task->status == 'completed')
-                                                                    <span class="badge bg-success">Selesai</span>
-                                                                @elseif($task->status == 'in_progress')
-                                                                    <span class="badge bg-primary">Proses</span>
-                                                                @elseif($task->status == 'pending')
-                                                                    <span class="badge bg-warning">Tertunda</span>
-                                                                @else
-                                                                    <span
-                                                                        class="badge bg-secondary">{{ $task->status ?? 'N/A' }}</span>
-                                                                @endif
+                                                                {!! $task->getStatus() !!}
                                                             </td>
                                                             <td>
                                                                 <a href="{{ route('taskreport.details', ['id' => $task->id]) }}"
@@ -1165,4 +1142,4 @@
             window.addEventListener('scroll', animateOnScroll);
         });
     </script>
-@endpush --}}
+@endpush
