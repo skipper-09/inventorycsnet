@@ -35,7 +35,7 @@ class TaskReportController extends Controller
                 $button = '';
                 
                 if ($userauth->can('read-task-report')) {
-                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->id]) . '"
+                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->employee_task_id]) . '"
                         class="btn btn-sm btn-info" 
                         data-id="' . $data->id . '"
                         data-type="details"
