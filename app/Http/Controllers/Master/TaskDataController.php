@@ -38,7 +38,15 @@ class TaskDataController extends Controller
                                                         class="fas fa-pen "></i></button>';
             }
             if ($userauth->can('read-detail-task')) {
-                $button .= ' <a href="' . route('taskdata.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+                $button .= ' <a href="' . route('taskdetail.index', ['taskdataid' => $data->id]) . '" 
+                    class="btn btn-sm btn-info action mr-1" 
+                    data-id="' . $data->id . '" 
+                    data-type="edit" 
+                    data-toggle="tooltip" 
+                    data-placement="bottom" 
+                    title="Detail Data">
+                    <i class="fas fa-eye"></i>
+                </a>';
             }
             if ($userauth->can('delete-task')) {
                 $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('taskdata.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i

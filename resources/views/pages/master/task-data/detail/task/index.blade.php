@@ -1,5 +1,4 @@
 @extends('layouts.base')
-
 @section('title', $title)
 
 @push('css')
@@ -114,4 +113,14 @@
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
     <script src="{{ asset('assets/libs/tinymce/tinymce.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Handle showing full description in modal
+            $(document).on('click', '.show-full-description', function() {
+                var description = $(this).data('description');
+                $('#fullDescription').html(description);
+            });
+        });
+    </script>
 @endpush
