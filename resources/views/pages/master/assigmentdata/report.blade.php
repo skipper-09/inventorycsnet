@@ -78,7 +78,7 @@
                                             <!-- Task Information -->
                                             <div class="col-md-6">
                                                 <h5 class="text-primary">{{ $employetask->taskDetail->name }}</h5>
-                                                <p>{{ $employetask->taskDetail->description }}</p>
+                                                <p>{!! $employetask->taskDetail->description !!}</p>
                                             </div>
                                         </div>
                                     </div>
