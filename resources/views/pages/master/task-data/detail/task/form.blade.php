@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal8">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg"> <!-- Changed from modal-dialog to modal-lg -->
         <div class="modal-content">
             <div class="modal-header d-flex justify-content-between">
                 <h5 class="modal-title">Tambah {{ $title }}</h5>
@@ -20,7 +20,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="description">Deskripsi</label>
-                        <textarea class="form-control" name="description" id="description" placeholder="Deskripsi Task"></textarea>
+                        <textarea class="form-control" name="description" id="description" rows="10" placeholder="Deskripsi Task"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">

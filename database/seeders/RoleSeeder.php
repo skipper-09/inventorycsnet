@@ -102,10 +102,10 @@ class RoleSeeder extends Seeder
             'update-detail-task',
             'delete-detail-task',
             //assigment
-            'read-assigment',
-            'create-assigment',
-            'update-assigment',
-            'delete-assigment',
+            'read-assignment',
+            'create-assignment',
+            'update-assignment',
+            'delete-assignment',
             //assigment Data
             'read-assigmentdata',
             'create-assigmentdata',

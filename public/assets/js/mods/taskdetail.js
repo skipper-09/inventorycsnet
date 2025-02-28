@@ -8,6 +8,38 @@ $(document).ready(function () {
         },
         buttonsStyling: !1,
     });
+    
+    // TinyMCE initialization for the modal
+    $("#modal8").on("shown.bs.modal", function () {
+        // Destroy any existing instance first to prevent duplicates
+        if (tinymce.get('description')) {
+            tinymce.get('description').remove();
+        }
+        
+        // Initialize TinyMCE
+        tinymce.init({
+            selector: 'textarea#description',
+            height: 300,
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                'insertdatetime', 'media', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | ' +
+                'bold italic backcolor | alignleft aligncenter ' +
+                'alignright alignjustify | bullist numlist outdent indent | ' +
+                'removeformat | help',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }'
+        });
+    });
+    
+    // Clean up TinyMCE instance when modal is hidden
+    $("#modal8").on("hidden.bs.modal", function () {
+        if (tinymce.get('description')) {
+            tinymce.get('description').remove();
+        }
+    });
+    
     $("#modal8").on("show.bs.modal", function (event) {
         var button = $(event.relatedTarget);
         var action = button.data("action");
@@ -43,6 +75,13 @@ $(document).ready(function () {
                     if (response.taskdetail) {
                         $("#addForm #name").val(response.taskdetail.name);
                         $("#addForm #description").val(response.taskdetail.description);
+                        
+                        // Update TinyMCE content when it's initialized
+                        setTimeout(function() {
+                            if (tinymce.get('description')) {
+                                tinymce.get('description').setContent(response.taskdetail.description);
+                            }
+                        }, 100);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -103,6 +142,12 @@ $(document).ready(function () {
 
     $("#addForm").on("submit", function (e) {
         e.preventDefault();
+        
+        // Update textarea content with TinyMCE content before form submission
+        if (tinymce.get('description')) {
+            tinymce.get('description').save();
+        }
+        
         var formData = $(this).serialize();
         $.ajax({
             url: $(this).attr("action"),
@@ -150,5 +195,10 @@ $(document).ready(function () {
                 }
             },
         });
+    });
+
+    $(document).on('click', '.show-full-description', function() {
+        var description = $(this).data('description');
+        $('#fullDescription').html(description);
     });
 });
