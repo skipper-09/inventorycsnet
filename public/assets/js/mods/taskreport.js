@@ -29,6 +29,10 @@ $(document).ready(function () {
             name: "employee_name",
         },
         {
+            data: "tugas",
+            name: "tugas",
+        },
+        {
             data: "location",
             name: "location",
         },

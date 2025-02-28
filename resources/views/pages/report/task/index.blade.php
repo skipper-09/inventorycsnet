@@ -64,6 +64,7 @@
                                     <th>No</th>
                                     <th>Tanggal Penugasan</th>
                                     <th>Nama Karyawan</th>
+                                    <th>Tugas</th>
                                     <th>Lokasi</th>
                                     @canany(['update-task-report', 'delete-task-report'])
                                         <th>Action</th>

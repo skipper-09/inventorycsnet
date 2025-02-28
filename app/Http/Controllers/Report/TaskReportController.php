@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeTask;
+use App\Models\Task;
+use App\Models\TaskAssign;
 use App\Models\TaskReport;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -24,15 +26,15 @@ class TaskReportController extends Controller
     public function getData(Request $request)
     {
         // Mulai query utama untuk TaskReport, dengan memuat relasi yang diperlukan
-        $query = TaskReport::with([
-            'employeeTask.employee',
-            'employeeTask.taskAssign',
-            'employeeTask.taskDetail.task', // Pastikan untuk mengambil relasi task
+        $query = EmployeeTask::with([
+            'employee',
+            'taskAssign',
+            'taskDetail.task', // Pastikan untuk mengambil relasi task
         ])->orderByDesc('id');
 
         // Apply assign_date filter if provided
         if ($request->filled('assign_date')) {
-            $query->whereHas('employeeTask.taskAssign', function ($q) use ($request) {
+            $query->whereHas('taskAssign', function ($q) use ($request) {
                 $q->whereDate('assign_date', $request->input('assign_date'));
             });
         }
@@ -46,7 +48,7 @@ class TaskReportController extends Controller
 
         // Ambil data dan kelompokkan berdasarkan task_id
         $data = $query->get()->groupBy(function ($item) {
-            return $item->employeeTask->taskDetail->task->id;
+            return $item->taskAssign;
         });
 
         // Ambil data pertama dari setiap grup berdasarkan task_id
@@ -62,7 +64,7 @@ class TaskReportController extends Controller
                 $button = '';
 
                 if ($userauth->can('read-task-report')) {
-                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->employee_task_id]) . '"
+                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->first()->id]) . '"
                 class="btn btn-sm btn-info" 
                 data-id="' . $data->id . '"
                 data-type="details"
@@ -75,15 +77,18 @@ class TaskReportController extends Controller
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->addColumn('assignment_date', function ($data) {
-                return formatDate($data->employeeTask->taskAssign->assignment_date ?? null);
+                return formatDate($data->taskAssign->assignment_date ?? null);
             })
             ->addColumn('employee_name', function ($data) {
-                return $data->employeeTask->employee->name ?? 'N/A';
+                return $data->employee->name ?? 'N/A';
+            })
+            ->addColumn('tugas', function ($data) {
+                return $data->taskAssign->tasktemplate->name ?? 'N/A';
             })
             ->addColumn('location', function ($data) {
-                return $data->employeeTask->taskAssign->place ?? 'N/A';
+                return $data->taskAssign->place ?? 'N/A';
             })
-            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location'])
+            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location','tugas'])
             ->make(true);
     }
 
@@ -97,7 +102,7 @@ class TaskReportController extends Controller
         ])->findOrFail($id);
 
         // Mengambil nama tugas melalui taskDetail yang memiliki relasi task
-        $taskName = $employeeTask->taskDetail->task->name ?? 'N/A';
+        $taskName = $employeeTask->taskAssign->tasktemplate->name ?? 'N/A';
         $taskAssign = $employeeTask->taskAssign;
         $taskReports = $employeeTask->taskReports;
 
@@ -108,25 +113,30 @@ class TaskReportController extends Controller
         }
 
         // Get all tasks with the same task_id and group them by assignment date
-        $taskDetailId = $employeeTask->taskDetail->task_id ?? null;
+        $template_id = $employeeTask->taskAssign->task_template_id ?? null;
 
         $relatedTasks = null;
-        if ($taskDetailId) {
+        if ($template_id) {
+
             $relatedTasks = EmployeeTask::with([
                 'employee',
                 'taskAssign',
                 'taskDetail.task',
                 'taskReports'
             ])
-                ->whereHas('taskDetail', function ($query) use ($taskDetailId) {
-                    $query->where('task_id', $taskDetailId);
+                ->whereHas('taskAssign', function ($query) use ($template_id) {
+                    $query->where('task_template_id', $template_id);
                 })
                 ->get()
                 ->groupBy(function ($item) {
                     // Group by assignment date
-                    return $item->taskAssign->assignment_date ?? 'No Date';
+                    return $item->taskAssign->task_template_id;
                 });
+            // $relatedTasks = Task::with(['templateTas','templateTas.tasktemplate.taskAssign']) ->whereHas('templateTas', function ($query) use ($template_id) {
+            //             $query->where('task_template_id', $template_id);
+            //         })->get();
         }
+
 
         $totalReports = $taskReports->count();
         $completedReports = $taskReports->where('reason_not_complated', null)->count();
