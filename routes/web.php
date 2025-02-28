@@ -82,7 +82,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         // branch
         Route::prefix('cabang')->group(function () {
-            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');;
+            Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');
+            ;
             Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
             Route::post('store', [BranchController::class, 'store'])->name('branch.store');
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit')->middleware('can:update-branch');
@@ -156,24 +157,26 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [TaskTemplateController::class, 'destroy'])->name('tasktemplate.delete')->middleware('can:delete-task-template');
         });
 
-        //Task Data
+
         Route::prefix('task-data')->group(function () {
             Route::get('', [TaskDataController::class, 'index'])->name('taskdata')->middleware('can:read-task');
             Route::get('getdata', [TaskDataController::class, 'getData'])->name('taskdata.getdata');
             Route::post('store', [TaskDataController::class, 'store'])->name('taskdata.store');
-            Route::get('/detail/{id}', action: [TaskDataController::class, 'detail'])->name('taskdata.detail')->middleware('can:read-detail-task');
+            Route::get('/detail/{id}', [TaskDataController::class, 'detail'])->name('taskdata.detail')->middleware('can:read-detail-task');
             Route::get('/edit/{id}', [TaskDataController::class, 'show'])->name('taskdata.edit')->middleware('can:update-task');
             Route::put('/update/{id}', [TaskDataController::class, 'update'])->name('taskdata.update');
             Route::delete('/delete/{id}', [TaskDataController::class, 'destroy'])->name('taskdata.delete')->middleware('can:delete-task');
         });
-
-        //Task detail
+        
+        // Task detail
         Route::prefix('detail-task')->group(function () {
+            Route::get('{taskdataid}', [TaskDetailController::class, 'index'])->name('taskdetail.index')->middleware('can:read-detail-task');
             Route::get('getdata/{taskdataid}', [TaskDetailController::class, 'getData'])->name('taskdetail.getdata');
-            Route::post('store', [TaskDetailController::class, 'store'])->name('taskdetail.store');
-            Route::get('/edit/{id}', [TaskDetailController::class, 'show'])->name('taskdetail.edit')->middleware('can:update-detail-task');
-            Route::put('/update/{id}', [TaskDetailController::class, 'update'])->name('taskdetail.update');
-            Route::delete('/delete/{id}', [TaskDetailController::class, 'destroy'])->name('taskdetail.delete')->middleware('can:delete-detail-task');
+            Route::get('add/{taskdataid}', [TaskDetailController::class, 'create'])->name('taskdetail.add')->middleware('can:create-detail-task');
+            Route::post('store/{taskdataid}', [TaskDetailController::class, 'store'])->name('taskdetail.store');
+            Route::get('edit/{id}', [TaskDetailController::class, 'edit'])->name('taskdetail.edit')->middleware('can:update-detail-task');
+            Route::put('update/{id}', [TaskDetailController::class, 'update'])->name('taskdetail.update');
+            Route::delete('delete/{id}', [TaskDetailController::class, 'destroy'])->name('taskdetail.delete')->middleware('can:delete-detail-task');
         });
 
 
@@ -183,9 +186,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdata', [AssignmentController::class, 'getData'])->name('assignment.getdata');
             Route::get('add', [AssignmentController::class, 'create'])->name('assignment.add')->middleware('can:create-assignment');
             Route::post('store', [AssignmentController::class, 'store'])->name('assignment.store');
-            Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit')->middleware('can:update-assignment');;
+            Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit')->middleware('can:update-assignment');
+            ;
             Route::put('/update/{id}', [AssignmentController::class, 'update'])->name('assignment.update');
-            Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete')->middleware('can:delete-assignment');;
+            Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete')->middleware('can:delete-assignment');
+            ;
         });
 
         //assignment Data
@@ -194,9 +199,11 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('getdata', [AssigmentDataController::class, 'getData'])->name('assigmentdata.getdata');
             // Route::get('add', [AssigmentDataController::class, 'create'])->name('assigmentdata.add')->middleware('can:create-assigment');
             // Route::post('store', [AssigmentDataController::class, 'store'])->name('assigmentdata.store');
-            Route::get('/report/{id}', [AssigmentDataController::class, 'show'])->name('assigmentdata.edit')->middleware('can:update-assigmentdata');;
+            Route::get('/report/{id}', [AssigmentDataController::class, 'show'])->name('assigmentdata.edit')->middleware('can:update-assigmentdata');
+            ;
             Route::put('/update/{id}', [AssigmentDataController::class, 'update'])->name('assigmentdata.update');
-            Route::delete('/delete/{id}', [AssigmentDataController::class, 'destroy'])->name('assigmentdata.delete')->middleware('can:delete-assigmentdata');;
+            Route::delete('/delete/{id}', [AssigmentDataController::class, 'destroy'])->name('assigmentdata.delete')->middleware('can:delete-assigmentdata');
+            ;
         });
 
         // Deduction
@@ -350,7 +357,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
 
         //task report
-        Route::prefix('task-report')->group(function (){
+        Route::prefix('task-report')->group(function () {
             Route::get('', [TaskReportController::class, 'index'])->name('taskreport')->middleware('can:read-task-report');
             Route::get('getdata', [TaskReportController::class, 'getData'])->name('taskreport.getdata');
             Route::get('/detail/{id}', [TaskReportController::class, 'details'])->name('taskreport.details')->middleware('can:read-task-report');

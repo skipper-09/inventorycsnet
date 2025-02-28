@@ -3,17 +3,27 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
-use App\Models\Task;
 use App\Models\TaskDetail;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Yajra\DataTables\DataTables;
 
 class TaskDetailController extends Controller
 {
+    public function index($taskdataid)
+    {
+        $data = [
+            'title' => 'Detail Task',
+            'taskdata' => $taskdataid,
+        ];
+
+        return view('pages.master.task-data.detail.task.index', $data);
+    }
+
     public function getData(Request $request, $taskdataid)
     {
         $data = TaskDetail::where('task_id', $taskdataid)->orderByDesc('id')->get();
@@ -39,33 +49,27 @@ class TaskDetailController extends Controller
 
                 // Edit button
                 if ($userauth->can(abilities: 'update-detail-task')) {
-                    $button .= ' <button class="btn btn-sm btn-success" 
-                        data-id=' . $data->id . ' 
-                        data-type="edit" 
-                        data-route="' . route('taskdetail.edit', ['id' => $data->id]) . '" 
-                        data-proses="' . route('taskdetail.update', ['id' => $data->id]) . '" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#modal8" 
-                        data-action="edit" 
-                        data-title="Task" 
-                        data-toggle="tooltip" 
-                        data-taskid=' . $data->task_id . ' 
-                        data-placement="bottom" 
-                        title="Edit Data">
-                        <i class="fas fa-pen"></i>
-                    </button>';
+                    $button .= '<a href="' . route('taskdetail.edit', ['id' => $data->id]) . '"
+                      class="btn btn-sm btn-success"
+                       data-id="' . $data->id . '"
+                       data-type="edit"
+                       data-toggle="tooltip"
+                       data-placement="bottom"
+                       title="Edit Data">
+                       <i class="fas fa-pen"></i>
+                    </a>';
                 }
 
                 // Delete button
                 if ($userauth->can('delete-detail-task')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" 
-                        data-id=' . $data->id . ' 
-                        data-type="delete" 
-                        data-route="' . route('taskdetail.delete', ['id' => $data->id]) . '" 
-                        data-toggle="tooltip" 
-                        data-placement="bottom" 
-                        title="Delete Data">
-                        <i class="fas fa-trash"></i>
+                    $button .= ' <button class="btn btn-sm btn-danger action"
+                            data-id="' . $data->id . '"
+                            data-type="delete"
+                            data-route="' . route('taskdetail.delete', ['id' => $data->id]) . '"
+                            data-toggle="tooltip"
+                            data-placement="bottom"
+                            title="Delete Data">
+                        <i class="fas fa-trash-alt"></i>
                     </button>';
                 }
 
@@ -79,9 +83,19 @@ class TaskDetailController extends Controller
             ->make(true);
     }
 
-
-    public function store(Request $request)
+    public function create($taskdataid)
     {
+        $data = [
+            'title' => 'Add Detail Task',
+            'taskdata' => $taskdataid,  // Pass the task_id to the view
+        ];
+
+        return view('pages.master.task-data.detail.task.add', $data);
+    }
+
+    public function store(Request $request, $taskdataid)
+    {
+        // Validate the incoming request
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -89,40 +103,49 @@ class TaskDetailController extends Controller
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
         ]);
-
+    
         try {
+            // Create a new TaskDetail instance
             $task = new TaskDetail();
-            $task->create([
+            
+            // Fill the task object with the request data
+            $task->fill([
                 'name' => $request->name,
                 'description' => $request->description,
-                'task_id' => $request->task_data_id
+                'task_id' => $taskdataid,  // Use the parameter from route
             ]);
-
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Detail Task Berhasil dibuat.'
+    
+            // Save the task
+            $task->save();  // Save the model to the database
+    
+            // Redirect to the taskdetails page with a success message
+            return redirect()->route('taskdetail.index', ['taskdataid' => $taskdataid])->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Menambahkan Detail Task!'
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            // Log the error
+            Log::error($e->getMessage());
+            
+            // Redirect with error message
+            return redirect()->route('taskdetail.index', ['taskdataid' => $taskdataid])->with([
+                'status' => 'Error!',
+                'message' => 'Gagal Menambahkan Detail Task!'
             ]);
         }
     }
-
-
-
-
-    public function show($id)
+    
+    public function edit($id)
     {
         $taskdetail = TaskDetail::findOrFail($id);
-        return response()->json([
-            'taskdetail' => $taskdetail,
-        ], 200);
-    }
 
+        $data = [
+            'title' => 'Edit Detail Task',
+            'taskdata' => $taskdetail,  // fetching the correct task detail
+        ];
+
+        return view('pages.master.task-data.detail.task.edit', $data);
+    }
 
     public function update(Request $request, $id)
     {
@@ -138,25 +161,20 @@ class TaskDetailController extends Controller
             $taskdetail = TaskDetail::findOrFail($id);
             $taskdetail->update($request->all());
 
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Detail Task Berhasil diupdate.'
+            return redirect()->route('taskdetail.index', ['taskdataid' => $taskdetail->task_id])->with([
+                'status' => 'Success!',
+                'message' => 'Berhasil Mengubah Detail Task!'
             ]);
         } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            Log::error($e->getMessage());
+            $taskdetail = TaskDetail::findOrFail($id);
+            return redirect()->route('taskdetail.index', ['taskdataid' => $taskdetail->task_id])->with([
+                'status' => 'Error!', 
+                'message' => 'Gagal Mengubah Detail Task!'
             ]);
         }
     }
 
-
-
-
-
-    //destroy data
     public function destroy($id)
     {
         try {
@@ -169,11 +187,12 @@ class TaskDetailController extends Controller
                 'message' => 'Detail Task Berhasil Dihapus!.',
             ]);
         } catch (Exception $e) {
+            Log::error($e->getMessage());
+
             return response()->json([
                 'message' => 'Gagal Menghapus Task!',
                 'trace' => $e->getTrace()
             ]);
         }
     }
-
 }
