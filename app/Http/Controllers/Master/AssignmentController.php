@@ -30,7 +30,7 @@ class AssignmentController extends Controller
     public function getData()
     {
         $data = TaskAssign::with('tasktemplate')->orderByDesc('id')->get();
-        $groupedData = $data->groupBy('assignee_id');
+        $groupedData = $data->groupBy('created_at');
 
         return DataTables::of($groupedData)->addIndexColumn()->addColumn('action', function ($group) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();

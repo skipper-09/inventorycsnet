@@ -782,6 +782,19 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
+                    <div class="info-box warning">
+                        <h6 class="fw-bold mb-2"><i class="fas fa-user me-2 text-warning"></i>Pemberi Tugas</h6>
+                        <div class="d-flex align-items-center">
+                            <span class="rounded-circle bg-warning text-white fw-bold me-2"
+                                style="width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;">
+                                {{ isset($employeeTask->taskAssign->assigner->name) ? substr($employeeTask->taskAssign->assigner->name, 0, 1) :
+                                'N' }}
+                            </span>
+                            <span>{{ $employeeTask->taskAssign->assigner->name ?? 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
                     <div class="info-box info">
                         <h6 class="fw-bold mb-2"><i class="fas fa-user me-2 text-info"></i>Ditugaskan Kepada</h6>
                         <div class="d-flex align-items-center">
@@ -872,8 +885,8 @@
                                                     <span>{{ $task->employee->name ?? 'N/A' }}</span>
                                                 </div>
                                             </td>
-                                            <td>{{ $task->taskDetail->task->name ?? 'N/A' }}</td>
                                             <td>{{ $task->taskDetail->name ?? 'N/A' }}</td>
+                                            <td>{{ $task->taskDetail->task->name ?? 'N/A' }}</td>
                                             <td>{{ $task->taskAssign->place ?? 'N/A' }}</td>
                                             <td>
                                                 {!! $task->getStatus() !!}

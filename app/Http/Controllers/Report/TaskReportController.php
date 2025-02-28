@@ -48,7 +48,7 @@ class TaskReportController extends Controller
 
         // Ambil data dan kelompokkan berdasarkan task_id
         $data = $query->get()->groupBy(function ($item) {
-            return $item->taskAssign;
+            return $item->task_assign_id;
         });
 
         // Ambil data pertama dari setiap grup berdasarkan task_id
@@ -62,9 +62,8 @@ class TaskReportController extends Controller
             ->addColumn('action', function ($data) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-
                 if ($userauth->can('read-task-report')) {
-                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->first()->id]) . '"
+                    $button .= '<a href="' . route('taskreport.details', ['id' => $data->id]) . '"
                 class="btn btn-sm btn-info" 
                 data-id="' . $data->id . '"
                 data-type="details"
@@ -113,30 +112,28 @@ class TaskReportController extends Controller
         }
 
         // Get all tasks with the same task_id and group them by assignment date
-        $template_id = $employeeTask->taskAssign->task_template_id ?? null;
+        $task_assign_id = $employeeTask->task_assign_id ?? null;
 
         $relatedTasks = null;
-        if ($template_id) {
+        if ($task_assign_id) {
 
             $relatedTasks = EmployeeTask::with([
                 'employee',
                 'taskAssign',
                 'taskDetail.task',
                 'taskReports'
-            ])
-                ->whereHas('taskAssign', function ($query) use ($template_id) {
-                    $query->where('task_template_id', $template_id);
-                })
+            ])->where('task_assign_id',$task_assign_id)
                 ->get()
                 ->groupBy(function ($item) {
                     // Group by assignment date
-                    return $item->taskAssign->task_template_id;
+                    return $item->task_assign_id;
                 });
             // $relatedTasks = Task::with(['templateTas','templateTas.tasktemplate.taskAssign']) ->whereHas('templateTas', function ($query) use ($template_id) {
             //             $query->where('task_template_id', $template_id);
             //         })->get();
         }
 
+        // dd($relatedTasks);
 
         $totalReports = $taskReports->count();
         $completedReports = $taskReports->where('reason_not_complated', null)->count();
