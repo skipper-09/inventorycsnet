@@ -11,6 +11,7 @@ class TaskAssign extends Model
     protected $fillable = [
         "task_template_id",
         "assignee_id",
+        "assigner_id",
         "assignee_type",
         'assign_date',
         'place'
@@ -29,5 +30,10 @@ class TaskAssign extends Model
     public function assignee()
     {
         return $this->morphTo();
+    }
+
+    public function assigner()
+    {
+        return $this->belongsTo(User::class, 'assigner_id', 'id');
     }
 }

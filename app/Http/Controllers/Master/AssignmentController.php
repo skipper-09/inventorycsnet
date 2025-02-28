@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\EmployeeTask;
-use App\Models\Task;
 use App\Models\TaskAssign;
 use App\Models\TaskDetail;
 use App\Models\TaskTemplate;
@@ -16,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
-use App\Http\Controllers\Master\Illuminate\Support\Facades\Log;
 
 class AssignmentController extends Controller
 {
@@ -43,7 +41,7 @@ class AssignmentController extends Controller
             //             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                         class="fas fa-pen "></i></button>';
             // }
-            if ($userauth->can('delete-assigment')) {
+            if ($userauth->can('delete-assignment')) {
                 $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('assignment.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                     class="fas fa-trash "></i></button>';
             }
@@ -58,10 +56,10 @@ class AssignmentController extends Controller
             return formatDate($data->first()->assign_date);
         })->addColumn('place', function ($data) {
             return $data->first()->place;
-        })->rawColumns(['action', 'name', 'type', 'template', 'tgl', 'place'])->make(true);
+        })->editColumn('assigner', function ($data) {
+            return $data->first()->assigner->name;
+        })->rawColumns(['action', 'name', 'type', 'template', 'tgl', 'place', 'assigner'])->make(true);
     }
-
-
 
     public function create()
     {
@@ -89,9 +87,12 @@ class AssignmentController extends Controller
                 ]);
             }
 
+            $assigner = Auth::user();
+
             $taskassign = TaskAssign::create([
                 "task_template_id" => $request->task,
                 "assignee_id" => $request->type == "departement" ? $request->departement : $request->employee,
+                "assigner_id" => $assigner->id,
                 "assignee_type" => $request->type == "departement" ? "App\Models\Department" : "App\Models\Employee",
                 'assign_date' => $request->assign_date,
                 'place' => $request->place,
@@ -162,10 +163,6 @@ class AssignmentController extends Controller
             ]);
         }
     }
-
-
-
-
 
     public function destroy($id)
     {

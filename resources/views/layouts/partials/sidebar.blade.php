@@ -53,7 +53,7 @@
                     </li>
                     @endcanany
 
-                    @canany(['read-task-template', 'read-task', 'read-assigment','read-assigmentdata'])
+                    @canany(['read-task-template', 'read-task', 'read-assignment','read-assigmentdata'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow ">
                             <i class="fa fa-palette"></i>
@@ -68,7 +68,7 @@
                             <li><a href="{{ route('tasktemplate') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
                             @endcan
-                            @can('read-assigment')
+                            @can('read-assignment')
                             <li><a href="{{ route('assignment') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                             @endcan

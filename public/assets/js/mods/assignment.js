@@ -92,6 +92,10 @@ $(document).ready(function () {
                 name: "place",
             },
             {
+                data: "assigner",
+                name: "assigner",
+            },
+            {
                 data: "action",
                 name: "action",
                 orderable: false,

@@ -32,7 +32,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @can('create-unit-product')
+                    @can('create-assignment')
                     <div class="card-header">
                         <a href="{{ route('assignment.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
                     </div>
@@ -41,16 +41,17 @@
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('assignment.getdata') }}"
-                            data-has-action-permission="{{ auth()->user()->canany(['update-unit-product', 'delete-unit-product'])? 'true': 'false' }}">
+                            data-has-action-permission="{{ auth()->user()->canany(['update-assignment', 'delete-assignment'])? 'true': 'false' }}">
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Name</th>
-                                    <th>Type</th>
+                                    <th>Nama</th>
+                                    <th>Jenis</th>
                                     <th>Template Tugas</th>
                                     <th>Tanggal</th>
                                     <th>Lokasi</th>
-                                    @canany(['update-unit-product', 'delete-unit-product'])   
+                                    <th>Pemberi Tugas</th>                                    
+                                    @canany(['update-assignment', 'delete-assignment'])   
                                     <th>Action</th>
                                     @endcanany
                                 </tr>

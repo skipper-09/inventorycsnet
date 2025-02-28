@@ -90,11 +90,11 @@ class PermissionSeeder extends Seeder
             'create-detail-task',
             'update-detail-task',
             'delete-detail-task',
-            //assigment
-            'read-assigment',
-            'create-assigment',
-            'update-assigment',
-            'delete-assigment',
+            //assignment
+            'read-assignment',
+            'create-assignment',
+            'update-assignment',
+            'delete-assignment',
             //assigment Data
             'read-assigmentdata',
             'create-assigmentdata',

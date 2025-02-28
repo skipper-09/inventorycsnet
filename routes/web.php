@@ -179,13 +179,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
         //assignment
         Route::prefix('assignment')->group(function () {
-            Route::get('', [AssignmentController::class, 'index'])->name('assignment')->middleware('can:read-assigment');
+            Route::get('', [AssignmentController::class, 'index'])->name('assignment')->middleware('can:read-assignment');
             Route::get('getdata', [AssignmentController::class, 'getData'])->name('assignment.getdata');
-            Route::get('add', [AssignmentController::class, 'create'])->name('assignment.add')->middleware('can:create-assigment');
+            Route::get('add', [AssignmentController::class, 'create'])->name('assignment.add')->middleware('can:create-assignment');
             Route::post('store', [AssignmentController::class, 'store'])->name('assignment.store');
-            Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit')->middleware('can:update-assigment');;
+            Route::get('/edit/{id}', [AssignmentController::class, 'show'])->name('assignment.edit')->middleware('can:update-assignment');;
             Route::put('/update/{id}', [AssignmentController::class, 'update'])->name('assignment.update');
-            Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete')->middleware('can:delete-assigment');;
+            Route::delete('/delete/{id}', [AssignmentController::class, 'destroy'])->name('assignment.delete')->middleware('can:delete-assignment');;
         });
 
         //assignment Data
