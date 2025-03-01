@@ -206,6 +206,8 @@
                         <span>Laporan Barang</span>
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
+                        <li><a href="{{ route('report.transaction-product') }}"><i
+                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
                         <li><a href="{{ route('transfer') }}"><i
                                     class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
                         <li><a href="{{ route('customer') }}"><i

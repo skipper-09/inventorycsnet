@@ -132,9 +132,6 @@ class CustomerController extends Controller
             'address.string' => 'Alamat harus berupa teks.',
         ]);
 
-
-
-
         DB::beginTransaction();
 
         try {
@@ -164,22 +161,6 @@ class CustomerController extends Controller
                     'product_id' => $item,
                     'quantity' => $request->quantity[$index]
                 ]);
-
-
-                // $branchProductStock = BranchProductStock::where('branch_id', $request->branch_id)
-                //     ->where('product_id', $item)
-                //     ->first();
-
-                // if (!$branchProductStock || $branchProductStock->stock < $request->quantity[$index]) {
-                //     return response()->json([
-                //         'success' => false,
-                //         'status' => "Gagal",
-                //         'message' => 'Stok ' . $branchProductStock->product->name . ' tidak mencukupi untuk pengeluaran. Stok saat ini: ' . ($branchProductStock->stock ?? 0),
-                //     ], 400);
-                // }
-
-                // $branchProductStock->stock -= $request->quantity[$index];
-                // $branchProductStock->save();
             }
             foreach ($request->tecnition as $index => $teknisi) {
                 TransactionTechnition::create([

@@ -34,8 +34,8 @@ class DatabaseSeeder extends Seeder
             // BranchProductStockSeeder::class,
             // OutcomeProductSeeder::class,
             // TransferProductSeeder::class,
-            // ZoneOdpSeeder::class,
-            // OdpSeeder::class
+            ZoneOdpSeeder::class,
+            OdpSeeder::class
         ]);
     }
 }
