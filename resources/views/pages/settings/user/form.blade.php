@@ -58,7 +58,7 @@
                     <!-- Role Selection -->
                     <div class="mb-3">
                         <label class="form-label" for="role">Role</label>
-                        <select class="form-control select2" name="role" id="role">
+                        <select class="form-control select2" name="role[]" id="role" multiple>
                             <option value="">Pilih Role</option>
                             @foreach ($roles as $item)
                                 <option value="{{ $item->name }}">{{ $item->name }}</option>

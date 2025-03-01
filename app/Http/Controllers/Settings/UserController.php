@@ -33,7 +33,6 @@ class UserController extends Controller
     public function getData()
     {
         $user = User::with(['roles', 'employee'])->whereNotIn('name', ['Developer'])->orderByDesc('id')->get();
-
         return DataTables::of($user)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
@@ -50,7 +49,7 @@ class UserController extends Controller
 
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
-            return $data->roles[0]->name;
+           return $data->roles->isNotEmpty() ? $data->roles->pluck('name')->implode(', ') : '-';
         })->addColumn('employee', function ($data) {
             return $data->employee->name ?? '-';
         })->addColumn('status', function ($data) {
@@ -117,7 +116,9 @@ class UserController extends Controller
                 'is_block' => $request->is_block,
             ]);
 
-            $user->assignRole($request->role);
+            foreach ($request->role as  $role) {
+                $user->assignRole($role);
+            }
 
             return response()->json([
                 'success' => true,
@@ -217,7 +218,9 @@ class UserController extends Controller
             $user->save();
 
             DB::table('model_has_roles')->where('model_id', $id)->delete();
-            $user->assignRole($request->role);
+            foreach ($request->role as  $role) {
+                $user->assignRole($role);
+            }
 
             return response()->json([
                 'success' => true,

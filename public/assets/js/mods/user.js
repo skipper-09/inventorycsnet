@@ -47,9 +47,8 @@ $(document).ready(function () {
                         $("#addUserForm #username").val(response.user.username);
                         $("#addUserForm #name").val(response.user.name);
                         $("#addUserForm #email").val(response.user.email);
-                        $("#addUserForm #role")
-                            .val(response.user.roles[0].name)
-                            .trigger("change");
+                        const roleNames = response.user.roles.map(role => role.name);
+                        $("#addUserForm #role").val(roleNames).trigger("change"); 
                         $("#addUserForm #employee_id").val(response.user.employee_id).trigger("change");
 
                         $("#addUserForm #is_block")
