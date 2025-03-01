@@ -141,7 +141,7 @@ class FreeReportController extends Controller
         }
     }
 
-    public function edit($id)
+    public function show($id)
     {
         $currentUser = Auth::user();
         $userRole = $currentUser->role;
@@ -186,16 +186,19 @@ class FreeReportController extends Controller
     public function destroy($id)
     {
         try {
-            $freeReport = FreeReport::find($id);
+            $freeReport = FreeReport::findOrFail($id);
             $freeReport->delete();
 
-            return redirect()->route('activityreport')->with([
-                'status' => 'Success!',
-                'message' => 'Berhasil Menghapus Laporan Aktivitas!'
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data laporan aktivitas berhasil dihapus'
             ]);
         } catch (Exception $e) {
-            Log::error($e->getMessage());
-            return redirect()->route('activityreport')->with(['status' => 'Error!', 'message' => 'Gagal Menghapus Laporan Aktivitas!']);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
