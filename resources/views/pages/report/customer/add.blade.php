@@ -153,7 +153,7 @@
                                         <label class="form-label w-100" for="tecnition">Piih Teknisi</label>
                                         <select name="tecnition[]" class="form-control select2form" multiple>
                                             <option value="">Pilih Teknisi</option>
-                                            @foreach ($technition as $item)
+                                            @foreach ($technitian as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                                             @endforeach
                                             @error('tecnition')

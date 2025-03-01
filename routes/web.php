@@ -121,19 +121,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [ProductRoleController::class, 'destroy'])->name('productrole.delete')->middleware('can:delete-product-role');
         });
 
-        //customer
-        Route::prefix('customer')->group(function () {
-            Route::get('', [CustomerController::class, 'index'])->name('customer');
-            Route::get('getdata', [CustomerController::class, 'getData'])->name('customer.getdata');
-            Route::get('add', [CustomerController::class, 'create'])->name('customer.add');
-            Route::post('store', [CustomerController::class, 'store'])->name('customer.store');
-            Route::get('/detail/{id}', [CustomerController::class, 'details'])->name('customer.detail');
-            Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');
-            Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
-            Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
-            Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
-        });
-
         Route::prefix('form-builder')->group(function () {
             Route::get('', [FormTemplateBuilderController::class, 'index'])->name('formbuilder');
             Route::get('getdata', [FormTemplateBuilderController::class, 'getData'])->name('formbuilder.getdata');
@@ -167,7 +154,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [TaskDataController::class, 'update'])->name('taskdata.update');
             Route::delete('/delete/{id}', [TaskDataController::class, 'destroy'])->name('taskdata.delete')->middleware('can:delete-task');
         });
-        
+
         // Task detail
         Route::prefix('detail-task')->group(function () {
             Route::get('{taskdataid}', [TaskDetailController::class, 'index'])->name('taskdetail.index')->middleware('can:read-detail-task');
@@ -305,18 +292,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     });
 
     Route::prefix('transaction')->group(function () {
-        //transfer product
-        Route::prefix('transfer-product')->group(function () {
-            Route::get('', [TransferProductController::class, 'index'])->name('transfer')->middleware('can:read-transfer-product');
-            Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
-            Route::get('/details/{id}', [TransferProductController::class, 'details'])->name('transfer.details')->middleware('can:read-transfer-product');
-            Route::get('/add', [TransferProductController::class, 'create'])->name('transfer.add')->middleware('can:create-transfer-product');
-            Route::post('store', [TransferProductController::class, 'store'])->name('transfer.store');
-            Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit')->middleware('can:update-transfer-product');
-            Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
-            Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete')->middleware('can:delete-transfer-product');
-        });
-
         Route::prefix('work-product')->group(function () {
             Route::get('', [WorkProductController::class, 'index'])->name('workproduct')->middleware('can:read-work-product');
             Route::get('getdata', [WorkProductController::class, 'getData'])->name('workproduct.getdata');
@@ -361,6 +336,31 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('', [TaskReportController::class, 'index'])->name('taskreport')->middleware('can:read-task-report');
             Route::get('getdata', [TaskReportController::class, 'getData'])->name('taskreport.getdata');
             Route::get('/detail/{id}', [TaskReportController::class, 'details'])->name('taskreport.details')->middleware('can:read-task-report');
+        });
+
+        //transfer product
+        Route::prefix('transfer-product')->group(function () {
+            Route::get('', [TransferProductController::class, 'index'])->name('transfer')->middleware('can:read-transfer-product');
+            Route::get('getdata', [TransferProductController::class, 'getData'])->name('transfer.getdata');
+            Route::get('/details/{id}', [TransferProductController::class, 'details'])->name('transfer.details')->middleware('can:read-transfer-product');
+            Route::get('/add', [TransferProductController::class, 'create'])->name('transfer.add')->middleware('can:create-transfer-product');
+            Route::post('store', [TransferProductController::class, 'store'])->name('transfer.store');
+            Route::get('/edit/{id}', [TransferProductController::class, 'show'])->name('transfer.edit')->middleware('can:update-transfer-product');
+            Route::put('/update/{id}', [TransferProductController::class, 'update'])->name('transfer.update');
+            Route::delete('/delete/{id}', [TransferProductController::class, 'destroy'])->name('transfer.delete')->middleware('can:delete-transfer-product');
+        });
+
+        //customer
+        Route::prefix('customer')->group(function () {
+            Route::get('', [CustomerController::class, 'index'])->name('customer');
+            Route::get('getdata', [CustomerController::class, 'getData'])->name('customer.getdata');
+            Route::get('add', [CustomerController::class, 'create'])->name('customer.add');
+            Route::post('store', [CustomerController::class, 'store'])->name('customer.store');
+            Route::get('/detail/{id}', [CustomerController::class, 'details'])->name('customer.detail');
+            Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');
+            Route::put('/update/{id}', [CustomerController::class, 'update'])->name('customer.update');
+            Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
+            Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
     });
 

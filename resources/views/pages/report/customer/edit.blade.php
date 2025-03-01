@@ -156,7 +156,7 @@
                                     <label class="form-label w-100" for="technition">Pilih Teknisi</label>
                                     <select name="tecnition[]" class="form-control select2form" multiple>
                                         <option value="">Pilih Teknisi</option>
-                                        @foreach ($technition as $item)
+                                        @foreach ($technitian as $item)
                                         <option value="{{ $item->id }}" @if(in_array($item->id,
                                             $customer->transaction->Transactiontechnition->pluck('user_id')->toArray()))
                                             selected

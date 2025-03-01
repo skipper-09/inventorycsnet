@@ -27,7 +27,7 @@ class CustomerController extends Controller
         $data = [
             'title' => 'Customer',
         ];
-        return view('pages.master.customer.index', $data);
+        return view('pages.report.customer.index', $data);
     }
 
 
@@ -70,7 +70,7 @@ class CustomerController extends Controller
             return $data->created_at->format('d M Y H:i');
         })->addColumn('owner', function ($data) {
             return $data->transaction->userTransaction->name;
-        })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose', 'created_at','owner'])->make(true);
+        })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose', 'created_at', 'owner'])->make(true);
     }
 
 
@@ -92,11 +92,14 @@ class CustomerController extends Controller
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
             'product' => $products,
-            'technition' => User::with('roles')->whereHas('roles', function ($query) {
-                $query->where('name', 'Teknisi');
-            })->orderByDesc('id')->get()
+            'technitian' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
+                ->orderByDesc('id')
+                ->get()
         ];
-        return view('pages.master.customer.add', $data);
+        return view('pages.report.customer.add', $data);
     }
 
 
@@ -151,7 +154,7 @@ class CustomerController extends Controller
                 'branch_id' => $request->branch_id,
                 'customer_id' => $customer->id,
                 'type' => 'out',
-                'user_id'=>Auth::user()->id,
+                'user_id' => Auth::user()->id,
                 'purpose' => $request->purpose
             ]);
 
@@ -216,11 +219,14 @@ class CustomerController extends Controller
             'branch' => Branch::all(),
             'customer' => $customer,
             'product' => $products,
-            'technition' => User::with('roles')->whereHas('roles', function ($query) {
-                $query->where('name', 'Teknisi');
-            })->orderByDesc('id')->get()
+            'technitian' => User::with('employee.position', 'roles')
+            ->whereHas('employee.position', function ($query) {
+                $query->where('name', 'Technitian');  // Filter by position name
+            })
+            ->orderByDesc('id')
+            ->get()
         ];
-        return view('pages.master.customer.edit', $data);
+        return view('pages.report.customer.edit', $data);
     }
 
 
@@ -331,7 +337,7 @@ class CustomerController extends Controller
             'customer' => $customer
         ];
 
-        return view('pages.master.customer.detail', $data);
+        return view('pages.report.customer.detail', $data);
     }
 
 
