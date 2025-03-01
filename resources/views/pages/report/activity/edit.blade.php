@@ -47,7 +47,7 @@
                         @endif
 
                         <!-- Form for editing -->
-                        <form action="{{ route('actitivityreport.update', ['id' => $freeReport->id]) }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <form action="{{ route('activityreport.update', ['id' => $freeReport->id]) }}" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
                             @csrf
                             @method('PUT') <!-- For PUT request to update data -->
                             

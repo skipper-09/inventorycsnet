@@ -141,7 +141,7 @@ class FreeReportController extends Controller
         }
     }
 
-    public function edit($id)
+    public function show($id)
     {
         $currentUser = Auth::user();
         $userRole = $currentUser->role;
