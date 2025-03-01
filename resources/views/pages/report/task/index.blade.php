@@ -43,7 +43,7 @@
                                 <label for="FilterAssignment">Tanggal Penugasan</label>
                                 <input type="date" id="FilterAssignment" class="form-control" />
                             </div>
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <label for="FilterStatus">Status</label>
                                 <select id="FilterStatus" class="form-control select2 filter">
                                     <option value="">Pilih Status</option>
@@ -51,7 +51,7 @@
                                     <option value="complated">Completed</option>
                                     <!-- Add other status options here -->
                                 </select>
-                            </div>
+                            </div> --}}
                         </div>
 
                         <!-- Data Table -->

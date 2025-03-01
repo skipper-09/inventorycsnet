@@ -32,19 +32,21 @@ class TaskReportController extends Controller
             'taskDetail.task', // Pastikan untuk mengambil relasi task
         ])->orderByDesc('id');
 
+        // dd( $request->input('assign_date'));
         // Apply assign_date filter if provided
         if ($request->filled('assign_date')) {
             $query->whereHas('taskAssign', function ($q) use ($request) {
-                $q->whereDate('assign_date', $request->input('assign_date'));
+                $q->where('assign_date', $request->input('assign_date'));
             });
         }
 
-        // Apply status filter if provided
-        if ($request->filled('status')) {
-            $query->whereHas('employeeTask', function ($q) use ($request) {
-                $q->where('status', $request->input('status'));
-            });
-        }
+        // dd($query->get());
+        // // Apply status filter if provided
+        // if ($request->filled('status')) {
+        //     $query->whereHas('employeeTask', function ($q) use ($request) {
+        //         $q->where('status', $request->input('status'));
+        //     });
+        // }
 
         // Ambil data dan kelompokkan berdasarkan task_id
         $data = $query->get()->groupBy(function ($item) {
@@ -76,7 +78,7 @@ class TaskReportController extends Controller
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->addColumn('assignment_date', function ($data) {
-                return formatDate($data->taskAssign->assignment_date ?? null);
+                return formatDate($data->taskAssign->assign_date ?? null);
             })
             ->addColumn('employee_name', function ($data) {
                 return $data->employee->name ?? 'N/A';

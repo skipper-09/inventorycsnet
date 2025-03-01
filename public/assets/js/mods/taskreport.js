@@ -67,9 +67,8 @@ $(document).ready(function () {
         ajax: {
             url: route,
             data: function (d) {
-                console.log(d); // Log data being sent
                 d.assign_date = $("#FilterAssignment").val();  // Capture the filter value for assignment
-                d.status = $("#FilterStatus").val();  // Capture the filter value for status
+                // d.status = $("#FilterStatus").val();  // Capture the filter value for status
             },
         },
         columns: columns,
