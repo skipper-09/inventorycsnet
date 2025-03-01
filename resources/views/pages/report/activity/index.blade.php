@@ -1,0 +1,100 @@
+@extends('layouts.base')
+
+@section('title', $title)
+
+@push('css')
+    <!-- DataTables -->
+    <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet"
+        type="text/css" />
+    <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
+        type="text/css" />
+
+    <!-- Select2 -->
+    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css" />
+
+    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
+@endpush
+
+@section('content')
+    <div class="container-fluid">
+        <!-- start page title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="mb-sm-0">{{ $title }}</h4>
+                    <div class="page-title-right">
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active">{{ $title }}</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end page title -->
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    @can('create-activity-report')
+                        <div class="card-header">
+                            <a href="{{ route('activityreport.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
+                        </div>
+                    @endcan
+                    <div class="card-body">
+                        <table id="scroll-sidebar-datatable"
+                            class="table dt-responsive nowrap w-100 table-hover table-striped"
+                            data-route="{{ route('activityreport.getdata') }}"
+                            data-has-action-permission="{{ auth()->user()->canany(['update-activity-report', 'delete-activity-report'])? 'true': 'false' }}">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Laporan</th>
+                                    <th>Tanggal Dibuat</th>
+                                    @canany(['update-activity-report', 'delete-activity-report'])
+                                        <th>Action</th>
+                                    @endcanany
+                                </tr>
+                            </thead>
+                        </table>
+                    </div> <!-- end card body -->
+                </div> <!-- end card -->
+            </div><!-- end col -->
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewActivityReportModal" tabindex="-1" role="dialog" aria-labelledby="viewActivityReportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header d-flex justify-content-between">
+                    <h5 class="modal-title" id="viewActivityReportModalLabel">Laporan</h5>
+                    <button type="button" class="btn btn-sm btn-label-danger btn-icon" data-bs-dismiss="modal">
+                        <i class="mdi mdi-close"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="fullActivityReport"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+@endsection
+
+@push('js')
+    <!-- Required datatable js -->
+    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
+
+    <!-- Select2 -->
+    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
+
+    {{-- route datatable init and js definition --}}
+    <script src="{{ asset('assets/js/mods/activityreport.js') }}"></script>
+@endpush

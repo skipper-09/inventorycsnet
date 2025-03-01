@@ -20,6 +20,7 @@ use App\Http\Controllers\Master\TaskDetailController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
+use App\Http\Controllers\Report\FreeReportController;
 use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Report\TaskReportController;
 use App\Http\Controllers\Settings\SettingController;
@@ -321,6 +322,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             // Route::get('/edit/{id}', [TransactionProductController::class, 'show'])->name('report.transaction-product.edit');
             // Route::put('/update/{id}', [TransactionProductController::class, 'update'])->name('report.transaction-product.update');
             // Route::delete('/delete/{id}', [TransactionProductController::class, 'destroy'])->name('report.transaction-product.delete');
+        });
+
+        Route::prefix('activity-report')->group(function () {
+            Route::get('', [FreeReportController::class, 'index'])->name('activityreport')->middleware('can:read-activity-report');
+            Route::get('getdata', [FreeReportController::class, 'getData'])->name('activityreport.getdata');
+            Route::get('/add', [FreeReportController::class, 'create'])->name('activityreport.add')->middleware('can:create-activity-report');
+            Route::post('store', [FreeReportController::class, 'store'])->name('activityreport.store');
+            Route::get('/edit/{id}', [FreeReportController::class, 'show'])->name('activityreport.edit')->middleware('can:update-activity-report');
+            Route::put('/update/{id}', [FreeReportController::class, 'update'])->name('activityreport.update');
+            Route::delete('/delete/{id}', [FreeReportController::class, 'destroy'])->name('activityreport.delete')->middleware('can:delete-activity-report');
         });
 
         //leave report

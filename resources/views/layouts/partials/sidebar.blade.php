@@ -207,11 +207,13 @@
                     </a>
                     <ul class="sub-menu" aria-expanded="false">
                         <li><a href="{{ route('report.transaction-product') }}"><i
-                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
+                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
                         <li><a href="{{ route('transfer') }}"><i
                                     class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
                         <li><a href="{{ route('customer') }}"><i
                                     class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
+                        <li><a href="{{ route('activityreport') }}"><i
+                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
                     </ul>
                 </li>
 

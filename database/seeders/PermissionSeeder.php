@@ -115,6 +115,11 @@ class PermissionSeeder extends Seeder
             'create-task-report',
             'update-task-report',
             'delete-task-report',
+            //activity report
+            'read-activity-report',
+            'create-activity-report',
+            'update-activity-report',
+            'delete-activity-report',
             // Transaction
             'read-transfer-product',
             'create-transfer-product',

@@ -81,6 +81,11 @@ class RoleSeeder extends Seeder
             'create-task-report',
             'update-task-report',
             'delete-task-report',
+            //activity report
+            'read-activity-report',
+            'create-activity-report',
+            'update-activity-report',
+            'delete-activity-report',
             //departement
             'read-department',
             'create-department',
@@ -218,6 +223,11 @@ class RoleSeeder extends Seeder
             'create-assigmentdata',
             'update-assigmentdata',
             'delete-assigmentdata', 
+            //activity report
+            'read-activity-report',
+            'create-activity-report',
+            'update-activity-report',
+            'delete-activity-report',
         ]);
     }
 }
