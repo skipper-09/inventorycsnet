@@ -132,12 +132,12 @@
                     </a>
                 </li>
 
-                <li>
+                {{-- <li>
                     <a href="{{ route('customer') }}" class="">
                         <i class="fas fa-user-alt"></i>
                         <span>Customer</span>
                     </a>
-                </li>
+                </li> --}}
 
                 @canany(['read-leave'])
                     <li class="menu-title">Pengajuan</li>

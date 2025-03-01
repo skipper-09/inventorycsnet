@@ -27,7 +27,7 @@ class CustomerController extends Controller
         $data = [
             'title' => 'Customer',
         ];
-        return view('pages.master.customer.index', $data);
+        return view('pages.report.customer.index', $data);
     }
 
 
@@ -99,7 +99,7 @@ class CustomerController extends Controller
                 ->orderByDesc('id')
                 ->get()
         ];
-        return view('pages.master.customer.add', $data);
+        return view('pages.report.customer.add', $data);
     }
 
 
@@ -226,7 +226,7 @@ class CustomerController extends Controller
             ->orderByDesc('id')
             ->get()
         ];
-        return view('pages.master.customer.edit', $data);
+        return view('pages.report.customer.edit', $data);
     }
 
 
@@ -337,7 +337,7 @@ class CustomerController extends Controller
             'customer' => $customer
         ];
 
-        return view('pages.master.customer.detail', $data);
+        return view('pages.report.customer.detail', $data);
     }
 
 

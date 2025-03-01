@@ -29,7 +29,7 @@ class TransferProductController extends Controller
             'title' => 'Pemindahan Barang',
         ];
 
-        return view('pages.transaction.transferproduct.index', $data);
+        return view('pages.report.transferproduct.index', $data);
     }
 
     /**
@@ -138,7 +138,7 @@ class TransferProductController extends Controller
                 ->get()
         ];
 
-        return view('pages.transaction.transferproduct.add', $data);
+        return view('pages.report.transferproduct.add', $data);
     }
 
     /**
@@ -221,7 +221,7 @@ class TransferProductController extends Controller
             'transfer' => $transfer
         ];
 
-        return view('pages.transaction.transferproduct.details', $data);
+        return view('pages.report.transferproduct.details', $data);
     }
 
     /**
@@ -248,7 +248,7 @@ class TransferProductController extends Controller
                 ->get()
         ];
 
-        return view('pages.transaction.transferproduct.edit', $data);
+        return view('pages.report.transferproduct.edit', $data);
     }
 
     /**
