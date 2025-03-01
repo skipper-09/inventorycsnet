@@ -174,14 +174,14 @@
 
                 @canany(['read-transaction-product', 'read-leave-report', 'read-task-report'])
                     <li class="menu-title">Laporan</li>
-                    @can('read-transaction-product')
+                    {{-- @can('read-transaction-product')
                         <li>
                             <a href="{{ route('report.transaction-product') }}" class="">
                                 <i class="fas fa-box"></i>
                                 <span>Transaksi Barang</span>
                             </a>
                         </li>
-                    @endcan
+                    @endcan --}}
                     @can('read-leave-report')
                         <li>
                             <a href="{{ route('leavereport') }}" class="">

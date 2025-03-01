@@ -25,7 +25,7 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('role') }}">{{ $title }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('customer') }}">{{ $title }}</a></li>
                             <li class="breadcrumb-item active">Edit {{ $title }}</li>
                         </ol>
                     </div>

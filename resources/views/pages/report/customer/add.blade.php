@@ -24,11 +24,10 @@
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('role') }}">{{ $title }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('customer') }}">{{ $title }}</a></li>
                             <li class="breadcrumb-item active">Tambah {{ $title }}</li>
                         </ol>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -42,26 +41,22 @@
                         <div class="card-header">
                             <h3 class="card-title">{{ $title }}</h3>
                             <div class="card-addon">
-                                <div class="nav nav-lines card-nav" id="card1-tab" role="tablist">
-                                    <a class="nav-item nav-link active" id="card1-psb-tab" data-bs-toggle="tab"
-                                        href="#card1-psb" aria-selected="true" role="tab">Pemasangan Baru</a>
-                                    <a class="nav-item nav-link" id="card1-repair-tab" data-bs-toggle="tab"
-                                        href="#card1-repair" aria-selected="false" role="tab"
-                                        tabindex="-1">Perbaikan</a>
+                                <div class="d-flex">
+                                    <a href="{{ route('customer.add.psb') }}" class="btn {{ request()->routeIs('customer.add.psb') ? 'btn-primary' : 'btn-outline-primary' }} me-2">Pemasangan Baru</a>
+                                    <a href="{{ route('customer.add.repair') }}" class="btn {{ request()->routeIs('customer.add.repair') ? 'btn-primary' : 'btn-outline-primary' }}">Perbaikan</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="tab-content">
-                                <div class="tab-pane fade active show" id="card1-psb" role="tabpanel"
-                                    aria-labelledby="card1-psb-tab">
-                                    @include('pages.report.customer.psbform')
+                            @if(request()->routeIs('customer.add.psb'))
+                                @include('pages.report.customer.psbform')
+                            @elseif(request()->routeIs('customer.add.repair'))
+                                @include('pages.report.customer.repairform')
+                            @else
+                                <div class="alert alert-label-primary">
+                                    Silahkan pilih jenis form pada tombol di atas
                                 </div>
-                                <div class="tab-pane fade" id="card1-repair" role="tabpanel"
-                                    aria-labelledby="card1-repair-tab">
-                                    @include('pages.report.customer.repairform')
-                                </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

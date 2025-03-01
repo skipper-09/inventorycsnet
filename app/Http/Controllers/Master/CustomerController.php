@@ -102,6 +102,64 @@ class CustomerController extends Controller
         return view('pages.report.customer.add', $data);
     }
 
+    public function createPsb()
+    {
+        $userRole = auth()->user()->getRoleNames()->first();
+        if ($userRole == 'Developer' || $userRole == 'Administrator') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereHas('productRoles', function ($query) use ($userRole) {
+                $query->whereHas('role', function ($query) use ($userRole) {
+                    $query->where('name', $userRole);
+                });
+            })->get();
+        }
+
+        $data = [
+            'title' => 'Customer',
+            "zone" => ZoneOdp::all(),
+            'branch' => Branch::all(),
+            'type' => 'psb',
+            'product' => $products,
+            'technitian' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
+                ->orderByDesc('id')
+                ->get()
+        ];
+        return view('pages.report.customer.add', $data);
+    }
+
+    public function createRepair()
+    {
+        $userRole = auth()->user()->getRoleNames()->first();
+        if ($userRole == 'Developer' || $userRole == 'Administrator') {
+            $products = Product::all();
+        } else {
+            $products = Product::whereHas('productRoles', function ($query) use ($userRole) {
+                $query->whereHas('role', function ($query) use ($userRole) {
+                    $query->where('name', $userRole);
+                });
+            })->get();
+        }
+
+        $data = [
+            'title' => 'Customer',
+            "zone" => ZoneOdp::all(),
+            'branch' => Branch::all(),
+            'type' => 'repair',
+            'product' => $products,
+            'technitian' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
+                ->orderByDesc('id')
+                ->get()
+        ];
+
+        return view('pages.report.customer.add', $data);
+    }
 
     public function store(Request $request)
     {

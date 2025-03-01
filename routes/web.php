@@ -354,7 +354,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::prefix('customer')->group(function () {
             Route::get('', [CustomerController::class, 'index'])->name('customer');
             Route::get('getdata', [CustomerController::class, 'getData'])->name('customer.getdata');
-            Route::get('add', [CustomerController::class, 'create'])->name('customer.add');
+            Route::get('/add', [CustomerController::class, 'create'])->name('customer.add');
+            Route::get('/add/psb', [CustomerController::class, 'createPsb'])->name('customer.add.psb');
+            Route::get('/add/repair', [CustomerController::class, 'createRepair'])->name('customer.add.repair');
             Route::post('store', [CustomerController::class, 'store'])->name('customer.store');
             Route::get('/detail/{id}', [CustomerController::class, 'details'])->name('customer.detail');
             Route::get('/edit/{id}', [CustomerController::class, 'show'])->name('customer.edit');

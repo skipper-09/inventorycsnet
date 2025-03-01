@@ -16,27 +16,27 @@ class TransactionProduct extends Model
 
     public function transaksi()
     {
-        return  $this->belongsTo(Transaction::class, 'transaction_id', 'id');
+        return $this->belongsTo(Transaction::class, 'transaction_id', 'id');
     }
 
     public function product()
     {
-        return  $this->belongsTo(Product::class, 'product_id', 'id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 
     public function getTransactionPurpose()
     {
         switch ($this->transaksi->purpose) {
             case 'psb':
-                return '<div class="badge badge-label-primary">Pemasangan Baru</div>';
+                return '<div class="badge badge-primary">Pemasangan Baru</div>';
             case 'repair':
-                return '<div class="badge badge-label-warning">Perbaikan</div>';
+                return '<div class="badge badge-warning">Perbaikan</div>';
             case 'transfer':
-                return '<div class="badge badge-label-info">Transfer</div>';
+                return '<div class="badge badge-info">Transfer</div>';
             case 'other':
-                return '<div class="badge badge-label-info">Other</div>';
+                return '<div class="badge badge-info">Other</div>';
             default:
-                return '<span class="badge badge-label-success">Stok Masuk</span>';
+                return '<span class="badge badge-success">Stok Masuk</span>';
         }
     }
 
