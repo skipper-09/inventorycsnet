@@ -130,11 +130,12 @@ class TransferProductController extends Controller
             'title' => 'Tambah Pemindahan Barang',
             'branch' => Branch::all(),
             'product' => Product::all(),
-            'technitians' => User::whereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['Developer', 'Administrator']);
-            })
+            'technitians' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
                 ->orderByDesc('id')
-                ->get(),
+                ->get()
         ];
 
         return view('pages.transaction.transferproduct.add', $data);
@@ -239,11 +240,12 @@ class TransferProductController extends Controller
             'transfer' => $transfer,
             'branch' => Branch::all(),
             'product' => Product::all(),
-            'technitians' => User::whereHas('roles', function ($query) {
-                $query->whereNotIn('name', ['Developer', 'Administrator']);
-            })
+            'technitians' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
                 ->orderByDesc('id')
-                ->get(),
+                ->get()
         ];
 
         return view('pages.transaction.transferproduct.edit', $data);

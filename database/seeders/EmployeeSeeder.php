@@ -23,7 +23,7 @@ class EmployeeSeeder extends Seeder
             // Create employee data
             $employee = Employee::create([
                 'department_id' => rand(1, 5), // Assuming there are 5 departments
-                'position_id' => rand(1, 8), // Assuming there are 8 positions
+                'position_id' => rand(1, 10), // Assuming there are 8 positions
                 'name' => $faker->name,
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
