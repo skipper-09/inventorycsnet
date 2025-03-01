@@ -10,6 +10,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -80,37 +81,46 @@ class AssigmentDataController extends Controller
     public function update($id, Request $request)
     {
         $request->validate([
-            'before_image' => 'required|mimes:png,jpg|max:2048',
-            'after_image' => 'required|mimes:png,jpg|max:2048',
+            'before_image' => 'required|string', 
+            'after_image' => 'required|string',  
         ], [
             'before_image.required' => 'Gambar sebelum harus dilengkapi.',
             'after_image.required' => 'Gambar sesudah harus dilengkapi.',
-            'before_image.mimes' => 'Gambar sebelum harus berformat PNG atau JPG.',
-            'after_image.mimes' => 'Gambar sesudah harus berformat PNG atau JPG.',
-            'before_image.max' => 'Gambar sebelum maksimal berukuran 2MB.',
-            'after_image.max' => 'Gambar sesudah maksimal berukuran 2MB.',
         ]);
-
+    
         DB::beginTransaction();
         try {
             $taskreport = TaskReport::create([
                 'employee_task_id' => $id,
                 'report_content' => $request->report_content,
             ]);
-
+    
+            // Handle before image
             $filebefore = '';
-            if ($request->hasFile('before_image')) {
-                $file = $request->file('before_image');
-                $filebefore = 'report_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('storage/report/'), $filebefore);
+            if ($request->input('before_image')) {
+                $imageData = $request->input('before_image');
+                $imageData = str_replace('data:image/png;base64,', '', $imageData);
+                $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
+                $imageData = str_replace(' ', '+', $imageData);
+                $image = base64_decode($imageData);
+                $filebefore = 'report_' . rand(0, 999999999) . '.png'; 
+    
+                Storage::disk('public')->put('report/' . $filebefore, $image);
             }
-
+    
+            // Handle after image
             $fileafter = '';
-            if ($request->hasFile('after_image')) {
-                $file = $request->file('after_image');
-                $fileafter = 'report_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
-                $file->move(public_path('storage/report/'), $fileafter);
+            if ($request->input('after_image')) {
+                $imageData = $request->input('after_image');
+                $imageData = str_replace('data:image/png;base64,', '', $imageData);
+                $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
+                $imageData = str_replace(' ', '+', $imageData);
+                $image = base64_decode($imageData);
+                $fileafter = 'report_' . rand(0, 999999999) . '.png'; 
+    
+                Storage::disk('public')->put('report/' . $fileafter, $image);
             }
+    
             ReportImage::insert([
                 [
                     "report_task_id" => $taskreport->id,
@@ -123,8 +133,10 @@ class AssigmentDataController extends Controller
                     "image" => $fileafter,
                 ],
             ]);
-
-            EmployeeTask::find($id)->update(['status' => 'complated']);
+    
+            // Update the task status to completed
+            // EmployeeTask::find($id)->update(['status' => 'completed']);
+            
             DB::commit();
             return redirect()->route('assigmentdata');
         } catch (Exception $e) {
@@ -136,4 +148,5 @@ class AssigmentDataController extends Controller
             ]);
         }
     }
+    
 }

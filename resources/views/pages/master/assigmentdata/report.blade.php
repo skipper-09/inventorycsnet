@@ -83,16 +83,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label w-100" for="report_content">Kegiatan</label>
-                                    <textarea class="form-control autosize" name="report_content" rows="3"></textarea>
-                                    @error('report_content')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                    @enderror
-                                </div>
-                                <div class="row">
+                                {{-- <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label w-100" for="before_image">Gambar Sebelum</label>
@@ -129,7 +120,50 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div> --}}
+
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label w-100" for="before_image">Capture Before Image</label>
+                                            <video id="videoElement" autoplay></video>
+                                            <br>
+                                            <button type="button" id="captureBefore" class="btn btn-primary mt-2">Capture Before Image</button>
+                                            {{-- <button type="button" id="switchCamera" class="btn btn-secondary mt-2">Switch Camera</button> --}}
+                                            <input type="hidden" name="before_image" id="before_image">
+                                            <div id="before_image_preview" class="mt-3" style="display: none;">
+                                                <h6>Preview Gambar Sebelum</h6>
+                                                <img src="" id="before_image_output" class="img-fluid" style="max-width: 100%;" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label w-100" for="after_image">Capture After Image</label>
+                                            <video id="after_videoElement" autoplay></video>
+                                            <br>
+                                            <button type="button" id="captureAfter" class="btn btn-primary mt-2">Capture After Image</button>
+                                            {{-- <button type="button" id="switchAfterCamera" class="btn btn-secondary mt-2">Switch Camera</button> --}}
+                                            <input type="hidden" name="after_image" id="after_image">
+                                            <div id="after_image_preview" class="mt-3" style="display: none;">
+                                                <h6>Preview Gambar Sesudah</h6>
+                                                <img src="" id="after_image_output" class="img-fluid" style="max-width: 100%;" />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <div class="mb-3">
+                                    <label class="form-label w-100" for="report_content">Kegiatan</label>
+                                    <textarea class="form-control autosize" name="report_content" rows="3"></textarea>
+                                    @error('report_content')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                    @enderror
+                                </div>
+                                
                             </div>
                             <div>
                                 <button class="btn btn-primary" type="submit">Submit</button>
@@ -164,7 +198,7 @@
 <script>
     "use strict"; $(function () { autosize($(".autosize")) });
 </script>
-<script>
+{{-- <script>
     $('#before_image').change(function(event) {
         var reader = new FileReader();
         
@@ -185,6 +219,140 @@
         }
         reader.readAsDataURL(this.files[0]);
     });
+</script> --}}
+
+<script>
+    let currentStream = null;
+    let currentDeviceIdBefore = null;
+    let currentDeviceIdAfter = null;
+    let isFrontCameraBefore = false;
+    let isFrontCameraAfter = false;
+
+    // Function to start the camera with specific deviceId
+    function startCamera(videoElementId, deviceId, isFront) {
+        const constraints = {
+            video: { deviceId: { exact: deviceId } }
+        };
+
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(constraints)
+                .then(function(stream) {
+                    const video = document.getElementById(videoElementId);
+                    video.srcObject = stream;
+                    if (videoElementId === 'videoElement') {
+                        currentStream = stream;
+                        currentDeviceIdBefore = deviceId;
+                    } else {
+                        currentStream = stream;
+                        currentDeviceIdAfter = deviceId;
+                    }
+                })
+                .catch(function(error) {
+                    console.log('Error accessing camera: ', error);
+                });
+        }
+    }
+
+    // Switch between front and back camera for "before" camera
+    // function switchCameraBefore() {
+    //     isFrontCameraBefore = !isFrontCameraBefore;
+    //     getCameraDevices().then(devices => {
+    //         const selectedDevice = devices.find(device => {
+    //             if (isFrontCameraBefore) return device.kind === 'videoinput' && device.label.includes('front');
+    //             else return device.kind === 'videoinput' && device.label.includes('back');
+    //         });
+
+    //         if (selectedDevice && selectedDevice.deviceId !== currentDeviceIdBefore) {
+    //             stopCurrentStream();
+    //             startCamera('videoElement', selectedDevice.deviceId, isFrontCameraBefore);
+    //         }
+    //     });
+    // }
+
+    // // Switch between front and back camera for "after" camera
+    // function switchCameraAfter() {
+    //     isFrontCameraAfter = !isFrontCameraAfter;
+    //     getCameraDevices().then(devices => {
+    //         const selectedDevice = devices.find(device => {
+    //             if (isFrontCameraAfter) return device.kind === 'videoinput' && device.label.includes('front');
+    //             else return device.kind === 'videoinput' && device.label.includes('back');
+    //         });
+
+    //         if (selectedDevice && selectedDevice.deviceId !== currentDeviceIdAfter) {
+    //             stopCurrentStream();
+    //             startCamera('after_videoElement', selectedDevice.deviceId, isFrontCameraAfter);
+    //         }
+    //     });
+    // }
+
+    // Stop the current camera stream
+    function stopCurrentStream() {
+        if (currentStream) {
+            const tracks = currentStream.getTracks();
+            tracks.forEach(track => track.stop());
+        }
+    }
+
+    // Get available camera devices
+    function getCameraDevices() {
+        return navigator.mediaDevices.enumerateDevices()
+            .then(devices => devices.filter(device => device.kind === 'videoinput'));
+    }
+
+    getCameraDevices().then(devices => {
+        const backCameraBefore = devices.find(device => device.label.includes('back'));
+        const backCameraAfter = devices.find(device => device.label.includes('back'));
+
+        if (backCameraBefore) {
+            startCamera('videoElement', backCameraBefore.deviceId, isFrontCameraBefore);
+        }
+
+        if (backCameraAfter) {
+            startCamera('after_videoElement', backCameraAfter.deviceId, isFrontCameraAfter);
+        }
+    });
+
+    // Capture "Before" image
+    document.getElementById('captureBefore').addEventListener('click', function () {
+        const video = document.getElementById('videoElement');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
+
+        // Show the preview
+        document.getElementById('before_image_output').src = imageData;
+        document.getElementById('before_image_preview').style.display = 'block';
+        document.getElementById('before_image').value = imageData;
+    });
+
+    // Capture "After" image
+    document.getElementById('captureAfter').addEventListener('click', function () {
+        const video = document.getElementById('after_videoElement');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
+
+        // Show the preview
+        document.getElementById('after_image_output').src = imageData;
+        document.getElementById('after_image_preview').style.display = 'block';
+        document.getElementById('after_image').value = imageData;
+    });
+
+    // // Switch "Before" camera
+    // document.getElementById('switchCamera').addEventListener('click', function () {
+    //     switchCameraBefore();
+    // });
+
+    // // Switch "After" camera
+    // document.getElementById('switchAfterCamera').addEventListener('click', function () {
+    //     switchCameraAfter();
+    // });
 </script>
 
 @endpush
