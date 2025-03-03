@@ -23,6 +23,7 @@ use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Report\FreeReportController;
 use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Report\TaskReportController;
+use App\Http\Controllers\Settings\ActivityLogController;
 use App\Http\Controllers\Settings\SettingController;
 use App\Http\Controllers\Submission\LeaveController;
 use App\Http\Controllers\Transaction\IncomeProductController;
@@ -423,6 +424,13 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [RoleController::class, 'destroy'])->name('role.delete')->middleware('can:delete-role');
         });
 
+        //activity-log
+        Route::prefix('activity-log')->group(function () {
+            Route::get('', [ActivityLogController::class, 'index'])->name('activitylog')->middleware('can:read-activity-log');
+            Route::get('getdata', [ActivityLogController::class, 'getData'])->name('activitylog.getdata');
+            Route::delete('clear-log', [ActivityLogController::class, 'cleanlog'])->name('activitylog.clear')->middleware('can:delete-activity-log');
+        });
+        //general settings
         Route::prefix('general')->group(function () {
             Route::get('', [SettingController::class, 'index'])->name('setting')->middleware('can:read-setting');
             Route::post('/update', [SettingController::class, 'update'])->name('setting.update');

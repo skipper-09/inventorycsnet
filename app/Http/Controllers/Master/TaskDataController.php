@@ -68,32 +68,43 @@ class TaskDataController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-        ], [
-            'name.required' => 'Nama Task harus diisi.',
-            'description.required' => 'Deskripsi Task harus diisi.',
+{
+    $request->validate([
+        'name' => 'required',
+        'description' => 'required',
+    ], [
+        'name.required' => 'Nama Task harus diisi.',
+        'description.required' => 'Deskripsi Task harus diisi.',
+    ]);
+
+    try {
+        // Create and save the new task
+        $taskdata = new Task();
+        $taskdata->name = $request->name;
+        $taskdata->description = $request->description;
+        $taskdata->status = $request->status;
+        $taskdata->save();
+
+        //log activity
+        activity()
+            ->causedBy(Auth::user())
+            ->event('created')
+            ->withProperties($taskdata->toArray())
+            ->log("Task Dibuat dengan Nama {$taskdata->name}");
+
+        return response()->json([
+            'success' => true,
+            'status' => "Berhasil",
+            'message' => 'Task Data Berhasil dibuat.'
         ]);
-
-        try {
-            $taskdata = new Task();
-            $taskdata->create($request->all());
-
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Task Data Berhasil dibuat.'
-            ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ]);
-        }
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'status' => "Gagal",
+            'message' => 'An error occurred: ' . $e->getMessage()
+        ]);
     }
+}
 
     /**
      * Display the specified resource.
@@ -117,8 +128,21 @@ class TaskDataController extends Controller
             'description.required' => 'Deskripsi Task harus diisi.',
         ]);
         try {
-            $unit = Task::findOrFail($id);
-            $unit->update($request->all());
+            $taskdata = Task::findOrFail($id);
+            $oldTaskData = $taskdata->getAttributes();
+            $taskdata->name = $request->name;
+            $taskdata->description = $request->description;
+            $taskdata->status = $request->status;
+            $taskdata->save();
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withProperties([
+                'old' => $oldTaskData,
+                'new' => $taskdata->toArray()
+            ])
+            ->log("Task dengan Nama {$taskdata->name} telah diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -151,10 +175,15 @@ class TaskDataController extends Controller
      */
     public function destroy(string $id)
     {
-
         try {
             $task = Task::findOrFail($id);
             $task->delete();
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('deleted')
+            ->withProperties($task->toArray())
+            ->log("Task Dihapus dengan Nama {$task->name}");
             //return response
             return response()->json([
                 'status' => 'success',

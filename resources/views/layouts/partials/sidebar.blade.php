@@ -236,7 +236,7 @@
                     </ul>
                 </li> --}}
 
-                @canany(['read-user', 'read-role', 'read-setting'])
+                @canany(['read-user', 'read-role', 'read-setting','read-activity-log'])
                     <li class="menu-title">SETTINGS</li>
                     @can('read-user')
                         <li>
@@ -252,7 +252,15 @@
                         <li>
                             <a href="{{ route('role') }}" class="">
                                 <i class="fas fa-user-tag"></i>
-                                <span>Role</span>
+                                <span>Hak Akses</span>
+                            </a>
+                        </li>
+                    @endcan
+                    @can('read-activity-log')
+                        <li>
+                            <a href="{{ route('activitylog') }}" class="">
+                                <i class="fas fa-user-tag"></i>
+                                <span>Log Aktivitas</span>
                             </a>
                         </li>
                     @endcan

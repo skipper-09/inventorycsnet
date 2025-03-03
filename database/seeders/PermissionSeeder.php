@@ -140,6 +140,9 @@ class PermissionSeeder extends Seeder
             'create-role',
             'update-role',
             'delete-role',
+            //activity-log
+            'read-activity-log',
+            'delete-activity-log',
             'read-setting',
 
         ];
