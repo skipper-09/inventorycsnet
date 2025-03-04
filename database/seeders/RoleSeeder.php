@@ -144,6 +144,7 @@ class RoleSeeder extends Seeder
             'create-salary',
             'update-salary',
             'delete-salary',
+            'export-salary',
             // Transfer Product
             'read-transfer-product',
             'create-transfer-product',

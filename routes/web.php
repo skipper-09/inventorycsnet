@@ -279,6 +279,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::put('/update/{id}', [SalaryController::class, 'update'])->name('salary.update');
             Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
             Route::get('/generate-slip/{id}', [SalaryController::class, 'generateSalarySlip'])->name('salary.generate-slip');
+            Route::get('/export', [SalaryController::class, 'exportSalary'])->name('salary.export')->middleware('can:export-salary');
         });
     });
 

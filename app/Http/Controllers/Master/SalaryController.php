@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\SalaryExport;
 use App\Http\Controllers\Controller;
 use App\Models\Allowance;
 use App\Models\AllowanceType;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class SalaryController extends Controller
@@ -31,11 +33,21 @@ class SalaryController extends Controller
         return view('pages.master.salary.index', $data);
     }
 
-    public function getData()
+    public function getData(Request $request)
     {
-        $data = Salary::with([
-            'employee',
-        ])->orderByDesc('id')->get();
+        $query = Salary::with(['employee']);
+
+        // Apply month filter if provided
+        if ($request->has('month') && $request->month != '') {
+            $query->whereMonth('salary_month', $request->month);
+        }
+
+        // Apply year filter if provided
+        if ($request->has('year') && $request->year != '') {
+            $query->whereYear('salary_month', $request->year);
+        }
+
+        $data = $query->orderByDesc('id')->get();
 
         return DataTables::of($data)
             ->addIndexColumn()
@@ -44,6 +56,12 @@ class SalaryController extends Controller
             })
             ->addColumn('salary_month', function ($salary) {
                 return Carbon::parse($salary->salary_month)->format('d-M-Y');
+            })
+            ->addColumn('basic_salary_amount', function ($salary) {
+                return 'Rp ' . number_format($salary->basic_salary_amount, 0, ',', '.');
+            })
+            ->addColumn('bonus', function ($salary) {
+                return 'Rp ' . number_format($salary->bonus, 0, ',', '.');
             })
             ->addColumn('total_salary', function ($salary) {
                 return 'Rp ' . number_format($salary->total_salary, 0, ',', '.');
@@ -55,44 +73,43 @@ class SalaryController extends Controller
                 return 'Rp ' . number_format($salary->allowance, 0, ',', '.');
             })
             ->addColumn('action', function ($data) {
-                $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
 
-                if ($userauth->can('read-salary')) {
+                if (auth()->user()->can('read-salary')) {
                     $button .= '<a href="' . route('salary.details', ['id' => $data->id]) . '"
-                      class="btn btn-sm btn-info"
-                       data-id="' . $data->id . '"
-                       data-type="details"
-                       data-toggle="tooltip"
-                       data-placement="bottom"
-                       title="Details">
-                       <i class="fas fa-eye"></i>
-                   </a>';
+                  class="btn btn-sm btn-info"
+                   data-id="' . $data->id . '"
+                   data-type="details"
+                   data-toggle="tooltip"
+                   data-placement="bottom"
+                   title="Details">
+                   <i class="fas fa-eye"></i>
+               </a>';
                 }
-                if ($userauth->can('update-salary')) {
+                if (auth()->user()->can('update-salary')) {
                     $button .= '<a href="' . route('salary.edit', ['id' => $data->id]) . '"
-                      class="btn btn-sm btn-success"
-                       data-id="' . $data->id . '"
-                       data-type="edit"
-                       data-toggle="tooltip"
-                       data-placement="bottom"
-                       title="Edit Data">
-                       <i class="fas fa-pen"></i>
-                   </a>';
+                  class="btn btn-sm btn-success ms-1"
+                   data-id="' . $data->id . '"
+                   data-type="edit"
+                   data-toggle="tooltip"
+                   data-placement="bottom"
+                   title="Edit Data">
+                   <i class="fas fa-pen"></i>
+               </a>';
                 }
-                if ($userauth->can('delete-salary')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action"
-                            data-id="' . $data->id . '"
-                            data-type="delete"
-                            data-route="' . route('salary.delete', ['id' => $data->id]) . '"
-                            data-toggle="tooltip"
-                            data-placement="bottom"
-                            title="Delete Data">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>';
+                if (auth()->user()->can('delete-salary')) {
+                    $button .= ' <button class="btn btn-sm btn-danger action ms-1"
+                        data-id="' . $data->id . '"
+                        data-type="delete"
+                        data-route="' . route('salary.delete', ['id' => $data->id]) . '"
+                        data-toggle="tooltip"
+                        data-placement="bottom"
+                        title="Delete Data">
+                    <i class="fas fa-trash-alt"></i>
+                </button>';
                 }
-                return '<div class="d-flex gap-2">' . $button . '</div>';
-            })->rawColumns(['action'])->make(true);
+                return '<div class="d-flex">' . $button . '</div>';
+            })->rawColumns(['action', 'employee_name', 'salary_month', 'basic_salary_amount', 'bonus', 'total_salary', 'deduction', 'allowance'])->make(true);
     }
 
     public function details($id)
@@ -496,5 +513,36 @@ class SalaryController extends Controller
         // Generate and stream the PDF
         $pdf = Pdf::loadView('pages.master.salary.salary_slip', $data);
         return $pdf->stream("salary_slip_{$employee->name}_{$salaryMonth->format('Y-m')}.pdf");
+    }
+
+    public function exportSalary(Request $request)
+    {
+        // Apply filters
+        $query = Salary::with(['employee']);
+
+        // Apply month filter if provided
+        if ($request->has('month') && $request->month != '') {
+            $query->whereMonth('salary_month', $request->month);
+        }
+
+        // Apply year filter if provided
+        if ($request->has('year') && $request->year != '') {
+            $query->whereYear('salary_month', $request->year);
+        }
+
+        $data = $query->orderByDesc('id')->get();
+
+        // Generate filename based on filters
+        $filename = 'salary_data';
+        if ($request->month) {
+            $monthName = Carbon::create(null, $request->month, 1)->format('F');
+            $filename .= '_' . $monthName;
+        }
+        if ($request->year) {
+            $filename .= '_' . $request->year;
+        }
+        $filename .= '.xlsx';
+
+        return Excel::download(new SalaryExport($data), $filename);
     }
 }

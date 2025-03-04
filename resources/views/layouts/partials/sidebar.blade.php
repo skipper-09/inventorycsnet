@@ -150,57 +150,52 @@
                         </li>
                     @endcan
                 @endcanany
+                
+                @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow">
+                        <i class="fas fa-user-tie"></i>
+                        <span>Laporan Karyawan</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        @can('read-leave-report')
+                            <li><a href="{{ route('leavereport') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Cuti Karyawan</a></li>
+                        @endcan
+                        @can('read-task-report')
+                            <li><a href="{{ route('taskreport') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
+                        @endcan
+                        @can('read-customer')
+                            <li><a href="{{ route('customer') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
+                        @endcan
+                        @can('read-activity-report')
+                            <li><a href="{{ route('activityreport') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
+                        @endcan
+                    </ul>
+                </li>
+            @endcanany
 
-                <div>
-                    <li class="menu-title">
-                        Laporan
-                    </li>
-                    @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                                <i class="fas fa-user-tie"></i>
-                                <span>Laporan Karyawan</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('read-leave-report')
-                                    <li><a href="{{ route('leavereport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Cuti Karyawan</a></li>
-                                @endcan
-                                @can('read-task-report')
-                                    <li><a href="{{ route('taskreport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
-                                @endcan
-                                @can('read-customer')
-                                    <li><a href="{{ route('customer') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
-                                @endcan
-                                @can('read-activity-report')
-                                    <li><a href="{{ route('activityreport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
-                                @endcan
-                            </ul>
-                        </li>
-                    @endcanany
-
-                    @canany(['read-transaction-product', 'read-transfer-product'])
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                                <i class="fas fa-warehouse"></i>
-                                <span>Laporan Barang</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('read-transaction-product')
-                                    <li><a href="{{ route('report.transaction-product') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
-                                @endcan
-                                @can('read-transfer-product')
-                                    <li><a href="{{ route('transfer') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
-                                @endcan
-                            </ul>
-                        </li>
-                    @endcanany
-                </div>
+            @canany(['read-transaction-product', 'read-transfer-product'])
+                <li>
+                    <a href="javascript: void(0);" class="has-arrow">
+                        <i class="fas fa-warehouse"></i>
+                        <span>Laporan Barang</span>
+                    </a>
+                    <ul class="sub-menu" aria-expanded="false">
+                        @can('read-transaction-product')
+                            <li><a href="{{ route('report.transaction-product') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
+                        @endcan
+                        @can('read-transfer-product')
+                            <li><a href="{{ route('transfer') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
+                        @endcan
+                    </ul>
+                </li>
+            @endcanany
 
                 @canany(['read-user', 'read-role', 'read-setting', 'read-activity-log'])
                     <li class="menu-title">SETTINGS</li>
