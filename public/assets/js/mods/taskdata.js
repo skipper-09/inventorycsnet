@@ -27,7 +27,7 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addForm #frequency").val("").trigger('change');
+            $("#addForm #status").val("").trigger('change');
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);

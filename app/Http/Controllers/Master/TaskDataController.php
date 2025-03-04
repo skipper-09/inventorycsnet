@@ -160,15 +160,15 @@ class TaskDataController extends Controller
 
 
 
-    public function detail($id)
-    {
-        $taskdata = Task::where('id', $id)->first();
-        $data = [
-            'title' => 'Detail Task ' . $taskdata->name,
-            'taskdata' => $taskdata->id,
-        ];
-        return view('pages.master.task-data.detail', $data);
-    }
+    // public function detail($id)
+    // {
+    //     $taskdata = Task::where('id', $id)->first();
+    //     $data = [
+    //         'title' => 'Detail Task ' . $taskdata->name,
+    //         'taskdata' => $taskdata->id,
+    //     ];
+    //     return view('pages.master.task-data.detail', $data);
+    // }
 
     /**
      * Remove the specified resource from storage.

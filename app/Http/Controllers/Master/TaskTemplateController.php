@@ -19,7 +19,8 @@ class TaskTemplateController extends Controller
     {
         $data = [
             'title' => 'Task Template',
-            'taskdata' => Task::where('status', 1)->get(),
+            //task diambil hanya yang memiliki detail task dan status aktif
+            'taskdata' => Task::where('status', 1)->whereHas('detailtask')->get(),
         ];
         return view('pages.master.tasktemplate.index', $data);
     }
@@ -39,7 +40,6 @@ class TaskTemplateController extends Controller
                             data-action="edit" data-title="Task Template" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
                 }
-                // $button .= ' <a href="' . route('tasktemplate.detail', ['slug' => $data->slug]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
                 if ($userauth->can('delete-task-template')) {
                     $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('tasktemplate.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';

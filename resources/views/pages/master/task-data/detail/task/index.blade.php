@@ -20,7 +20,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0">{{ $title }}</h4>
+                    <h4 class="mb-sm-0">{{ $title }} - <span class="text-primary">{{ $name }}</span></h4>
                     <div class="page-title-right">
                         <ol class="breadcrumb m-0">
                             <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
@@ -44,7 +44,8 @@
                                 <div class="col-12">
                                     <div class="card">
                                         @can('create-detail-task')
-                                            <div class="card-header">
+                                            <div class="card-header d-flex gap-2">
+                                                <a href="{{ route('taskdata') }}" class="btn btn-info btn-sm">Kembali</a>
                                                 <a href="{{ route('taskdetail.add', ['taskdataid' => $taskdata]) }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
                                             </div>
                                         @endcan

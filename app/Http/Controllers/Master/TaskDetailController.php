@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\Task;
 use App\Models\TaskDetail;
 use App\Models\User;
 use Exception;
@@ -16,8 +17,10 @@ class TaskDetailController extends Controller
 {
     public function index($taskdataid)
     {
+        $taskdata = Task::where('id', $taskdataid)->first();
         $data = [
             'title' => 'Detail Task',
+            'name'=> $taskdata->name,
             'taskdata' => $taskdataid,
         ];
 
@@ -95,7 +98,7 @@ class TaskDetailController extends Controller
 
     public function store(Request $request, $taskdataid)
     {
-        // Validate the incoming request
+        
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -105,29 +108,21 @@ class TaskDetailController extends Controller
         ]);
     
         try {
-            // Create a new TaskDetail instance
             $task = new TaskDetail();
             
-            // Fill the task object with the request data
             $task->fill([
                 'name' => $request->name,
                 'description' => $request->description,
-                'task_id' => $taskdataid,  // Use the parameter from route
+                'task_id' => $taskdataid,
             ]);
     
-            // Save the task
-            $task->save();  // Save the model to the database
+            $task->save();  
     
-            // Redirect to the taskdetails page with a success message
             return redirect()->route('taskdetail.index', ['taskdataid' => $taskdataid])->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Menambahkan Detail Task!'
             ]);
         } catch (Exception $e) {
-            // Log the error
-            Log::error($e->getMessage());
-            
-            // Redirect with error message
             return redirect()->route('taskdetail.index', ['taskdataid' => $taskdataid])->with([
                 'status' => 'Error!',
                 'message' => 'Gagal Menambahkan Detail Task!'
