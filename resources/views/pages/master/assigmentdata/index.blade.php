@@ -36,7 +36,7 @@
                 <div class="card-body">
                     <table id="scroll-sidebar-datatable"
                         class="table dt-responsive nowrap w-100 table-hover table-striped"
-                        data-route="{{ route('assigmentdata.getdata') }}"
+                        data-route="{{ route('assigmentdata.getdata',['assign_id'=>$assign_id]) }}"
                         data-has-action-permission="{{ auth()->user()->canany(['update-assigmentdata', 'delete-assigmentdata'])? 'true': 'false' }}">
                         <thead>
                             <tr>

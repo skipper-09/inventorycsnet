@@ -65,7 +65,7 @@ class AssignmentController extends Controller
     {
         $data = [
             'title' => 'Tambah Penugasan',
-            'departement' => Department::select('id', 'name')->get(),
+            'departement' => Department::select('id', 'name')->whereHas('employees')->get(),
             'employee' => Employee::all(),
             'task' => TaskTemplate::has('tasks')->get()
         ];

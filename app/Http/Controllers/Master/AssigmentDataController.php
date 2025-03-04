@@ -9,6 +9,7 @@ use App\Models\TaskReport;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
@@ -21,48 +22,79 @@ class AssigmentDataController extends Controller
         $data = [
             'title' => 'Tugas Karyawan',
         ];
-        return view('pages.master.assigmentdata.index', $data);
+        return view('pages.master.assigmentdata.assigment', $data);
     }
 
 
-    public function getData()
+   
+
+
+
+    //get data task assign
+    public function getDataAssign(Request $request)
     {
        
         $currentUser = Auth::user();
-     
         $currentUserRole = $currentUser->roles->first()?->name;
         if ($currentUserRole == "Employee") {
-        $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('employee_id',$currentUser->employee_id)->orderByDesc('id')->get();
+        $query = EmployeeTask::with([
+            'employee',
+            'taskAssign',
+            'taskDetail.task',
+        ])->where('employee_id',$currentUser->employee_id)->orderByDesc('id');
         }else{
-            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->orderByDesc('id')->get();
+            $query = EmployeeTask::with([
+                'employee',
+                'taskAssign',
+                'taskDetail.task',
+            ])->orderByDesc('id');
+        }
+         
+
+        if ($request->filled('assign_date')) {
+            $query->whereHas('taskAssign', function ($q) use ($request) {
+                $q->where('assign_date', $request->input('assign_date'));
+            });
         }
 
-        return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
-            $userauth = User::with('roles')->where('id', Auth::id())->first();
-            $button = '';
-           
-            if ($data->status != "complated") {
-                if ($userauth->can('update-assigmentdata')) {
-                    $button .= ' <a href="' . route('assigmentdata.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Report Data"><i class="fas fa-rocket"></i></a>';
-                }
-            }
-           
-            return '<div class="d-flex gap-2">' . $button . '</div>';
-        })->addColumn('tugas', function ($data) {
-            return $data->taskDetail->name;
-        })->addColumn('taskgroup', function ($data) {
-            return $data->taskDetail->task->name;
-        })->addColumn('tgl', function ($data) {
-            return formatDate($data->taskAssign->assign_date);
-        })->addColumn('place', function ($data) {
-            return $data->taskAssign->place;
-        })->addColumn('employee', function ($data) {
-            return $data->employee->name;
-        }) ->editColumn('status', function ($data) {
-            return $data->getStatus();
-        })
-        ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
-        ->make(true);
+        $data = $query->get()->groupBy(function ($item) {
+            return $item->task_assign_id;
+        });
+
+        $flattenedData = $data->map(function ($group) {
+            return $group->first();
+        });
+
+        return DataTables::of($flattenedData)
+            ->addIndexColumn()
+            ->addColumn('action', function ($data) {
+                $userauth = User::with('roles')->where('id', Auth::id())->first();
+                $button = '';
+                $button .= '<a href="' . route('assigmentdata.detail', ['assignid' => $data->task_assign_id]) . '"
+                class="btn btn-sm btn-info" 
+                data-id="' . $data->id . '"
+                data-type="details"
+                data-toggle="tooltip"
+                data-placement="bottom"
+                title="Details">
+                <i class="fas fa-eye"></i>
+            </a>';
+                return '<div class="d-flex gap-2">' . $button . '</div>';
+            })
+            ->addColumn('assignment_date', function ($data) {
+                return formatDate($data->taskAssign->assign_date ?? null);
+            })
+            ->addColumn('employee_name', function ($data) {
+                return $data->employee->name ?? 'N/A';
+            })
+            ->addColumn('tugas', function ($data) {
+                return $data->taskAssign->tasktemplate->name ?? 'N/A';
+            })
+            ->addColumn('location', function ($data) {
+                return $data->taskAssign->place ?? 'N/A';
+            })
+            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location','tugas'])
+            ->make(true);
     }
 
 
@@ -148,5 +180,55 @@ class AssigmentDataController extends Controller
             ]);
         }
     }
+
+
+
+    public function Detail($assignid){
+        $data = [
+            'title' => 'Detail Tugas Karyawan',
+            'assign_id'=> $assignid
+        ];
+        return view('pages.master.assigmentdata.index', $data);
+    }
+
+
+    public function getData(Request $request)
+    {
+        $currentUser = Auth::user();
+        $currentUserRole = $currentUser->roles->first()?->name;
+        $assignid = $request->input('assign_id');
+        if ($currentUserRole == "Employee") {
+            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id',$assignid)->where('employee_id',$currentUser->employee_id)->orderByDesc('id')->get();
+        }else{
+            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id',$assignid)->orderByDesc('id')->get();
+        }
+        return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $button = '';
+           
+            if ($data->status != "complated" && Carbon::parse($data->taskAssign->assign_date)->isToday()) {
+                if ($userauth->can('update-assigmentdata')) {
+                    $button .= ' <a href="' . route('assigmentdata.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Report Data"><i class="fas fa-rocket"></i></a>';
+                }
+            }
+           
+            return '<div class="d-flex gap-2">' . $button . '</div>';
+        })->addColumn('tugas', function ($data) {
+            return $data->taskDetail->name;
+        })->addColumn('taskgroup', function ($data) {
+            return $data->taskDetail->task->name;
+        })->addColumn('tgl', function ($data) {
+            return formatDate($data->taskAssign->assign_date);
+        })->addColumn('place', function ($data) {
+            return $data->taskAssign->place;
+        })->addColumn('employee', function ($data) {
+            return $data->employee->name;
+        }) ->editColumn('status', function ($data) {
+            return $data->getStatus();
+        })
+        ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
+        ->make(true);
+    }
+
     
 }
