@@ -284,16 +284,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
     });
 
-    Route::prefix('submission')->group(function () {
-        Route::prefix('leave')->group(function () {
-            Route::get('', [LeaveController::class, 'index'])->name('leave')->middleware('can:read-leave');
-            Route::get('getdata', [LeaveController::class, 'getData'])->name('leave.getdata');
-            Route::post('store', [LeaveController::class, 'store'])->name('leave.store');
-            Route::get('/edit/{id}', [LeaveController::class, 'show'])->name('leave.edit')->middleware('can:update-leave');
-            Route::put('/update/{id}', [LeaveController::class, 'update'])->name('leave.update');
-            Route::delete('/delete/{id}', [LeaveController::class, 'destroy'])->name('leave.delete')->middleware('can:delete-leave');
-        });
-    });
+    // Route::prefix('submission')->group(function () {
+    //     Route::prefix('leave')->group(function () {
+    //         Route::get('', [LeaveController::class, 'index'])->name('leave')->middleware('can:read-leave');
+    //         Route::get('getdata', [LeaveController::class, 'getData'])->name('leave.getdata');
+    //         Route::post('store', [LeaveController::class, 'store'])->name('leave.store');
+    //         Route::get('/edit/{id}', [LeaveController::class, 'show'])->name('leave.edit')->middleware('can:update-leave');
+    //         Route::put('/update/{id}', [LeaveController::class, 'update'])->name('leave.update');
+    //         Route::delete('/delete/{id}', [LeaveController::class, 'destroy'])->name('leave.delete')->middleware('can:delete-leave');
+    //     });
+    // });
 
     Route::prefix('transaction')->group(function () {
         Route::prefix('work-product')->group(function () {
@@ -339,11 +339,19 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         });
 
         //leave report
+        // Route::prefix('leave-report')->group(function () {
+        //     Route::get('', [LeaveReportController::class, 'index'])->name('leavereport')->middleware('can:read-leave-report');
+        //     Route::get('getdata', [LeaveReportController::class, 'getData'])->name('leavereport.getdata');
+        //     Route::get('/edit/{id}', [LeaveReportController::class, 'show'])->name('leavereport.edit')->middleware('can:read-leave-report');
+        //     Route::put('/update/{id}', [LeaveReportController::class, 'update'])->name('leavereport.update');
+        // });
         Route::prefix('leave-report')->group(function () {
             Route::get('', [LeaveReportController::class, 'index'])->name('leavereport')->middleware('can:read-leave-report');
             Route::get('getdata', [LeaveReportController::class, 'getData'])->name('leavereport.getdata');
-            Route::get('/edit/{id}', [LeaveReportController::class, 'show'])->name('leavereport.edit')->middleware('can:read-leave-report');
+            Route::post('store', [LeaveReportController::class, 'store'])->name('leavereport.store');
+            Route::get('/edit/{id}', [LeaveReportController::class, 'show'])->name('leavereport.edit')->middleware('can:update-leave-report');
             Route::put('/update/{id}', [LeaveReportController::class, 'update'])->name('leavereport.update');
+            Route::delete('/delete/{id}', [LeaveReportController::class, 'destroy'])->name('leavereport.delete')->middleware('can:delete-leave-report');
         });
 
         //task report

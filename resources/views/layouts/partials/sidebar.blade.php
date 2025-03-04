@@ -139,7 +139,7 @@
                     </a>
                 </li> --}}
 
-                @canany(['read-leave'])
+                {{-- @canany(['read-leave'])
                     <li class="menu-title">Pengajuan</li>
                     @can('read-leave')
                         <li>
@@ -149,8 +149,9 @@
                             </a>
                         </li>
                     @endcan
-                @endcanany
+                @endcanany --}}
                 
+                <li class="menu-title">Laporan</li>
                 @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
                 <li>
                     <a href="javascript: void(0);" class="has-arrow">
