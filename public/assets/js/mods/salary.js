@@ -30,6 +30,14 @@ $(document).ready(function () {
             name: "salary_month",
         },
         {
+            data: "basic_salary_amount",
+            name: "basic_salary_amount",
+        },
+        {
+            data: "bonus",
+            name: "bonus",
+        },
+        {
             data: "allowance",
             name: "allowance",
         },
@@ -68,7 +76,24 @@ $(document).ready(function () {
         },
         processing: true,
         serverSide: true,
-        ajax: route,
+        ajax: {
+            url: route,
+            data: function (d) {
+                d.month = $('#filter_month').val();
+                d.year = $('#filter_year').val();
+            },
+        },
         columns: columns,
+    });
+
+    // Filter data
+    $('#btn-filter').click(function() {
+        $("#scroll-sidebar-datatable").DataTable().ajax.reload();
+    });
+
+    // Sync filter values to export modal
+    $('#export-button').click(function() {
+        $('#month').val($('#filter_month').val());
+        $('#year').val($('#filter_year').val());
     });
 });

@@ -43,6 +43,48 @@
                         </div>
                     @endcan
                     <div class="card-body">
+                        <div class="row align-items-end g-3 mb-5">
+                            <div class="col-12 col-md-3">
+                                <label class="form-label" for="filter_month">Bulan</label>
+                                <select id="filter_month" class="form-select">
+                                    <option value="">Semua Bulan</option>
+                                    <option value="1">Januari</option>
+                                    <option value="2">Februari</option>
+                                    <option value="3">Maret</option>
+                                    <option value="4">April</option>
+                                    <option value="5">Mei</option>
+                                    <option value="6">Juni</option>
+                                    <option value="7">Juli</option>
+                                    <option value="8">Agustus</option>
+                                    <option value="9">September</option>
+                                    <option value="10">Oktober</option>
+                                    <option value="11">November</option>
+                                    <option value="12">Desember</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label" for="filter_year">Tahun</label>
+                                <select id="filter_year" class="form-select">
+                                    <option value="">Semua Tahun</option>
+                                    @for ($i = date('Y'); $i >= date('Y') - 5; $i--)
+                                        <option value="{{ $i }}">{{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2">
+                                <button id="btn-filter" class="btn btn-primary">Filter</button>
+                            </div>
+                            @can('export-salary')
+                                <div class="col-12 col-md-4">
+                                    <div class="d-flex justify-content-end">
+                                        <button data-bs-toggle="modal" data-bs-target="#modal8" id="export-button"
+                                            class="btn btn-outline-success">
+                                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            @endcan
+                        </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('salary.getdata') }}"
@@ -51,11 +93,13 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama Karyawan</th>
+                                    <th>Bulan</th>
                                     <th>Gaji Pokok</th>
+                                    <th>Bonus</th>
                                     <th>Tunjangan</th>
                                     <th>Potongan</th>
                                     <th>Total Gaji</th>
-                                    @canany(['read-salary','update-salary', 'delete-salary'])
+                                    @canany(['read-salary', 'update-salary', 'delete-salary'])
                                         <th>Action</th>
                                     @endcanany
                                 </tr>
@@ -67,7 +111,60 @@
         </div>
     </div>
 
-
+    <div class="modal fade" id="modal8" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Export Laporan Gaji</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('salary.export') }}" method="GET">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="month" class="form-label">Bulan</label>
+                                    <select name="month" id="month" class="form-select">
+                                        <option value="">Semua Bulan</option>
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="year" class="form-label">Tahun</label>
+                                    <select name="year" id="year" class="form-select">
+                                        <option value="">Semua Tahun</option>
+                                        @for ($i = date('Y'); $i >= date('Y') - 5; $i--)
+                                            <option value="{{ $i }}">{{ $i }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-file-excel me-1"></i> Export
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
