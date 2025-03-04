@@ -98,6 +98,7 @@ class RoleSeeder extends Seeder
             'create-activity-report',
             'update-activity-report',
             'delete-activity-report',
+            'export-activity-report',
             //customer
             'read-customer',
             'create-customer',

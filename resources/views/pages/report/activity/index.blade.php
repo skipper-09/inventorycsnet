@@ -38,10 +38,27 @@
                 <div class="card">
                     @can('create-activity-report')
                         <div class="card-header">
-                            <a href="{{ route('activityreport.add') }}" class="btn btn-primary btn-sm">Tambah {{ $title }}</a>
+                            <a href="{{ route('activityreport.add') }}" class="btn btn-primary btn-sm">Tambah
+                                {{ $title }}</a>
                         </div>
                     @endcan
                     <div class="card-body">
+                        <div class="row align-items-end g-3 mb-5">
+                            <div class="col-12 col-md-4">
+                                <label class="form-label" for="created_at">Filter Tanggal</label>
+                                <input type="date" id="created_at" class="form-control" />
+                            </div>
+                            @can('export-activity-report')
+                                <div class="col-12 col-md-8">
+                                    <div class="d-flex justify-content-end">
+                                        <button data-bs-toggle="modal" data-bs-target="#modal8" id="export-button"
+                                            class="btn btn-outline-success">
+                                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                                        </button>
+                                    </div>
+                                </div>
+                            @endcan
+                        </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('activityreport.getdata') }}"
@@ -50,6 +67,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
+                                    <th>Jabatan</th>
                                     <th>Laporan</th>
                                     <th>Tanggal Dibuat</th>
                                     @canany(['update-activity-report', 'delete-activity-report'])
@@ -64,7 +82,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="viewActivityReportModal" tabindex="-1" role="dialog" aria-labelledby="viewActivityReportModalLabel" aria-hidden="true">
+    <div class="modal fade" id="viewActivityReportModal" tabindex="-1" role="dialog"
+        aria-labelledby="viewActivityReportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header d-flex justify-content-between">
@@ -82,7 +101,42 @@
             </div>
         </div>
     </div>
-    
+
+    <div class="modal fade" id="modal8" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Export Laporan Aktivitas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('activityreport.export') }}" method="GET">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="date_from" class="form-label">Tanggal Mulai</label>
+                                    <input type="date" name="date_from" id="date_from" class="form-control">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="date_to" class="form-label">Tanggal Selesai</label>
+                                    <input type="date" name="date_to" id="date_to" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-file-excel me-1"></i> Export
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')

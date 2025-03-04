@@ -40,7 +40,9 @@
                         <!-- Filters -->
                         <div class="row mb-3">
                             <div class="col-md-4">
-                                <label for="FilterAssignment">Tanggal Penugasan</label>
+                                <label class="form-label" for="FilterAssignment">
+                                    Filter Tanggal Penugasan
+                                </label>
                                 <input type="date" id="FilterAssignment" class="form-control" />
                             </div>
                             {{-- <div class="col-md-4">

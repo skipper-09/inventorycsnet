@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Exports\ActivityReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\FreeReport;
 use App\Models\User;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class FreeReportController extends Controller
@@ -36,11 +38,9 @@ class FreeReportController extends Controller
             $query->where('user_id', $currentUser->id);
         }
 
-        // Apply any additional filters if needed
-        // For example, if you have a date filter:
-        // if ($request->filled('created_at')) {
-        //     $query->whereDate('created_at', $request->input('created_at'));
-        // }
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
+        }
 
         $data = $query->with('user')->get();
 
@@ -97,8 +97,10 @@ class FreeReportController extends Controller
                 return formatDate($data->created_at);
             })->addColumn('user_name', function ($freeReport) use ($userRole) {
                 return $userRole != 'Employee' ? $freeReport->user->name : '';
+            })->addColumn('position_name', function ($freeReport) use ($userRole) {
+                return $userRole != 'Employee' ? $freeReport->user->employee->position->name : '';
             })
-            ->rawColumns(['action', 'user_name'])
+            ->rawColumns(['action', 'user_name', 'position_name'])
             ->make(true);
     }
 
@@ -199,6 +201,65 @@ class FreeReportController extends Controller
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $currentUser = Auth::user();
+            $userRole = $currentUser->role;
+
+            // Base query
+            $query = FreeReport::query();
+
+            // Apply role-based filtering
+            if ($userRole == 'Employee') {
+                $query->where('user_id', $currentUser->id);
+            }
+
+            // Apply date filter if provided
+            if ($request->filled('date_from') && $request->filled('date_to')) {
+                $query->whereBetween('created_at', [
+                    $request->input('date_from') . ' 00:00:00',
+                    $request->input('date_to') . ' 23:59:59'
+                ]);
+            } elseif ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->input('date_from'));
+            } elseif ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->input('date_to'));
+            } elseif ($request->filled('created_at')) {
+                // Support for single date filtering from the main page
+                $query->whereDate('created_at', $request->input('created_at'));
+            }
+
+            // Get data with necessary relationships
+            $data = $query->with(['user.employee.position'])->get();
+            
+            // Generate filename with timestamp
+            $fileName = 'laporan_aktivitas_';
+            
+            // Add date range to filename if specified
+            if ($request->filled('date_from') && $request->filled('date_to')) {
+                $fileName .= $request->input('date_from') . '_to_' . $request->input('date_to') . '_';
+            } elseif ($request->filled('date_from')) {
+                $fileName .= 'from_' . $request->input('date_from') . '_';
+            } elseif ($request->filled('date_to')) {
+                $fileName .= 'to_' . $request->input('date_to') . '_';
+            } elseif ($request->filled('created_at')) {
+                $fileName .= $request->input('created_at') . '_';
+            }
+            
+            $fileName .= now()->format('His') . '.xlsx';
+            
+            return Excel::download(new ActivityReportExport($data, $userRole), $fileName);
+        } catch (Exception $e) {
+            Log::error('Export error: ' . $e->getMessage());
+            
+            return redirect()->route('activityreport')->with([
+                'status' => 'Error!', 
+                'message' => 'Gagal mengekspor laporan aktivitas: ' . $e->getMessage()
+            ]);
         }
     }
 }
