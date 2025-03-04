@@ -333,6 +333,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [FreeReportController::class, 'show'])->name('activityreport.edit')->middleware('can:update-activity-report');
             Route::put('/update/{id}', [FreeReportController::class, 'update'])->name('activityreport.update');
             Route::delete('/delete/{id}', [FreeReportController::class, 'destroy'])->name('activityreport.delete')->middleware('can:delete-activity-report');
+            Route::get('/export', [FreeReportController::class, 'export'])->name('activityreport.export')->middleware('can:export-activity-report');
         });
 
         //leave report

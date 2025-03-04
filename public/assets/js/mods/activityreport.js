@@ -26,6 +26,10 @@ $(document).ready(function () {
             name: "user_name",
         },
         {
+            data: "position_name",
+            name: "position_name",
+        },
+        {
             data: "report_activity",
             name: "report_activity",
         },
@@ -60,7 +64,12 @@ $(document).ready(function () {
         },
         processing: true,
         serverSide: true,
-        ajax: route,
+        ajax: {
+            url: route,
+            data: function (d) {
+                d.created_at = $("#created_at").val();  // Capture the filter value for created_at
+            },
+        },
         columns: columns,
     });
 
@@ -68,5 +77,16 @@ $(document).ready(function () {
         var activity = $(this).data("report_activity");
         $("#fullActivityReport").html(activity);
     });
+
+    $('#export-button').click(function() {
+        const currentDate = $('#created_at').val();
+        if (currentDate) {
+            $('#date_from').val(currentDate);
+            $('#date_to').val(currentDate);
+        }
+    });
     
+    $("#created_at").on("change", function () {
+        $("#scroll-sidebar-datatable").DataTable().ajax.reload();
+    });
 });
