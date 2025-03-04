@@ -18,7 +18,7 @@ class TransactionProductController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Laporan Transaksi Barang',
+            'title' => 'Laporan Penggunaan Barang',
             'transaksi' => Transaction::all(),
             'product' => Product::all(),
             'purposes' => Transaction::select('purpose')->distinct()->pluck('purpose'),

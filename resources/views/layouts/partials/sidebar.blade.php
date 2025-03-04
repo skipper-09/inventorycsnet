@@ -188,11 +188,11 @@
                     <ul class="sub-menu" aria-expanded="false">
                         @can('read-transaction-product')
                             <li><a href="{{ route('report.transaction-product') }}"><i
-                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Penggunaan Barang</a></li>
                         @endcan
                         @can('read-transfer-product')
                             <li><a href="{{ route('transfer') }}"><i
-                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Pemindahan Barang</a></li>
                         @endcan
                     </ul>
                 </li>
