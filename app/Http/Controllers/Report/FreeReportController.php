@@ -28,21 +28,23 @@ class FreeReportController extends Controller
     public function getData(Request $request)
     {
         $currentUser = Auth::user();
-        $userRole = $currentUser->role;
+        $currentUserRole = $currentUser->roles->first()?->name;
 
-        // Base query
-        $query = FreeReport::query();
+        // Base query with user relationship for all queries
+        $query = FreeReport::with('user');
 
         // Apply role-based filtering
-        if ($userRole == 'Employee') {
+        if (!($currentUserRole == 'Developer' || $currentUserRole == 'Administrator')) {
+            // Non-admin users can only see their own reports
             $query->where('user_id', $currentUser->id);
         }
+        // For Developer and Administrator, get all records (no filtering)
 
         if ($request->filled('created_at')) {
             $query->whereDate('created_at', $request->input('created_at'));
         }
 
-        $data = $query->with('user')->get();
+        $data = $query->get();
 
         return DataTables::of($data)
             ->addIndexColumn()
@@ -54,39 +56,39 @@ class FreeReportController extends Controller
 
                 if (strlen($stripped) > 50) {
                     $button .= ' <button class="btn btn-sm btn-info show-full-activity" 
-                        data-bs-toggle="modal" 
-                        data-bs-target="#viewActivityReportModal" 
-                        data-report_activity="' . htmlspecialchars($freeReport->report_activity, ENT_QUOTES) . '" 
-                        data-toggle="tooltip" 
-                        data-placement="bottom" 
-                        title="View Activity">
-                        <i class="fas fa-eye"></i>
-                    </button>';
+                data-bs-toggle="modal" 
+                data-bs-target="#viewActivityReportModal" 
+                data-report_activity="' . htmlspecialchars($freeReport->report_activity, ENT_QUOTES) . '" 
+                data-toggle="tooltip" 
+                data-placement="bottom" 
+                title="View Activity">
+                <i class="fas fa-eye"></i>
+            </button>';
                 }
 
 
                 if ($userauth->can(abilities: 'update-activity-report')) {
                     $button .= '<a href="' . route('activityreport.edit', ['id' => $freeReport->id]) . '"
-                              class="btn btn-sm btn-success"
-                              data-id="' . $freeReport->id . '"
-                              data-type="edit"
-                              data-toggle="tooltip"
-                              data-placement="bottom"
-                              title="Edit Data">
-                              <i class="fas fa-pen"></i>
-                          </a>';
+                      class="btn btn-sm btn-success"
+                      data-id="' . $freeReport->id . '"
+                      data-type="edit"
+                      data-toggle="tooltip"
+                      data-placement="bottom"
+                      title="Edit Data">
+                      <i class="fas fa-pen"></i>
+                  </a>';
                 }
 
                 if ($userauth->can('delete-activity-report')) {
                     $button .= ' <button class="btn btn-sm btn-danger action"
-                                      data-id="' . $freeReport->id . '"
-                                      data-type="delete"
-                                      data-route="' . route('activityreport.delete', ['id' => $freeReport->id]) . '"
-                                      data-toggle="tooltip"
-                                      data-placement="bottom"
-                                      title="Delete Data">
-                                  <i class="fas fa-trash-alt"></i>
-                              </button>';
+                              data-id="' . $freeReport->id . '"
+                              data-type="delete"
+                              data-route="' . route('activityreport.delete', ['id' => $freeReport->id]) . '"
+                              data-toggle="tooltip"
+                              data-placement="bottom"
+                              title="Delete Data">
+                          <i class="fas fa-trash-alt"></i>
+                      </button>';
                 }
 
                 return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -95,10 +97,10 @@ class FreeReportController extends Controller
                 return Str::limit($stripped, limit: 100);
             })->editColumn('created_at', function ($data) {
                 return formatDate($data->created_at);
-            })->addColumn('user_name', function ($freeReport) use ($userRole) {
-                return $userRole != 'Employee' ? $freeReport->user->name : '';
-            })->addColumn('position_name', function ($freeReport) use ($userRole) {
-                return $userRole != 'Employee' ? $freeReport->user->employee->position->name : '';
+            })->addColumn('user_name', function ($freeReport)  {
+                return $freeReport->user->name ?? '-';
+            })->addColumn('position_name', function ($freeReport) {
+                return $freeReport->user->employee->position->name ?? '-';
             })
             ->rawColumns(['action', 'user_name', 'position_name'])
             ->make(true);
@@ -146,9 +148,9 @@ class FreeReportController extends Controller
     public function show($id)
     {
         $currentUser = Auth::user();
-        $userRole = $currentUser->role;
+        $currentUserRole = $currentUser->roles->first()?->name;
 
-        if ($userRole == 'Employee') {
+        if ($currentUserRole == 'Employee') {
             $freeReport = FreeReport::where('user_id', $currentUser->id)->find($id);
         } else {
             $freeReport = FreeReport::find($id);
@@ -208,13 +210,13 @@ class FreeReportController extends Controller
     {
         try {
             $currentUser = Auth::user();
-            $userRole = $currentUser->role;
+            $currentUserRole = $currentUser->roles->first()?->name;
 
             // Base query
             $query = FreeReport::query();
 
             // Apply role-based filtering
-            if ($userRole == 'Employee') {
+            if ($currentUserRole == 'Employee') {
                 $query->where('user_id', $currentUser->id);
             }
 
@@ -235,10 +237,10 @@ class FreeReportController extends Controller
 
             // Get data with necessary relationships
             $data = $query->with(['user.employee.position'])->get();
-            
+
             // Generate filename with timestamp
             $fileName = 'laporan_aktivitas_';
-            
+
             // Add date range to filename if specified
             if ($request->filled('date_from') && $request->filled('date_to')) {
                 $fileName .= $request->input('date_from') . '_to_' . $request->input('date_to') . '_';
@@ -249,15 +251,15 @@ class FreeReportController extends Controller
             } elseif ($request->filled('created_at')) {
                 $fileName .= $request->input('created_at') . '_';
             }
-            
+
             $fileName .= now()->format('His') . '.xlsx';
-            
-            return Excel::download(new ActivityReportExport($data, $userRole), $fileName);
+
+            return Excel::download(new ActivityReportExport($data, $currentUserRole), $fileName);
         } catch (Exception $e) {
             Log::error('Export error: ' . $e->getMessage());
-            
+
             return redirect()->route('activityreport')->with([
-                'status' => 'Error!', 
+                'status' => 'Error!',
                 'message' => 'Gagal mengekspor laporan aktivitas: ' . $e->getMessage()
             ]);
         }
