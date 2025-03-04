@@ -239,9 +239,9 @@ class RoleSeeder extends Seeder
 
         $employee->givePermissionTo([
             'read-dashboard',
-            'read-leave',
-            'create-leave',
-            'update-leave',
+            'read-leave-report',
+            'create-leave-report',
+            'update-leave-report',
             //assigment Data
             'read-assigmentdata',
             'create-assigmentdata',
