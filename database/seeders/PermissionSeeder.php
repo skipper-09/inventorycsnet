@@ -74,10 +74,10 @@ class PermissionSeeder extends Seeder
             'update-position',
             'delete-position',
             //leave
-            'read-leave',
-            'create-leave',
-            'update-leave',
-            'delete-leave',
+            // 'read-leave',
+            // 'create-leave',
+            // 'update-leave',
+            // 'delete-leave',
             //leave report
             'read-leave-report',
             'create-leave-report',
