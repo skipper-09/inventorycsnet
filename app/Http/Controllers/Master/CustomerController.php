@@ -35,12 +35,21 @@ class CustomerController extends Controller
     {
         $data = Customer::with('transaction', 'zone', 'branch')->orderByDesc('id')->get();
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
-            // $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
+
+            if ($userauth->can('update-customer')) {
             $button .= ' <a href="' . route('customer.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+            }
+
+            if ($userauth->can('read-customer')) {
             $button .= ' <a href="' . route('customer.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+            }
+
+            if ($userauth->can('delete-customer')) {
             $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
+            }
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->editColumn('branch', function ($data) {
             return $data->branch->name;

@@ -21,47 +21,59 @@ class RoleSeeder extends Seeder
         $employee = Role::create(['name' => 'Employee']);
 
         $developer->givePermissionTo([
+            // Dashboard
             'read-dashboard',
+            // Branch
             'read-branch',
             'create-branch',
             'update-branch',
             'delete-branch',
+            // ODP
             'read-odp',
             'create-odp',
             'update-odp',
             'delete-odp',
+            // Product
             'read-product',
             'create-product',
             'update-product',
             'delete-product',
+            // Unit Product
             'read-unit-product',
             'create-unit-product',
             'update-unit-product',
             'delete-unit-product',
+            // Zone
             'read-zone',
             'delete-zone',
             'read-zone-odp',
             'delete-zone-odp',
+            // Product Role
             'read-product-role',
             'create-product-role',
             'update-product-role',
             'delete-product-role',
+            // Deduction
             'read-deduction',
             'create-deduction',
             'update-deduction',
             'delete-deduction',
+            // Deduction Type
             'read-deduction-type',
             'create-deduction-type',
             'update-deduction-type',
             'delete-deduction-type',
+            // Allowance
             'read-allowance',
             'create-allowance',
             'update-allowance',
             'delete-allowance',
+            // Allowance Type
             'read-allowance-type',
             'create-allowance-type',
             'update-allowance-type',
             'delete-allowance-type',
+            // Position
             'read-position',
             'create-position',
             'update-position',
@@ -86,6 +98,11 @@ class RoleSeeder extends Seeder
             'create-activity-report',
             'update-activity-report',
             'delete-activity-report',
+            //customer
+            'read-customer',
+            'create-customer',
+            'update-customer',
+            'delete-customer',
             //departement
             'read-department',
             'create-department',
@@ -126,22 +143,25 @@ class RoleSeeder extends Seeder
             'create-salary',
             'update-salary',
             'delete-salary',
-            // Transaction
+            // Transfer Product
             'read-transfer-product',
             'create-transfer-product',
             'update-transfer-product',
             'delete-transfer-product',
+            // Work Product
             'read-work-product',
             'create-work-product',
             'update-work-product',
             'delete-work-product',
+            // Transaction Product
             'read-transaction-product',
             'export-transaction-product',
-            // Setting
+            // User
             'read-user',
             'create-user',
             'update-user',
             'delete-user',
+            // Role
             'read-role',
             'create-role',
             'update-role',

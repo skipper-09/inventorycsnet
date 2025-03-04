@@ -97,4 +97,16 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/activityreport.js') }}"></script>
+
+    <script>
+        @if (Session::has('message'))
+            Swal.fire({
+                title: `{{ Session::get('status') }}`,
+                text: `{{ Session::get('message') }}`,
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
+    </script>
 @endpush

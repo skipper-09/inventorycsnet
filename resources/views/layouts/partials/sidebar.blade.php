@@ -124,13 +124,13 @@
                         </ul>
                     </li>
                 @endcanany
-
+                {{-- 
                 <li>
                     <a href="{{ route('formbuilder') }}" class="">
                         <i class="fas fa-user-alt"></i>
                         <span>Form Template</span>
                     </a>
-                </li>
+                </li> --}}
 
                 {{-- <li>
                     <a href="{{ route('customer') }}" class="">
@@ -200,22 +200,32 @@
                     @endcan
                 @endcanany
 
-                <li>
-                    <a href="javascript: void(0);" class="has-arrow ">
-                        <i class="fa fa-box"></i>
-                        <span>Laporan Barang</span>
-                    </a>
-                    <ul class="sub-menu" aria-expanded="false">
-                        <li><a href="{{ route('report.transaction-product') }}"><i
-                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
-                        <li><a href="{{ route('transfer') }}"><i
-                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
-                        <li><a href="{{ route('customer') }}"><i
-                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
-                        <li><a href="{{ route('activityreport') }}"><i
-                                    class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
-                    </ul>
-                </li>
+                @canany(['read-transaction-product', 'read-transfer-product', 'read-customer', 'read-activity-report'])
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow ">
+                            <i class="fa fa-box"></i>
+                            <span>Laporan Barang</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @can('read-transaction-product')
+                                <li><a href="{{ route('report.transaction-product') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Transaksi Barang</a></li>
+                            @endcan
+                            @can('read-transfer-product')
+                                <li><a href="{{ route('transfer') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Transfer Barang</a></li>
+                            @endcan
+                            @can('read-customer')
+                                <li><a href="{{ route('customer') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
+                            @endcan
+                            @can('read-activity-report')
+                                <li><a href="{{ route('activityreport') }}"><i
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
 
 
                 {{-- <li class="menu-title">Laporan</li>
@@ -236,7 +246,7 @@
                     </ul>
                 </li> --}}
 
-                @canany(['read-user', 'read-role', 'read-setting','read-activity-log'])
+                @canany(['read-user', 'read-role', 'read-setting', 'read-activity-log'])
                     <li class="menu-title">SETTINGS</li>
                     @can('read-user')
                         <li>
