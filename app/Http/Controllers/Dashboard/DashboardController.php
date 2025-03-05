@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\BranchProductStock;
 use App\Models\Employee;
+use App\Models\EmployeeTask;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Models\Activity;
 
 class DashboardController extends Controller
 {
@@ -23,24 +25,26 @@ class DashboardController extends Controller
         if ($currentUserRole !== 'Employee') {
             // Data untuk admin atau role lainnya
             $branches = Branch::all()->keyBy('id');
-            $branchProductStocks = BranchProductStock::with('branch', 'product')
-                ->get()
-                ->groupBy('branch_id');
-
-            $branchNames = [];
-            $productStocks = [];
             $products = Product::all()->keyBy('id');
-            $productNames = $products->pluck('name')->toArray();
 
-            foreach ($branchProductStocks as $branchId => $stocks) {
-                $branch = $branches->get($branchId);
-                $branchNames[] = $branch->name;
-                $productStocksForBranch = array_fill(0, count($products), 0);
-                foreach ($stocks as $stock) {
-                    $productStocksForBranch[$stock->product_id - 1] = $stock->stock;
-                }
-                $productStocks[] = $productStocksForBranch;
-            }
+            // Mengambil semua data laporan task terbaru hari ini
+            $latestTaskReport = EmployeeTask::with([
+                'employee',
+                'taskAssign',
+                'taskDetail.task'
+            ])
+            ->whereHas('taskAssign', function($query) {
+                $query->where('assign_date', '>=', now()->subHours(24));
+            })
+            ->orderByDesc('id')
+            ->get();
+
+            // Mengambil semua data activity log terbaru
+            $latestActivityLog = Activity::with('causer')
+                ->orderByDesc('created_at')
+
+                ->get();
+
 
             // Menentukan ucapan berdasarkan waktu
             $hour = date('H');
@@ -56,9 +60,8 @@ class DashboardController extends Controller
 
             $data = [
                 'title' => 'Dashboard',
-                'branchNames' => $branchNames,
-                'productStocks' => $productStocks,
-                'productNames' => $productNames,
+                'latestTaskReport' => $latestTaskReport,
+                'latestActivityLog' => $latestActivityLog,
                 'greeting' => $greeting,
                 'branch' => $branches->count(),
                 'product' => $products->count(),
