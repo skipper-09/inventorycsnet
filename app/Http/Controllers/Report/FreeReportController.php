@@ -135,6 +135,12 @@ class FreeReportController extends Controller
 
             $freeReport->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($freeReport->toArray())
+                ->log("Laporan Aktivitas berhasil dibuat.");
+
             return redirect()->route('activityreport')->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Menambahkan Laporan Aktivitas!'
@@ -174,8 +180,18 @@ class FreeReportController extends Controller
 
         try {
             $freeReport = FreeReport::find($id);
+            $oldFreeReport = $freeReport->toArray();
             $freeReport->report_activity = $request->report_activity;
             $freeReport->save();
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withProperties([
+                'old' => $oldFreeReport,
+                'new' => $freeReport->toArray()
+            ])
+            ->log("Laporan Aktivitas berhasil diperbarui.");
 
             return redirect()->route('activityreport')->with([
                 'status' => 'Success!',
@@ -193,6 +209,11 @@ class FreeReportController extends Controller
             $freeReport = FreeReport::findOrFail($id);
             $freeReport->delete();
 
+            activity()
+            ->causedBy(Auth::user())
+            ->event('deleted')
+            ->withProperties($freeReport->toArray())
+            ->log("Laaporan Aktivitas berhasil dihapus.");
 
             return response()->json([
                 'status' => 'success',

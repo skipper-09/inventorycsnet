@@ -102,7 +102,7 @@ class LeaveReportController extends Controller
                 'message' => 'Data cuti tidak ditemukan',
             ]);
         }
-        
+
         // Jika role selain Employee atau jika milik Employee yang sedang login, tampilkan data cuti
         return response()->json([
             'success' => true,
@@ -149,6 +149,12 @@ class LeaveReportController extends Controller
 
             $leave->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($leave->toArray())
+                ->log("Laporan Cuti berhasil dibuat.");
+
             return response()->json([
                 'success' => true,
                 'status' => 'Success',
@@ -171,6 +177,7 @@ class LeaveReportController extends Controller
 
         // Find the leave record first
         $leave = Leave::findOrFail($id);
+        $oldLeave = $leave->getAttributes();
 
         // Define base validation rules
         $rules = [
@@ -227,6 +234,15 @@ class LeaveReportController extends Controller
                 ]);
             }
 
+            activity()
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withProperties([
+                'old' => $oldLeave,
+                'new' => $leave->toArray()
+            ])
+            ->log("Laporan Cuti berhasil diperbarui.");
+
             return response()->json([
                 'success' => true,
                 'status' => 'Success',
@@ -252,6 +268,13 @@ class LeaveReportController extends Controller
         try {
             $leave = Leave::findOrFail($id);
             $leave->delete();
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('deleted')
+            ->withProperties($leave->toArray())
+            ->log("Laaporan Cuti berhasil dihapus.");
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

@@ -193,7 +193,15 @@ class TransferProductController extends Controller
             // Hubungkan Assign dengan Transaction
             $transfer->update(['assign_id' => $assign->id]);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($transfer)
+                ->event('created')
+                ->withProperties($transfer->toArray())
+                ->log("Pemindahan Barang berhasil dari {$request->from_branch} ke {$request->to_branch}.");
+
             DB::commit();
+
             return redirect()->route('transfer')->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Menambahkan Pemindahan Barang!'
@@ -274,6 +282,8 @@ class TransferProductController extends Controller
                 ->where('type', 'out')
                 ->firstOrFail();
 
+            $oldTransfer = $transfer->toArray();
+
             // Update transfer details
             $transfer->update([
                 'branch_id' => $request->from_branch,
@@ -332,7 +342,18 @@ class TransferProductController extends Controller
                 $transfer->update(['assign_id' => $assign->id]);
             }
 
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($transfer)
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldTransfer,
+                    'new' => $transfer
+                ])
+                ->log("Pemindahan Barang berhasil diupdate.");
+
             DB::commit();
+
             return redirect()->route('transfer')->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Mengupdate Pemindahan Barang!'
@@ -380,6 +401,13 @@ class TransferProductController extends Controller
 
             // Delete the outgoing transfer
             $transfer->delete();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->performedOn($transfer)
+                ->event('deleted')
+                ->withProperties($transfer->toArray())
+                ->log("Pemindahan Barang berhasil dihapus.");
 
             DB::commit();
             return response()->json([

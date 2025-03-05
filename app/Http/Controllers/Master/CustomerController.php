@@ -39,15 +39,15 @@ class CustomerController extends Controller
             $button = '';
 
             if ($userauth->can('update-customer')) {
-            $button .= ' <a href="' . route('customer.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+                $button .= ' <a href="' . route('customer.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
             }
 
             if ($userauth->can('read-customer')) {
-            $button .= ' <a href="' . route('customer.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
+                $button .= ' <a href="' . route('customer.detail', ['id' => $data->id]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
             }
 
             if ($userauth->can('delete-customer')) {
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('customer.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -235,9 +235,32 @@ class CustomerController extends Controller
                     'user_id' => $teknisi
                 ]);
             }
+
+            if ($request->type === 'psb') {
+                activity()
+                    ->causedBy(Auth::user())
+                    ->event('created')
+                    ->log("Pembangunan Sambungan Baru (PSB) berhasil dibuat");
+
+                activity('psb')
+                    ->causedBy(Auth::user())
+                    ->event('created')
+                    ->log("Detail Pembangunan Sambungan Baru (PSB)");
+            } else if ($request->type === 'repair') {
+                activity()
+                    ->causedBy(Auth::user())
+                    ->event('created')
+                    ->log("Perbaikan Pelanggan berhasil dilakukan");
+
+                activity('repair')
+                    ->causedBy(Auth::user())
+                    ->event('created')
+                    ->log("Detail Perbaikan Pelanggan");
+            }
+
             DB::commit();
 
-            return redirect()->route('customer');
+            return redirect()->route('customer')->with('success', 'Data berhasil disimpan.');
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -268,11 +291,11 @@ class CustomerController extends Controller
             'customer' => $customer,
             'product' => $products,
             'technitian' => User::with('employee.position', 'roles')
-            ->whereHas('employee.position', function ($query) {
-                $query->where('name', 'Technitian');  // Filter by position name
-            })
-            ->orderByDesc('id')
-            ->get()
+                ->whereHas('employee.position', function ($query) {
+                    $query->where('name', 'Technitian');  // Filter by position name
+                })
+                ->orderByDesc('id')
+                ->get()
         ];
         return view('pages.report.customer.edit', $data);
     }
@@ -343,6 +366,28 @@ class CustomerController extends Controller
                 }
             }
 
+            if ($request->type === 'psb') {
+                activity()
+                    ->causedBy(Auth::user())
+                    ->event('updated')
+                    ->log("Pembangunan Sambungan Baru (PSB) berhasil diperbarui");
+
+                activity('psb')
+                    ->causedBy(Auth::user())
+                    ->event('updated')
+                    ->log("Detail Pembangunan Sambungan Baru (PSB) diperbarui");
+            } elseif ($request->type === 'repair') {
+                activity()
+                    ->causedBy(Auth::user())
+                    ->event('updated')
+                    ->log("Perbaikan Pelanggan berhasil diperbarui");
+
+                activity('repair')
+                    ->causedBy(Auth::user())
+                    ->event('updated')
+                    ->log("Detail Perbaikan Pelanggan diperbarui");
+            }
+
             DB::commit();
 
             return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
@@ -357,21 +402,12 @@ class CustomerController extends Controller
         }
     }
 
-
-
-
-
     // get data odp dinamis
     public function getOdpByZone($zone_id)
     {
         $odp = Odp::where('zone_id', $zone_id)->get();
         return response()->json($odp);
     }
-
-
-
-
-
 
     //detail
     public function details($id)
@@ -387,8 +423,6 @@ class CustomerController extends Controller
 
         return view('pages.report.customer.detail', $data);
     }
-
-
 
     //destroy data
     public function destroy($id)
@@ -425,7 +459,14 @@ class CustomerController extends Controller
 
             $customer->delete();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($customer->toArray())
+                ->log("Data Pelanggan berhasil dihapus.");
+
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'status' => 'success',
@@ -446,6 +487,4 @@ class CustomerController extends Controller
             ], 500);
         }
     }
-
-
 }
