@@ -1,7 +1,6 @@
 @extends('layouts.base')
 
 @section('title', $title)
-
 @push('css')
     <style>
         .timeline-container {

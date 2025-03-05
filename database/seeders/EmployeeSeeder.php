@@ -19,7 +19,7 @@ class EmployeeSeeder extends Seeder
         $faker = Faker::create();
 
         // Create 10 employees with associated users
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 1; $i++) {
             // Create employee data
             $employee = Employee::create([
                 'department_id' => rand(1, 5), // Assuming there are 5 departments
@@ -39,7 +39,7 @@ class EmployeeSeeder extends Seeder
                 'employee_id' => $employee->id, // Link user to employee
                 'name' => $employee->name,
                 'username' => Str::lower(Str::random(10)), // Random username
-                'email' => $employee->email,
+                'email' => 'gihoc76538@egvoo.com',
                 'password' => Hash::make('password'), // Default password
                 'picture' => 'picture_' . $i . '.jpg', // Use a placeholder for file
                 'is_block' => false, // Default user status

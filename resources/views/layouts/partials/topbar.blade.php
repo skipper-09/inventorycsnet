@@ -46,7 +46,7 @@
                 <!--End App Search-->
 
                 <!-- Start Notification -->
-                {{-- <div class="dropdown d-inline-block">
+                <div class="dropdown d-inline-block">
                     <button type="button" class="btn btn-sm top-icon" id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell align-middle"></i>
                         <span class="btn-marker"><i class="marker marker-dot text-danger"></i><span>
@@ -58,11 +58,12 @@
                                     <h6 class="text-white m-0"><i class="far fa-bell me-2"></i> Notifications </h6>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="#!" class="badge bg-info-subtle text-info"> 8+</a>
+                                    <a href="#!" class="badge bg-info-subtle text-info">{{ count($unreadNotifications) }}</a>
                                 </div>
                             </div>
                         </div>
                         <div data-simplebar style="max-height: 230px;">
+                            @foreach ($unreadNotifications as $notification)
                             <a href="" class="text-reset notification-item">
                                 <div class="d-flex">
                                     <div class="avatar avatar-xs avatar-label-primary me-3">
@@ -71,94 +72,16 @@
                                         </span>
                                     </div>
                                     <div class="flex-1">
-                                        <h6 class="mb-1">New report has been recived</h6>
+                                        <h6 class="mb-1">{{ $notification->data['data'] }}</h6>
                                         <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 3 min ago</p>
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i>{{ $notification->created_at->diffForHumans() }}</p>
                                         </div>
                                     </div>
                                     <i class="mdi mdi-chevron-right align-middle ms-2"></i>
                                 </div>
                             </a>
-                            <a href="" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-success me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-cart-variant"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Last order was completed</h6>
-                                        <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 hour ago</p>
-                                        </div>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
-                            <a href="" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-danger me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-account-group"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Completed meeting canceled</h6>
-                                        <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 5 hour ago</p>
-                                        </div>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
-                            <a href="" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-warning me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-send-outline"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">New feedback received</h6>
-                                        <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 6 hour ago</p>
-                                        </div>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
-                            <a href="" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-secondary me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-download-box"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">New update was available</h6>
-                                        <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 1 day ago</p>
-                                        </div>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
-                            <a href="" class="text-reset notification-item">
-                                <div class="d-flex">
-                                    <div class="avatar avatar-xs avatar-label-info me-3">
-                                        <span class="rounded fs-16">
-                                            <i class="mdi mdi-hexagram-outline"></i>
-                                        </span>
-                                    </div>
-                                    <div class="flex-1">
-                                        <h6 class="mb-1">Your password was changed</h6>
-                                        <div class="fs-12 text-muted">
-                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i> 2 day ago</p>
-                                        </div>
-                                    </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
+                            @endforeach
+                            
                         </div>
                         <div class="p-2 border-top">
                             <div class="d-grid">
@@ -168,7 +91,7 @@
                             </div>
                         </div>
                     </div>
-                </div> --}}
+                </div>
                 <!-- End Notification -->
                 <!-- Start Profile -->
                 <div class="dropdown d-inline-block">

@@ -10,6 +10,7 @@ use App\Models\EmployeeTask;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Activitylog\Models\Activity;
@@ -21,6 +22,7 @@ class DashboardController extends Controller
         $currentUser = Auth::user();
         $currentUserRole = $currentUser->roles->first()?->name;
 
+        $notifications = \Auth::user()->notifications;
         // Untuk role selain 'Employee'
         if ($currentUserRole !== 'Employee') {
             // Data untuk admin atau role lainnya
@@ -157,6 +159,7 @@ class DashboardController extends Controller
             'currentSalary' => $currentSalary,
             'recentLeaves' => $recentLeaves,
             'salaryHistory' => $salaryHistory,
+            'notifications'=>$notifications,
         ];
 
         return view('pages.dashboard.employeedashboard', $data);

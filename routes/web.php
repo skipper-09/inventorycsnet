@@ -44,6 +44,7 @@ Route::get('', function () {
     return redirect()->route('login');
 });
 
+Route::get('/test', [App\Http\Controllers\HomeController::class, 'test']);
 
 Route::prefix('auth')->group(function () {
     Route::get('login', [AuthController::class, 'index'])->name('login')->middleware('guest');

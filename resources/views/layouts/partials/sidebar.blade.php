@@ -89,18 +89,18 @@
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
 
-                            @can('read-deduction')
+                            {{-- @can('read-deduction')
                                 <li><a href="{{ route('deduction') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Deduksi</a></li>
-                            @endcan
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Potongan</a></li>
+                            @endcan --}}
                             @can('read-deduction-type')
                                 <li><a href="{{ route('deductiontype') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Deduksi</a></li>
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jenis Potongan</a></li>
                             @endcan
-                            @can('read-allowance')
+                            {{-- @can('read-allowance')
                                 <li><a href="{{ route('allowance') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
-                            @endcan
+                            @endcan --}}
                             @can('read-allowance-type')
                                 <li><a href="{{ route('allowancetype') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
