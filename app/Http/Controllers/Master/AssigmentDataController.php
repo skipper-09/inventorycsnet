@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
@@ -173,6 +174,8 @@ class AssigmentDataController extends Controller
             return redirect()->route('assigmentdata');
         } catch (Exception $e) {
             DB::rollBack();
+            Log::error($e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
