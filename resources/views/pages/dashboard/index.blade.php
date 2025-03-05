@@ -179,7 +179,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center">
                                                     <p class="text-muted mb-0">
-                                                        {{ $task->taskDetail->task->name ?? 'N/A' }}
+                                                        {{ $task->taskDetail->task->name ?? 'N/A' }} - {{ $task->taskDetail->name ?? 'N/A' }} 
                                                     </p>
                                                     <span
                                                         class="badge 
