@@ -167,35 +167,33 @@ class TaskReportController extends Controller
     }
 
     public function review($id, Request $request)
-    {
-        try {
-            // Find the employee task
-            $employeeTask = EmployeeTask::findOrFail($id);
+{
+    try {
+        $employeeTask = EmployeeTask::findOrFail($id);
+        $validatedData = $request->validate([
+            'status' => 'required|in:complated,pending,overdue,in_review', // Fix typo here
+            'log' => 'required|string',
+        ]);
 
-            // Validate the request
-            $validatedData = $request->validate([
-                'status' => 'required|in:complated,pending,overdue,in_review',
-                'log' => 'required|string',
-            ]);
+        $employeeTask->status = $validatedData['status'];
+        $employeeTask->save();
 
-            // Update the employee task status
-            $employeeTask->status = $validatedData['status'];
-            $employeeTask->save();
+        employeTaskLog::create([
+            'employe_task_id' => $employeeTask->id, 
+            'log' => 'Tugas direview oleh ' . Auth::user()->name . ' - dengan alasan ' . $validatedData['log'],
+        ]);
 
-            // Create a log entry
-            employeTaskLog::create([
-                'employe_task_id' => $employeeTask->id,
-                'log' => 'Tugas direview oleh ' . Auth::user()->name . ' - dengan alasan ' . $validatedData['log'],
-            ]);
-
-            // Redirect back with success message
-            return redirect()->route('taskreport.details', ['id' => $id])
-                ->with(['status' => 'Success!', 'message' => 'Berhasil Review Tugas!']);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-            // Redirect back with error message
-            return redirect()->route('taskreport.details', ['id' => $id])
-                ->with(['status' => 'Error!', 'message' => 'Gagal Review Tugas!']);
-        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Berhasil Review Tugas!',
+            'redirect_url' => route('taskreport.details', ['id' => $id]), // Send the URL for redirection
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal Review Tugas! ' . $e->getMessage(),
+        ]);
     }
+}
+
 }

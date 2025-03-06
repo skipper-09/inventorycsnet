@@ -257,12 +257,12 @@
                         <h5 class="mb-0 fw-bold">Informasi Tugas</h5>
                     </div>
 
-                    <div class="ms-auto">
+                    {{-- <div class="ms-auto">
                         <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
                             data-bs-target="#reviewTaskModal">
                             <i class="fas fa-clipboard-check me-1"></i>Review Task
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <div class="card-body p-3">
@@ -413,10 +413,17 @@
                                                             {!! $task->getStatus() !!}
                                                         </td>
                                                         <td>
-                                                            <a href="{{ route('taskreport.details', ['id' => $task->id]) }}"
-                                                                class="btn btn-sm {{ $task->id == $employeeTask->id ? 'btn-secondary disabled' : 'btn-info' }}">
-                                                                <i class="fas fa-eye"></i>
-                                                            </a>
+                                                            <div class="d-flex gap-2">
+                                                                <a href="{{ route('taskreport.details', ['id' => $task->id]) }}"
+                                                                    class="btn btn-sm {{ $task->id == $employeeTask->id ? 'btn-secondary disabled' : 'btn-info' }}">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+    
+                                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"  data-route="{{ route('taskreport.review',['id'=>$task->id]) }}"
+                                                                data-bs-target="#reviewTaskModal">
+                                                                <i class="fas fa-clipboard-check me-1"></i>Review Task
+                                                            </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endforeach
