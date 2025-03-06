@@ -145,10 +145,7 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div
-                                                        class="avatar avatar-sm 
-                                                        @if ($task->status == 'completed') avatar-soft-success 
-                                                        @elseif($task->status == 'pending') avatar-soft-warning 
-                                                        @else avatar-soft-danger @endif me-2">
+                                                        class="avatar avatar-sm me-2">
                                                         <span class="avatar-initial rounded-circle">
                                                             {{ substr($task->employee->name ?? 'N', 0, 1) }}
                                                         </span>
@@ -162,13 +159,13 @@
                                             </td>
                                             <td>{{ formatDate($task->taskAssign->assign_date) }}</td>
                                             <td>
-                                                <span
-                                                    class="badge 
-                                                    @if ($task->status == 'completed') bg-success 
-                                                    @elseif($task->status == 'pending') bg-warning 
-                                                    @else bg-danger @endif">
-                                                    {{ $task->status ?? 'Unknown' }}
-                                                </span>
+                                                @if ($task->status == 'complated')
+                                                    <span class="badge badge-success">Completed</span>
+                                                @elseif($task->status == 'pending')
+                                                    <span class="badge badge-warning">Pending</span>
+                                                @else
+                                                    <span class="badge badge-danger">Cancelled</span>
+                                                @endif
                                             </td>
                                         </tr>
                                     @empty
