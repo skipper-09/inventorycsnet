@@ -60,13 +60,19 @@
                                     <h6 class="text-white m-0"><i class="far fa-bell me-2"></i> Notifications </h6>
                                 </div>
                                 <div class="col-auto">
+<<<<<<< HEAD
                                     <a href="#!" class="badge bg-info-subtle text-info">{{ count($unreadNotifications)
                                         }}</a>
+=======
+                                    <a href="#!"
+                                        class="badge bg-info-subtle text-info">{{ count($unreadNotifications) }}</a>
+>>>>>>> 0896882bac64203b1c44f5d66c3fd37813aabba3
                                 </div>
                             </div>
                         </div>
                         <div data-simplebar style="max-height: 230px;">
                             @foreach ($unreadNotifications as $notification)
+<<<<<<< HEAD
                             <a href="" class="text-reset notification-item">
                                 <div class="d-flex">
                                     <div class="avatar avatar-xs avatar-label-primary me-3">
@@ -79,11 +85,26 @@
                                         <div class="fs-12 text-muted">
                                             <p class="mb-0"><i class="mdi mdi-clock-outline"></i>{{
                                                 $notification->created_at->diffForHumans() }}</p>
+=======
+                                <a href="" class="text-reset notification-item">
+                                    <div class="d-flex">
+                                        <div class="avatar avatar-xs avatar-label-primary me-3">
+                                            <span class="rounded fs-16">
+                                                <i class="mdi mdi-file-document-outline"></i>
+                                            </span>
+>>>>>>> 0896882bac64203b1c44f5d66c3fd37813aabba3
                                         </div>
+                                        <div class="flex-1">
+                                            <h6 class="mb-1">{{ $notification->data['data'] }}</h6>
+                                            <div class="fs-12 text-muted">
+                                                <p class="mb-0"><i
+                                                        class="mdi mdi-clock-outline"></i>{{ $notification->created_at->diffForHumans() }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <i class="mdi mdi-chevron-right align-middle ms-2"></i>
                                     </div>
-                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
-                                </div>
-                            </a>
+                                </a>
                             @endforeach
 
                         </div>
@@ -128,7 +149,8 @@
                                 </div>
                             </div>
                             <div class="card-body p-0">
-                                <a href="" class="text-reset notification-item">
+                                <a href="{{ route('setting.profile', Auth::user()->id) }}"
+                                    class="text-reset notification-item">
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-xs avatar-label-primary me-3">
                                             <span class="rounded fs-16">
