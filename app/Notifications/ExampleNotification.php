@@ -32,15 +32,15 @@ class ExampleNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      */
-   public function toMail($notifiable)
-{
-    return (new MailMessage)
-    ->subject('Example Notification')
-    ->greeting('Hello!')
-    ->line('Test isi Notifikasi:'.$this->data)
-    ->action('Notification Action', url('/'))
-    ->salutation('Ini adalah contoh notifikasi dengan mail');
-}
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Example Notification')
+            ->greeting('Hello!')
+            ->line('Test isi Notifikasi:' . $this->data)
+            ->action('Notification Action', url('/'))
+            ->salutation('Ini adalah contoh notifikasi dengan mail');
+    }
 
     /**
      * Get the array representation of the notification.

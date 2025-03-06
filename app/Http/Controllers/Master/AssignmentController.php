@@ -10,6 +10,7 @@ use App\Models\TaskAssign;
 use App\Models\TaskDetail;
 use App\Models\TaskTemplate;
 use App\Models\User;
+use App\Notifications\NotificationJobs;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -86,9 +87,10 @@ class AssignmentController extends Controller
                     'message' => 'Task template not found.'
                 ]);
             }
-
+    
             $assigner = Auth::user();
-
+    
+            // Membuat TaskAssign baru
             $taskassign = TaskAssign::create([
                 "task_template_id" => $request->task,
                 "assignee_id" => $request->type == "departement" ? $request->departement : $request->employee,
@@ -97,7 +99,12 @@ class AssignmentController extends Controller
                 'assign_date' => $request->assign_date,
                 'place' => $request->place,
             ]);
-
+    
+            DB::commit();
+    
+            $taskassign->assignee->notify(new NotificationJobs($taskassign));
+    
+            // Jika tugas ditugaskan ke departemen
             if ($request->type == "departement") {
                 $employees = Employee::where('department_id', $request->departement)->get();
                 if ($employees->isEmpty()) {
@@ -108,7 +115,7 @@ class AssignmentController extends Controller
                         'message' => 'No employees found in the specified department.'
                     ]);
                 }
-
+    
                 foreach ($employees as $employee) {
                     foreach ($tasktemplate->tasks as $task) {
                         $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
@@ -151,8 +158,7 @@ class AssignmentController extends Controller
                     }
                 }
             }
-
-            DB::commit();
+    
             return redirect()->route('assignment');
         } catch (Exception $e) {
             DB::rollBack();
@@ -163,7 +169,7 @@ class AssignmentController extends Controller
             ]);
         }
     }
-
+    
     public function destroy($id)
     {
         try {
