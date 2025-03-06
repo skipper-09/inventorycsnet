@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
 use App\Models\EmployeeTask;
+use App\Models\employeTaskLog;
 use App\Models\Task;
 use App\Models\TaskAssign;
 use App\Models\TaskReport;
 use App\Models\User;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 
 class TaskReportController extends Controller
@@ -89,7 +92,7 @@ class TaskReportController extends Controller
             ->addColumn('location', function ($data) {
                 return $data->taskAssign->place ?? 'N/A';
             })
-            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location','tugas'])
+            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location', 'tugas'])
             ->make(true);
     }
 
@@ -124,7 +127,7 @@ class TaskReportController extends Controller
                 'taskAssign',
                 'taskDetail.task',
                 'taskReports'
-            ])->where('task_assign_id',$task_assign_id)
+            ])->where('task_assign_id', $task_assign_id)
                 ->get()
                 ->groupBy(function ($item) {
                     // Group by assignment date
@@ -146,6 +149,8 @@ class TaskReportController extends Controller
             $progressPercentage = 0;
         }
 
+        $taskReview = employeTaskLog::where('employe_task_id', $id)->get();
+
         // Prepare the data
         $data = [
             "title" => "Task Report Details",
@@ -154,9 +159,43 @@ class TaskReportController extends Controller
             "taskAssign" => $taskAssign,
             "taskReports" => $taskReports,
             "relatedTasks" => $relatedTasks,
-            "progressPercentage" => $progressPercentage
+            "progressPercentage" => $progressPercentage,
+            "taskReview" => $taskReview,
         ];
 
         return view('pages.report.task.details', $data);
+    }
+
+    public function review($id, Request $request)
+    {
+        try {
+            // Find the employee task
+            $employeeTask = EmployeeTask::findOrFail($id);
+
+            // Validate the request
+            $validatedData = $request->validate([
+                'status' => 'required|in:complated,pending,overdue,in_review',
+                'log' => 'required|string',
+            ]);
+
+            // Update the employee task status
+            $employeeTask->status = $validatedData['status'];
+            $employeeTask->save();
+
+            // Create a log entry
+            employeTaskLog::create([
+                'employe_task_id' => $employeeTask->id,
+                'log' => 'Tugas direview oleh ' . Auth::user()->name . ' - dengan alasan ' . $validatedData['log'],
+            ]);
+
+            // Redirect back with success message
+            return redirect()->route('taskreport.details', ['id' => $id])
+                ->with(['status' => 'Success!', 'message' => 'Berhasil Review Tugas!']);
+        } catch (Exception $e) {
+            Log::error($e->getMessage());
+            // Redirect back with error message
+            return redirect()->route('taskreport.details', ['id' => $id])
+                ->with(['status' => 'Error!', 'message' => 'Gagal Review Tugas!']);
+        }
     }
 }

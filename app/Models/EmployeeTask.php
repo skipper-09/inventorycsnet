@@ -34,6 +34,11 @@ class EmployeeTask extends Model
         return $this->hasMany(TaskReport::class, 'employee_task_id', 'id');
     }
 
+    public function employeeTaskLogs()
+    {
+        return $this->hasMany(employeTaskLog::class, 'employee_task_id', 'id');
+    }
+
     public function getStatusBadge($value)
     {
         switch ($value) {

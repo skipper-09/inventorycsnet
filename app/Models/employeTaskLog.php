@@ -9,6 +9,7 @@ class employeTaskLog extends Model
     protected $fillable = [
         'employe_task_id','log'
     ];
+    
     protected $primaryKey = 'id';
 
     public function Employetask(){

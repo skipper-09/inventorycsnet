@@ -360,6 +360,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('', [TaskReportController::class, 'index'])->name('taskreport')->middleware('can:read-task-report');
             Route::get('getdata', [TaskReportController::class, 'getData'])->name('taskreport.getdata');
             Route::get('/detail/{id}', [TaskReportController::class, 'details'])->name('taskreport.details')->middleware('can:read-task-report');
+            Route::post('/{id}/review', [TaskReportController::class, 'review'])->name('taskreport.review');
         });
 
         //transfer product
