@@ -73,13 +73,13 @@
         <div class="page-content-wrapper">
             <div class="row">
                 <div class="col-xl-12">
-                    @if (session('status'))
+                    {{-- @if (session('status'))
                         <div class="alert alert-{{ session('status') == 'Success!' ? 'success' : 'danger' }} alert-dismissible fade show"
                             role="alert">
                             <strong>{{ session('status') }}</strong> {{ session('message') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
-                    @endif
+                    @endif --}}
 
                     <div class="card">
                         <div class="card-body">
@@ -413,44 +413,18 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
 
+    <script src="{{ asset('assets/js/mods/profile.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-advanced.init.js') }}"></script>
 
     <script>
-        function previewImage(input) {
-            const preview = document.getElementById('imagePreview');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                }
-
-                reader.readAsDataURL(input.files[0]);
-            } else {
-                // Don't reset the preview if no new file is selected
-                if (!preview.src.includes('storage/images/user')) {
-                    preview.src = '#';
-                    preview.style.display = 'none';
-                }
-            }
-        }
-
-        // Toggle password visibility
-        document.getElementById('togglePassword').addEventListener('click', function() {
-            const passwordField = document.getElementById('password');
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
-
-        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
-            const passwordField = document.getElementById('password_confirmation');
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            this.querySelector('i').classList.toggle('fa-eye');
-            this.querySelector('i').classList.toggle('fa-eye-slash');
-        });
+        @if (Session::has('message'))
+            Swal.fire({
+                title: `{{ Session::get('status') }}`,
+                text: `{{ Session::get('message') }}`,
+                icon: "{{ session('status') }}" === "Success!" ? "success" : "error",
+                showConfirmButton: false,
+                timer: 1500
+            });
+        @endif
     </script>
 @endpush
