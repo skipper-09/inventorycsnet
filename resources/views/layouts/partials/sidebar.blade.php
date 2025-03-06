@@ -153,16 +153,36 @@
                 @if (Auth::user()->hasRole('Employee'))
                     <li class="menu-title">Laporan</li>
                     @can('read-leave-report')
-                        <li><a href="{{ route('leavereport') }}"><i class="fas fa-file-alt"></i>Cuti Karyawan</a></li>
+                        <li>
+                            <a href="{{ route('leavereport') }}" class="">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Cuti</span>
+                            </a>
+                        </li>
                     @endcan
                     @can('read-task-report')
-                        <li><a href="{{ route('taskreport') }}"><i class="fas fa-tasks"></i>Tugas Karyawan</a></li>
+                        <li>
+                            <a href="{{ route('taskreport') }}" class="">
+                                <i class="fas fa-tasks"></i>
+                                <span>Tugas</span>
+                            </a>
+                        </li>
                     @endcan
                     @can('read-customer')
-                        <li><a href="{{ route('customer') }}"><i class="fas fa-file-invoice"></i>Pelanggan</a></li>
+                        <li>
+                            <a href="{{ route('customer') }}">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Pelanggan</span>
+                            </a>
+                        </li>
                     @endcan
                     @can('read-activity-report')
-                        <li><a href="{{ route('activityreport') }}"><i class="fas fa-chart-line"></i>Aktivitas</a></li>
+                        <li>
+                            <a href="{{ route('activityreport') }}" class="">
+                                <i class="fas fa-chart-line"></i>
+                                <span>Aktivitas</span>
+                            </a>
+                        </li>
                     @endcan
                 @else
                     <li class="menu-title">Laporan</li>
