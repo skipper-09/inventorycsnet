@@ -37,43 +37,82 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <!-- Filters -->
-                        <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label" for="FilterAssignment">
-                                    Filter Tanggal Penugasan
-                                </label>
-                                <input type="date" id="FilterAssignment" class="form-control" />
-                            </div>
-                            {{-- <div class="col-md-4">
-                                <label for="FilterStatus">Status</label>
-                                <select id="FilterStatus" class="form-control select2 filter">
-                                    <option value="">Pilih Status</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="complated">Completed</option>
-                                    <!-- Add other status options here -->
-                                </select>
-                            </div> --}}
-                        </div>
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs mb-3" id="dataTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="today-tab" data-bs-toggle="tab" data-bs-target="#today"
+                                    type="button" role="tab" aria-controls="today" aria-selected="true">Hari
+                                    Ini</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="all-tab" data-bs-toggle="tab" data-bs-target="#all"
+                                    type="button" role="tab" aria-controls="all" aria-selected="false">Semua</button>
+                            </li>
+                        </ul>
 
-                        <!-- Data Table -->
-                        <table id="scroll-sidebar-datatable"
-                            class="table dt-responsive nowrap w-100 table-hover table-striped"
-                            data-route="{{ route('assigmentdata.getDataAssign') }}"
-                            data-has-action-permission="{{ auth()->user()->canany(['update-task-report', 'delete-task-report'])? 'true': 'false' }}">
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Tanggal Penugasan</th>
-                                    <th>Nama Karyawan</th>
-                                    <th>Tugas</th>
-                                    <th>Lokasi</th>
-                                    {{-- @canany(['update-task-report', 'delete-task-report']) --}}
-                                        <th>Action</th>
-                                    {{-- @endcanany --}}
-                                </tr>
-                            </thead>
-                        </table>
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="dataTabsContent">
+                            <!-- Today's Data Tab -->
+                            <div class="tab-pane fade show active" id="today" role="tabpanel"
+                                aria-labelledby="today-tab">
+                                <!-- Filters -->
+                                {{-- <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="FilterAssignment">
+                                            Filter Tanggal Penugasan
+                                        </label>
+                                        <input type="date" id="FilterAssignment" class="form-control" />
+                                    </div>
+                                </div> --}}
+
+                                <!-- Data Table for Today -->
+                                <table id="today-datatable"
+                                    class="table dt-responsive nowrap w-100 table-hover table-striped"
+                                    data-route="{{ route('assigmentdata.getDataAssign') }}?filter=today"
+                                    data-has-action-permission="{{ auth()->user()->canany(['update-task-report', 'delete-task-report'])? 'true': 'false' }}">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Tanggal Penugasan</th>
+                                            <th>Nama Karyawan</th>
+                                            <th>Tugas</th>
+                                            <th>Lokasi</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+                            </div>
+
+                            <!-- All Data Tab -->
+                            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+                                <!-- Filters -->
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label" for="FilterAssignmentAll">
+                                            Filter Tanggal Penugasan
+                                        </label>
+                                        <input type="date" id="FilterAssignmentAll" class="form-control" />
+                                    </div>
+                                </div>
+
+                                <!-- Data Table for All Data -->
+                                <table id="all-datatable" class="table dt-responsive nowrap w-100 table-hover table-striped"
+                                    data-route="{{ route('assigmentdata.getDataAssign') }}?filter=all"
+                                    data-has-action-permission="{{ auth()->user()->canany(['update-task-report', 'delete-task-report'])? 'true': 'false' }}">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Tanggal Penugasan</th>
+                                            <th>Nama Karyawan</th>
+                                            <th>Tugas</th>
+                                            <th>Lokasi</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
                     </div> <!-- end card body -->
                 </div> <!-- end card -->
             </div><!-- end col -->

@@ -26,35 +26,32 @@ class AssigmentDataController extends Controller
         return view('pages.master.assigmentdata.assigment', $data);
     }
 
-
-   
-
-
-
-    //get data task assign
     public function getDataAssign(Request $request)
     {
-       
         $currentUser = Auth::user();
         $currentUserRole = $currentUser->roles->first()?->name;
-        if ($currentUserRole == "Employee") {
+
         $query = EmployeeTask::with([
             'employee',
-            'taskAssign',
+            'taskAssign.tasktemplate',
             'taskDetail.task',
-        ])->where('employee_id',$currentUser->employee_id)->orderByDesc('id');
-        }else{
-            $query = EmployeeTask::with([
-                'employee',
-                'taskAssign',
-                'taskDetail.task',
-            ])->orderByDesc('id');
-        }
-         
+        ]);
 
+        if ($currentUserRole == "Employee") {
+            $query->where('employee_id', $currentUser->employee_id);
+        }
+
+        // Filter by tab type (use input instead of property access for request)
+        if ($request->input('filter') == 'today') {
+            $query->whereHas('taskAssign', function ($q) {
+                $q->whereDate('assign_date', date('Y-m-d'));
+            });
+        }
+
+        // Additional date filter (if provided)
         if ($request->filled('assign_date')) {
             $query->whereHas('taskAssign', function ($q) use ($request) {
-                $q->where('assign_date', $request->input('assign_date'));
+                $q->whereDate('assign_date', $request->input('assign_date'));
             });
         }
 
@@ -69,17 +66,16 @@ class AssigmentDataController extends Controller
         return DataTables::of($flattenedData)
             ->addIndexColumn()
             ->addColumn('action', function ($data) {
-                $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
                 $button .= '<a href="' . route('assigmentdata.detail', ['assignid' => $data->task_assign_id]) . '"
-                class="btn btn-sm btn-info" 
-                data-id="' . $data->id . '"
-                data-type="details"
-                data-toggle="tooltip"
-                data-placement="bottom"
-                title="Details">
-                <i class="fas fa-eye"></i>
-            </a>';
+            class="btn btn-sm btn-info"
+             data-id="' . $data->id . '"
+            data-type="details"
+            data-toggle="tooltip"
+            data-placement="bottom"
+            title="Details">
+            <i class="fas fa-eye"></i>
+        </a>';
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->addColumn('assignment_date', function ($data) {
@@ -94,10 +90,9 @@ class AssigmentDataController extends Controller
             ->addColumn('location', function ($data) {
                 return $data->taskAssign->place ?? 'N/A';
             })
-            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location','tugas'])
+            ->rawColumns(['action', 'employee_name', 'assignment_date', 'location', 'tugas'])
             ->make(true);
     }
-
 
 
     public function show($id)
@@ -114,20 +109,20 @@ class AssigmentDataController extends Controller
     public function update($id, Request $request)
     {
         $request->validate([
-            'before_image' => 'required|string', 
-            'after_image' => 'required|string',  
+            'before_image' => 'required|string',
+            'after_image' => 'required|string',
         ], [
             'before_image.required' => 'Gambar sebelum harus dilengkapi.',
             'after_image.required' => 'Gambar sesudah harus dilengkapi.',
         ]);
-    
+
         DB::beginTransaction();
         try {
             $taskreport = TaskReport::create([
                 'employee_task_id' => $id,
                 'report_content' => $request->report_content,
             ]);
-    
+
             // Handle before image
             $filebefore = '';
             if ($request->input('before_image')) {
@@ -136,11 +131,11 @@ class AssigmentDataController extends Controller
                 $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
                 $imageData = str_replace(' ', '+', $imageData);
                 $image = base64_decode($imageData);
-                $filebefore = 'report_' . rand(0, 999999999) . '.png'; 
-    
+                $filebefore = 'report_' . rand(0, 999999999) . '.png';
+
                 Storage::disk('public')->put('report/' . $filebefore, $image);
             }
-    
+
             // Handle after image
             $fileafter = '';
             if ($request->input('after_image')) {
@@ -149,11 +144,11 @@ class AssigmentDataController extends Controller
                 $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
                 $imageData = str_replace(' ', '+', $imageData);
                 $image = base64_decode($imageData);
-                $fileafter = 'report_' . rand(0, 999999999) . '.png'; 
-    
+                $fileafter = 'report_' . rand(0, 999999999) . '.png';
+
                 Storage::disk('public')->put('report/' . $fileafter, $image);
             }
-    
+
             ReportImage::insert([
                 [
                     "report_task_id" => $taskreport->id,
@@ -166,16 +161,16 @@ class AssigmentDataController extends Controller
                     "image" => $fileafter,
                 ],
             ]);
-    
+
             // Update the task status to completed
             // EmployeeTask::find($id)->update(['status' => 'completed']);
-            
+
             DB::commit();
             return redirect()->route('assigmentdata');
         } catch (Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'status' => "Gagal",
@@ -186,10 +181,11 @@ class AssigmentDataController extends Controller
 
 
 
-    public function Detail($assignid){
+    public function Detail($assignid)
+    {
         $data = [
             'title' => 'Detail Tugas Karyawan',
-            'assign_id'=> $assignid
+            'assign_id' => $assignid
         ];
         return view('pages.master.assigmentdata.index', $data);
     }
@@ -201,20 +197,20 @@ class AssigmentDataController extends Controller
         $currentUserRole = $currentUser->roles->first()?->name;
         $assignid = $request->input('assign_id');
         if ($currentUserRole == "Employee") {
-            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id',$assignid)->where('employee_id',$currentUser->employee_id)->orderByDesc('id')->get();
-        }else{
-            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id',$assignid)->orderByDesc('id')->get();
+            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id', $assignid)->where('employee_id', $currentUser->employee_id)->orderByDesc('id')->get();
+        } else {
+            $data = EmployeeTask::with(['taskDetail', 'employee', 'taskAssign'])->where('task_assign_id', $assignid)->orderByDesc('id')->get();
         }
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
-           
+
             if ($data->status != "complated" && Carbon::parse($data->taskAssign->assign_date)->isToday()) {
                 if ($userauth->can('update-assigmentdata')) {
                     $button .= ' <a href="' . route('assigmentdata.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Report Data"><i class="fas fa-rocket"></i></a>';
                 }
             }
-           
+
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('tugas', function ($data) {
             return $data->taskDetail->name;
@@ -226,12 +222,10 @@ class AssigmentDataController extends Controller
             return $data->taskAssign->place;
         })->addColumn('employee', function ($data) {
             return $data->employee->name;
-        }) ->editColumn('status', function ($data) {
+        })->editColumn('status', function ($data) {
             return $data->getStatus();
         })
-        ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
-        ->make(true);
+            ->rawColumns(['action', 'tugas', 'taskgroup', 'tgl', 'place', 'employee', 'status']) // Add 'status' here
+            ->make(true);
     }
-
-    
 }
