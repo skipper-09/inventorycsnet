@@ -45,9 +45,8 @@ class NotificationJobs extends Notification
             ->line('Departemen: ' . $this->taskassign->assignee->department->name)
             ->action('Lihat Tugas', route('assigmentdata.detail', ['assignid' => $this->taskassign->id]))
             ->line('Harap tinjau tugas dan ambil tindakan yang diperlukan.')
-            ->line('Salam')
-            // ->line('<strong>' . Setting('name') . '</strong>')
-            ->line(''); 
+            ->salutation('Salam '.`\n` . Setting('name') );
+
     }
 
     /**
