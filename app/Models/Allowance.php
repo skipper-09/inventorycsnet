@@ -22,6 +22,6 @@ class Allowance extends Model
 
     public function allowanceType()
     {
-        return $this->belongsTo(AllowanceType::class);
+        return $this->belongsTo(AllowanceType::class, "allowance_type_id");
     }
 }

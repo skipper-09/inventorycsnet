@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
             color: #333;
-            font-size: 11px; /* Reduced font size */
+            font-size: 11px;
         }
 
         .container {
@@ -21,29 +21,33 @@
 
         .header {
             text-align: center;
-            padding: 10px 0; /* Reduced padding */
-            border-bottom: 1px solid #ddd; /* Thinner border */
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .company-logo {
+            margin-bottom: 5px;
         }
 
         .company-name {
-            font-size: 18px; /* Reduced size */
+            font-size: 18px;
             font-weight: bold;
-            margin-bottom: 2px; /* Reduced margin */
+            margin-bottom: 2px;
         }
 
         .company-address {
-            margin-bottom: 2px; /* Reduced margin */
+            margin-bottom: 2px;
         }
 
         .document-title {
-            font-size: 16px; /* Reduced size */
+            font-size: 16px;
             font-weight: bold;
-            margin: 10px 0; /* Reduced margin */
+            margin: 10px 0;
             text-align: center;
         }
 
         .employee-info {
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 15px;
         }
 
         .employee-info table {
@@ -52,33 +56,33 @@
         }
 
         .employee-info td {
-            padding: 3px; /* Reduced padding */
+            padding: 3px;
         }
 
         .row {
             display: flex;
-            margin-bottom: 10px; /* Reduced margin */
+            margin-bottom: 10px;
         }
 
         .col {
             flex: 1;
-            padding: 0 5px; /* Reduced padding */
+            padding: 0 5px;
         }
 
         h3 {
-            margin: 5px 0; /* Reduced margin */
-            font-size: 13px; /* Reduced size */
+            margin: 5px 0;
+            font-size: 13px;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 10px; /* Reduced margin */
+            margin-bottom: 10px;
         }
 
         .table th,
         .table td {
-            padding: 4px; /* Reduced padding */
+            padding: 4px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
@@ -89,9 +93,9 @@
         }
 
         .summary {
-            margin-top: 15px; /* Reduced margin */
-            border-top: 1px solid #ddd; /* Thinner border */
-            padding-top: 10px; /* Reduced padding */
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
         }
 
         .summary-table {
@@ -100,22 +104,22 @@
         }
 
         .summary-table td {
-            padding: 3px; /* Reduced padding */
+            padding: 3px;
         }
 
         .net-salary {
             font-weight: bold;
-            font-size: 14px; /* Reduced size */
+            font-size: 14px;
             color: #2a6496;
         }
 
         .footer {
-            margin-top: 15px; /* Reduced margin */
+            margin-top: 15px;
             text-align: center;
-            font-size: 9px; /* Reduced size */
+            font-size: 9px;
             color: #777;
             border-top: 1px solid #ddd;
-            padding-top: 5px; /* Reduced padding */
+            padding-top: 5px;
         }
 
         .text-right {
@@ -124,7 +128,7 @@
 
         .signature-table {
             width: 100%;
-            margin-top: 15px; /* Reduced margin */
+            margin-top: 14.5rem;
         }
 
         .signature-table td {
@@ -134,11 +138,16 @@
         }
 
         .signature-space {
-            height: 30px; /* Reduced height */
+            height: 30px;
         }
 
         .signature-line {
-            padding-top: 2px; /* Reduced padding */
+            padding-top: 2px;
+        }
+        
+        .subtotal {
+            font-weight: bold;
+            border-top: 1px solid #aaa;
         }
     </style>
 </head>
@@ -147,9 +156,19 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="company-name">{{ $company['name'] }}</div>
-            <div class="company-address">{{ $company['address'] }}</div>
-            <div>{{ $company['phone'] }} | {{ $company['email'] }}</div>
+            <div class="company-logo">
+                @if (function_exists('Setting') && Setting('logo'))
+                    <img src="{{ asset('/storage/' . Setting('logo')) }}" alt="Company Logo">
+                @else
+                    <div style="height: 50px;"></div>
+                @endif
+            </div>
+            <div class="company-name">
+                {{ function_exists('Setting') ? Setting('name') : 'Company Name' }}
+            </div>
+            <div class="company-address">
+                {{ function_exists('Setting') ? Setting('address') : 'Company Address' }}
+            </div>
         </div>
 
         <div class="document-title">SLIP GAJI KARYAWAN</div>
@@ -168,7 +187,7 @@
                 <tr>
                     <td>Departemen</td>
                     <td>:</td>
-                    <td>{{ $employee->department->name }}</td>
+                    <td>{{ $employee->department ? $employee->department->name : '-' }}</td>
                     <td>Tanggal Cetak</td>
                     <td>:</td>
                     <td>{{ date('d/m/Y') }}</td>
@@ -176,7 +195,7 @@
                 <tr>
                     <td>Posisi</td>
                     <td>:</td>
-                    <td>{{ $employee->position->name }}</td>
+                    <td>{{ $employee->position ? $employee->position->name : '-' }}</td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -203,12 +222,35 @@
                             <td class="text-right">Rp {{ number_format($salary->bonus, 0, ',', '.') }}</td>
                         </tr>
                     @endif
-                    @foreach ($allowances as $allowance)
+                </table>
+            </div>
+
+            <!-- Allowances -->
+            <div class="col">
+                <h3>Tunjangan</h3>
+                <table class="table">
+                    <tr>
+                        <th>Deskripsi</th>
+                        <th class="text-right">Jumlah</th>
+                    </tr>
+                    @forelse ($allowances as $allowance)
                         <tr>
-                            <td>Tunjangan {{ $allowance['type'] }}</td>
+                            <td>{{ $allowance['type'] }}</td>
                             <td class="text-right">Rp {{ number_format($allowance['amount'], 0, ',', '.') }}</td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="2" style="text-align: center;">Tidak ada tunjangan</td>
+                        </tr>
+                    @endforelse
+                    
+                    <!-- Only show subtotal if there are allowances -->
+                    @if(count($allowances) > 0)
+                        <tr class="subtotal">
+                            <td>Total Tunjangan</td>
+                            <td class="text-right">Rp {{ number_format($total_allowances, 0, ',', '.') }}</td>
+                        </tr>
+                    @endif
                 </table>
             </div>
 
@@ -220,15 +262,22 @@
                         <th>Deskripsi</th>
                         <th class="text-right">Jumlah</th>
                     </tr>
-                    @foreach ($deductions as $deduction)
+                    @forelse ($deductions as $deduction)
                         <tr>
                             <td>{{ $deduction['type'] }}</td>
                             <td class="text-right">Rp {{ number_format($deduction['amount'], 0, ',', '.') }}</td>
                         </tr>
-                    @endforeach
-                    @if (count($deductions) == 0)
+                    @empty
                         <tr>
                             <td colspan="2" style="text-align: center;">Tidak ada potongan</td>
+                        </tr>
+                    @endforelse
+                    
+                    <!-- Only show subtotal if there are deductions -->
+                    @if(count($deductions) > 0)
+                        <tr class="subtotal">
+                            <td>Total Potongan</td>
+                            <td class="text-right">Rp {{ number_format($total_deductions, 0, ',', '.') }}</td>
                         </tr>
                     @endif
                 </table>
@@ -259,21 +308,18 @@
         </div>
 
         <!-- Signature -->
-        <table class="signature-table" style="margin-top: 21rem;">
+        <table class="signature-table">
             <tr>
-                <td width="66%">Dibuat oleh,</td>
-                <td width="66%">Disetujui oleh,</td>
-                {{-- <td width="33%">Diterima oleh,</td> --}}
+                <td width="50%">Dibuat oleh,</td>
+                <td width="50%">Disetujui oleh,</td>
             </tr>
             <tr>
                 <td class="signature-space"></td>
                 <td class="signature-space"></td>
-                {{-- <td class="signature-space"></td> --}}
             </tr>
             <tr>
                 <td class="signature-line">HRD</td>
                 <td class="signature-line">Owner</td>
-                {{-- <td class="signature-line">{{ $employee->name }}</td> --}}
             </tr>
         </table>
 

@@ -22,6 +22,6 @@ class Deduction extends Model
 
     public function deductionType()
     {
-        return $this->belongsTo(DeductionType::class);
+        return $this->belongsTo(DeductionType::class, "deduction_type_id");
     }
 }

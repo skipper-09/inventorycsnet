@@ -427,71 +427,105 @@ class SalaryController extends Controller
     public function generateSalarySlip($id)
     {
         // Find the salary record
-        $salary = Salary::with('employee')->findOrFail($id);
-
+        $salary = Salary::with(['employee.department', 'employee.position'])->findOrFail($id);
+    
         // Get the salary_month from the salary record
         $salaryMonth = Carbon::parse($salary->salary_month);
-        $year = $salaryMonth->year;
-        $month = $salaryMonth->month;
-
+    
         // Get employee
         $employee = $salary->employee;
-
-        // Get allowances for the specific month using raw DB queries for the date parts
-        $allowances = Allowance::with('allowanceType')
+    
+        // Get allowances for the employee without month/year filtering
+        $allowanceDetails = Allowance::with('allowanceType')
             ->where('employee_id', $employee->id)
-            ->get();
-
-        // Group allowances by type for the slip
-        $grouped_allowances = [];
-        foreach ($allowances as $allowance) {
-            $type = $allowance->allowanceType->name;
-            if (!isset($grouped_allowances[$type])) {
-                $grouped_allowances[$type] = 0;
-            }
-            $grouped_allowances[$type] += $allowance->amount;
-        }
-
-        // Format for view
+            ->get()
+            ->groupBy('allowance_type_id')
+            ->map(function ($group) {
+                return [
+                    'type' => $group->first()->allowanceType->name,
+                    'amount' => $group->sum('amount')
+                ];
+            })
+            ->values();
+    
+        // Get deductions for the employee without month/year filtering
+        $deductionDetails = Deduction::with('deductionType')
+            ->where('employee_id', $employee->id)
+            ->get()
+            ->groupBy('deduction_type_id')
+            ->map(function ($group) {
+                return [
+                    'type' => $group->first()->deductionType->name,
+                    'amount' => $group->sum('amount')
+                ];
+            })
+            ->values();
+    
+        // Format allowances and deductions for view
         $formatted_allowances = [];
-        foreach ($grouped_allowances as $type => $amount) {
-            $formatted_allowances[] = [
-                'type' => $type,
-                'amount' => $amount
-            ];
-        }
-
-        // Get deductions for the specific month using raw DB queries
-        $deductions = Deduction::with('deductionType')
-            ->where('employee_id', $employee->id)
-            ->get();
-
-        // Group deductions by type for the slip
-        $grouped_deductions = [];
-        foreach ($deductions as $deduction) {
-            $type = $deduction->deductionType->name;
-            if (!isset($grouped_deductions[$type])) {
-                $grouped_deductions[$type] = 0;
-            }
-            $grouped_deductions[$type] += $deduction->amount;
-        }
-
-        // Format for view
         $formatted_deductions = [];
-        foreach ($grouped_deductions as $type => $amount) {
-            $formatted_deductions[] = [
-                'type' => $type,
-                'amount' => $amount
-            ];
+    
+        // Track the totals from detailed records
+        $total_allowances_detail = $allowanceDetails->sum('amount');
+        $total_deductions_detail = $deductionDetails->sum('amount');
+    
+        // Process allowances
+        if ($allowanceDetails->count() > 0) {
+            // Use the detailed breakdown
+            $formatted_allowances = $allowanceDetails->toArray();
+    
+            // If there's a difference between detailed total and salary record total,
+            // add an "Other Allowances" entry for the difference
+            if ($total_allowances_detail != $salary->allowance) {
+                $difference = $salary->allowance - $total_allowances_detail;
+                if ($difference != 0) {
+                    $formatted_allowances[] = [
+                        'type' => 'Tunjangan Lainnya',
+                        'amount' => $difference
+                    ];
+                }
+            }
+        } else {
+            // Create a generic entry using the total from salary record
+            if ($salary->allowance > 0) {
+                $formatted_allowances[] = [
+                    'type' => 'Total Tunjangan',
+                    'amount' => $salary->allowance
+                ];
+            }
         }
-
-        // Calculate totals from filtered data
-        $total_allowances = $allowances->sum('amount');
-        $total_deductions = $deductions->sum('amount');
-
-        // Calculate net salary
-        $net_salary = $salary->basic_salary_amount + $total_allowances - $total_deductions + $salary->bonus;
-
+    
+        // Process deductions
+        if ($deductionDetails->count() > 0) {
+            // Use the detailed breakdown
+            $formatted_deductions = $deductionDetails->toArray();
+    
+            // If there's a difference between detailed total and salary record total,
+            // add an "Other Deductions" entry for the difference
+            if ($total_deductions_detail != $salary->deduction) {
+                $difference = $salary->deduction - $total_deductions_detail;
+                if ($difference != 0) {
+                    $formatted_deductions[] = [
+                        'type' => 'Potongan Lainnya',
+                        'amount' => $difference
+                    ];
+                }
+            }
+        } else {
+            // Create a generic entry using the total from salary record
+            if ($salary->deduction > 0) {
+                $formatted_deductions[] = [
+                    'type' => 'Total Potongan',
+                    'amount' => $salary->deduction
+                ];
+            }
+        }
+    
+        // Use the values from the salary record for totals
+        $total_allowances = $salary->allowance;
+        $total_deductions = $salary->deduction;
+        $net_salary = $salary->total_salary;
+    
         // Prepare data for the PDF
         $data = [
             'employee' => $employee,
@@ -502,14 +536,8 @@ class SalaryController extends Controller
             'total_deductions' => $total_deductions,
             'net_salary' => $net_salary,
             'salaryMonth' => $salaryMonth->format('F Y'),
-            'company' => [
-                'name' => config('app.company_name', 'Your Company'),
-                'address' => config('app.company_address', 'Your Company Address'),
-                'phone' => config('app.company_phone', 'Your Company Phone'),
-                'email' => config('app.company_email', 'company@example.com'),
-            ]
         ];
-
+    
         // Generate and stream the PDF
         $pdf = Pdf::loadView('pages.master.salary.salary_slip', $data);
         return $pdf->stream("salary_slip_{$employee->name}_{$salaryMonth->format('Y-m')}.pdf");
