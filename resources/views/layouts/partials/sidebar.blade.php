@@ -53,32 +53,43 @@
                     </li>
                 @endcanany
 
-                @canany(['read-task-template', 'read-task', 'read-assignment', 'read-assigmentdata'])
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow ">
-                            <i class="fas fa-clipboard-list"></i>
-                            <span>Task Master</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
-                            @can('read-task')
-                                <li><a href="{{ route('taskdata') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
-                            @endcan
-                            @can('read-task-template')
-                                <li><a href="{{ route('tasktemplate') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
-                            @endcan
-                            @can('read-assignment')
-                                <li><a href="{{ route('assignment') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
-                            @endcan
-                            @can('read-assigmentdata')
-                                <li><a href="{{ route('assigmentdata') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
-                            @endcan
-                        </ul>
-                    </li>
-                @endcanany
+                @if (Auth::user()->hasRole('Employee'))
+                    @can('read-assigmentdata')
+                        <li>
+                            <a href="{{ route('assigmentdata') }}" class="">
+                                <i class="fas fa-folder"></i>
+                                <span>Tugas Karyawan</span>
+                            </a>
+                        </li>
+                    @endcan
+                @else
+                    @canany(['read-task-template', 'read-task', 'read-assignment', 'read-assigmentdata'])
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow ">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span>Task Master</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                @can('read-task')
+                                    <li><a href="{{ route('taskdata') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
+                                @endcan
+                                @can('read-task-template')
+                                    <li><a href="{{ route('tasktemplate') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
+                                @endcan
+                                @can('read-assignment')
+                                    <li><a href="{{ route('assignment') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
+                                @endcan
+                                @can('read-assigmentdata')
+                                    <li><a href="{{ route('assigmentdata') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
+                                @endcan
+                            </ul>
+                        </li>
+                    @endcanany
+                @endif
 
                 @canany(['read-deduction', 'read-deduction-type', 'read-allowance', 'read-allowance-type',
                     'read-position', 'read-department', 'read-employee', 'read-salary'])
