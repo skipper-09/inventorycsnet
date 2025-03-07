@@ -23,7 +23,15 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('layouts.partials.topbar', function ($view) {
             if (Auth::check()) {
-                $unreadNotifications = Auth::user()->unreadNotifications;
+                if (Auth::user()->hasRole('Developer')) {
+                    $unreadNotifications = Auth::user()->unreadNotifications()->whereNull('read_at')->get();
+                } else {
+                    $unreadNotifications = Auth::user()->unreadNotifications()
+                    ->whereNull('read_at')
+                    ->orderByDesc('created_at')
+                    ->take(10)
+                    ->get();
+                }
                 $view->with('unreadNotifications', $unreadNotifications);
             }
         });

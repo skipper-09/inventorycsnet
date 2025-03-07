@@ -44,7 +44,10 @@ class NotificationJobs extends Notification
             ->line('Posisi: ' . $this->taskassign->assignee->position->name)
             ->line('Departemen: ' . $this->taskassign->assignee->department->name)
             ->action('Lihat Tugas', route('assigmentdata.detail', ['assignid' => $this->taskassign->id]))
-            ->line('Harap tinjau tugas dan ambil tindakan yang diperlukan.');
+            ->line('Harap tinjau tugas dan ambil tindakan yang diperlukan.')
+            ->line('Salam')
+            // ->line('<strong>' . Setting('name') . '</strong>')
+            ->line(''); 
     }
 
     /**
@@ -55,7 +58,13 @@ class NotificationJobs extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'data' => "Tugas Kamu " . $this->taskassign->tasktemplate->name . " Tanggal " . formatDate($this->taskassign->assign_date) . " Lokasi " . $this->taskassign->place
+            'data' => [
+                'message' => "Tugas Kamu " . $this->taskassign->tasktemplate->name .
+                    " Tanggal " . formatDate($this->taskassign->assign_date) .
+                    " Lokasi " . $this->taskassign->place,
+                'route' => route('assigmentdata.detail', ['assignid' => $this->taskassign->id]),
+            ]
         ];
     }
+
 }

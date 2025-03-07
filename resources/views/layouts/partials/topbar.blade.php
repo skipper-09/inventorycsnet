@@ -50,9 +50,9 @@
                     <button type="button" class="btn btn-sm top-icon" id="page-header-notifications-dropdown"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-bell align-middle"></i>
-                        @if (count($unreadNotifications) != 0)
+                        @if ($unreadNotifications->isNotEmpty())
                         <span class="btn-marker"><i class="marker marker-dot text-danger"></i><span>
-                        @endif
+                                @endif
                     </button>
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-md dropdown-menu-end p-0"
                         aria-labelledby="page-header-notifications-dropdown">
@@ -62,38 +62,39 @@
                                     <h6 class="text-white m-0"><i class="far fa-bell me-2"></i> Notifications </h6>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="#!"
-                                        class="badge bg-info-subtle text-info">{{ count($unreadNotifications) }}</a>
+                                    <a href="#!" class="badge bg-info-subtle text-info">{{ count($unreadNotifications)
+                                        }}</a>
                                 </div>
                             </div>
                         </div>
                         <div data-simplebar style="max-height: 230px;">
                             @foreach ($unreadNotifications as $notification)
-                                <a href="" class="text-reset notification-item">
-                                    <div class="d-flex">
-                                        <div class="avatar avatar-xs avatar-label-primary me-3">
-                                            <span class="rounded fs-16">
-                                                <i class="mdi mdi-file-document-outline"></i>
-                                            </span>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h6 class="mb-1">{{ $notification->data['data'] }}</h6>
-                                            <div class="fs-12 text-muted">
-                                                <p class="mb-0"><i
-                                                        class="mdi mdi-clock-outline"></i>{{ $notification->created_at->diffForHumans() }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                            <a href="{{ $notification->data['data']['route'] }}" class="text-reset notification-item">
+                                <div class="d-flex">
+                                    <div class="avatar avatar-xs avatar-label-primary me-3">
+                                        <span class="rounded fs-16">
+                                            <i class="mdi mdi-file-document-outline"></i>
+                                        </span>
                                     </div>
-                                </a>
+                                    <div class="flex-1">
+                                        <h6 class="mb-1">{{ $notification->data['data']['message'] }}</h6>
+                                        <div class="fs-12 text-muted">
+                                            <p class="mb-0"><i class="mdi mdi-clock-outline"></i>{{
+                                                $notification->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <i class="mdi mdi-chevron-right align-middle ms-2"></i>
+                                </div>
+                            </a>
                             @endforeach
 
                         </div>
                         <div class="p-2 border-top">
                             <div class="d-grid">
-                                <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)">
-                                    <i class="mdi mdi-arrow-right-circle me-1"></i> View More..
+                                <a class="btn btn-sm btn-link font-size-14 text-center" href="javascript:void(0)"
+                                    onclick="markAllAsRead()">
+                                    <i class="mdi mdi-arrow-right-circle me-1"></i>Tandai Sudah Dibaca
                                 </a>
                             </div>
                         </div>
@@ -105,11 +106,11 @@
                     <button type="button" class="btn btn-sm top-icon p-0" id="page-header-user-dropdown"
                         data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @if (Auth::user()->picture == null)
-                            <img class="rounded avatar-2xs p-0" src="{{ asset('assets/images/users/avatar-1.png') }}"
-                                alt="Header Avatar">
+                        <img class="rounded avatar-2xs p-0" src="{{ asset('assets/images/users/avatar-1.png') }}"
+                            alt="Header Avatar">
                         @else
-                            <img class="rounded avatar-2xs p-0"
-                                src="{{ asset('storage/images/user/' . Auth::user()->picture) }}" alt="Header Avatar">
+                        <img class="rounded avatar-2xs p-0"
+                            src="{{ asset('storage/images/user/' . Auth::user()->picture) }}" alt="Header Avatar">
                         @endif
                     </button>
                     <div
@@ -157,3 +158,52 @@
         <!-- End menu -->
     </div>
 </header>
+
+@push('js')
+<script>
+    function markAllAsRead() {
+        var n = Swal.mixin({
+        customClass: {
+            confirmButton: "btn btn-label-info btn-wide mx-1",
+            denyButton: "btn btn-label-secondary btn-wide mx-1",
+            cancelButton: "btn btn-label-danger btn-wide mx-1",
+        },
+        buttonsStyling: !1,
+    });
+    
+        $.ajax({
+            url: '{{ route("read.notification") }}',
+            method: 'POST',
+            data: {
+                notification_id: 'all',
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                n.fire({
+                position: "center",
+                icon: "success",
+                title: "Success",
+                text: response.message,
+                showConfirmButton: !1,
+                timer: 1500,
+            });
+                
+                $('.notification-item').removeClass('unread');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                // Menangani jika terjadi error
+                n.fire({
+                position: "center",
+                icon: "error",
+                title: "Gagal",
+                text: response.message,
+                showConfirmButton: !1,
+                timer: 1500,
+            });
+            }
+        });
+    }
+</script>
+
+@endpush

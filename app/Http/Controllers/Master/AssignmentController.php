@@ -87,9 +87,9 @@ class AssignmentController extends Controller
                     'message' => 'Task template not found.'
                 ]);
             }
-    
-            $assigner = Auth::user();
-    
+
+            $assigner = Auth::user(); // User yang mengassign tugas
+
             // Membuat TaskAssign baru
             $taskassign = TaskAssign::create([
                 "task_template_id" => $request->task,
@@ -99,13 +99,12 @@ class AssignmentController extends Controller
                 'assign_date' => $request->assign_date,
                 'place' => $request->place,
             ]);
-    
+
             DB::commit();
-    
-            $taskassign->assignee->notify(new NotificationJobs($taskassign));
-    
-            // Jika tugas ditugaskan ke departemen
-            if ($request->type == "departement") {
+
+            // Kirimkan notifikasi ke user yang terkait (Assignee adalah User)
+            if ($request->type == 'departement') {
+                // Jika ditugaskan ke departemen, kirimkan notifikasi kepada setiap karyawan di departemen
                 $employees = Employee::where('department_id', $request->departement)->get();
                 if ($employees->isEmpty()) {
                     DB::rollBack();
@@ -115,8 +114,14 @@ class AssignmentController extends Controller
                         'message' => 'No employees found in the specified department.'
                     ]);
                 }
-    
+
                 foreach ($employees as $employee) {
+                    // Mengirim notifikasi kepada User yang terhubung dengan Employee
+                    // $user = $employee->user;
+                    // if ($user) {
+                    //     $user->notify(new NotificationJobs($taskassign));
+                    // }
+
                     foreach ($tasktemplate->tasks as $task) {
                         $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
                         foreach ($taskdetail as $item) {
@@ -138,6 +143,12 @@ class AssignmentController extends Controller
                     }
                 }
             } else {
+                // Jika ditugaskan ke individu (employee)
+                $user = User::where('employee_id',$request->employee)->first(); // Menemukan user berdasarkan employee_id yang diberikan
+                if ($user) {
+                    $user->notify(new NotificationJobs($taskassign));
+                }
+
                 foreach ($tasktemplate->tasks as $task) {
                     $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
                     foreach ($taskdetail as $item) {
@@ -158,7 +169,7 @@ class AssignmentController extends Controller
                     }
                 }
             }
-    
+
             return redirect()->route('assignment');
         } catch (Exception $e) {
             DB::rollBack();
@@ -169,7 +180,8 @@ class AssignmentController extends Controller
             ]);
         }
     }
-    
+
+
     public function destroy($id)
     {
         try {

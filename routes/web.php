@@ -20,6 +20,7 @@ use App\Http\Controllers\Master\TaskDetailController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
+use App\Http\Controllers\Notification\NotificatioinController;
 use App\Http\Controllers\Report\FreeReportController;
 use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Report\TaskReportController;
@@ -60,6 +61,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
 
     //route dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('can:read-dashboard');
+    
+    //notification
+    Route::post('read-notification', [NotificatioinController::class, 'markAsRead'])->name('read.notification');
 
     //route master group
     Route::prefix('master')->group(function () {
