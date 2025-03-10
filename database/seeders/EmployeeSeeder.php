@@ -18,12 +18,12 @@ class EmployeeSeeder extends Seeder
     {
         $faker = Faker::create();
 
-        // Create 10 employees with associated users
-        for ($i = 0; $i < 1; $i++) {
+        // Create 2 employees with associated users
+        for ($i = 0; $i < 2; $i++) {
             // Create employee data
             $employee = Employee::create([
                 'department_id' => rand(1, 5), // Assuming there are 5 departments
-                'position_id' => rand(1, 10), // Assuming there are 8 positions
+                'position_id' => rand(1, 10), // Assuming there are 10 positions
                 'name' => $faker->name,
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
@@ -38,10 +38,10 @@ class EmployeeSeeder extends Seeder
             $user = User::create([
                 'employee_id' => $employee->id, // Link user to employee
                 'name' => $employee->name,
-                'username' => Str::lower(Str::random(10)), // Random username
-                'email' => 'gihoc76538@egvoo.com',
+                'username' => Str::lower(Str::random(10)), // Random username, lowercase
+                'email' => $faker->unique()->safeEmail, // Unique email
                 'password' => Hash::make('password'), // Default password
-                'picture' => 'picture_' . $i . '.jpg', // Use a placeholder for file
+                'picture' => 'picture_' . $i . '.jpg', // Placeholder for user picture
                 'is_block' => false, // Default user status
             ]);
 
@@ -49,4 +49,5 @@ class EmployeeSeeder extends Seeder
             $user->assignRole('Employee'); // Assuming the 'employee' role exists
         }
     }
+
 }

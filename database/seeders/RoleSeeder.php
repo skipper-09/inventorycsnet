@@ -239,6 +239,9 @@ class RoleSeeder extends Seeder
 
         $employee->givePermissionTo([
             'read-dashboard',
+            //salary
+            'read-salary',
+            //leave report
             'read-leave-report',
             'create-leave-report',
             'update-leave-report',

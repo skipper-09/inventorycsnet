@@ -91,50 +91,61 @@
                     @endcanany
                 @endif
 
-                @canany(['read-deduction', 'read-deduction-type', 'read-allowance', 'read-allowance-type',
-                    'read-position', 'read-department', 'read-employee', 'read-salary'])
-                    <li>
-                        <a href="javascript: void(0);" class="has-arrow ">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Data Karyawan</span>
-                        </a>
-                        <ul class="sub-menu" aria-expanded="false">
+                @if (Auth::user()->hasRole('Employee'))
+                    @canany(['read-salary'])
+                        <li>
+                            <a href="{{ route('salary') }}" class="">
+                                <i class="fas fa-money-check"></i>
+                                <span>Gaji</span>
+                            </a>
+                        </li>
+                    @endcanany
+                @else
+                    @canany(['read-deduction', 'read-deduction-type', 'read-allowance', 'read-allowance-type',
+                        'read-position', 'read-department', 'read-employee', 'read-salary'])
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow ">
+                                <i class="fas fa-user-tie"></i>
+                                <span>Data Karyawan</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
 
-                            {{-- @can('read-deduction')
+                                {{-- @can('read-deduction')
                                 <li><a href="{{ route('deduction') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Potongan</a></li>
                             @endcan --}}
-                            @can('read-deduction-type')
-                                <li><a href="{{ route('deductiontype') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jenis Potongan</a></li>
-                            @endcan
-                            {{-- @can('read-allowance')
+                                @can('read-deduction-type')
+                                    <li><a href="{{ route('deductiontype') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Jenis Potongan</a></li>
+                                @endcan
+                                {{-- @can('read-allowance')
                                 <li><a href="{{ route('allowance') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
                             @endcan --}}
-                            @can('read-allowance-type')
-                                <li><a href="{{ route('allowancetype') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
-                            @endcan
-                            @can('read-salary')
-                                <li><a href="{{ route('salary') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Gaji Karyawan</a></li>
-                            @endcan
-                            @can('read-position')
-                                <li><a href="{{ route('position') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
-                            @endcan
-                            @can('read-department')
-                                <li><a href="{{ route('department') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
-                            @endcan
-                            @can('read-employee')
-                                <li><a href="{{ route('employee') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
-                            @endcan
-                        </ul>
-                    </li>
-                @endcanany
+                                @can('read-allowance-type')
+                                    <li><a href="{{ route('allowancetype') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
+                                @endcan
+                                @can('read-salary')
+                                    <li><a href="{{ route('salary') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Gaji Karyawan</a></li>
+                                @endcan
+                                @can('read-position')
+                                    <li><a href="{{ route('position') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
+                                @endcan
+                                @can('read-department')
+                                    <li><a href="{{ route('department') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
+                                @endcan
+                                @can('read-employee')
+                                    <li><a href="{{ route('employee') }}"><i
+                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
+                                @endcan
+                            </ul>
+                        </li>
+                    @endcanany
+                @endif
                 {{-- 
                 <li>
                     <a href="{{ route('formbuilder') }}" class="">

@@ -35,7 +35,14 @@ class SalaryController extends Controller
 
     public function getData(Request $request)
     {
+        $currentUser = Auth::user();
+
         $query = Salary::with(['employee']);
+
+        // If the authenticated user is an Employee, filter by employee_id
+        if ($currentUser->hasRole('Employee')) {
+            $query->where('employee_id', $currentUser->employee_id);
+        }
 
         // Apply month filter if provided
         if ($request->has('month') && $request->month != '') {
@@ -47,6 +54,7 @@ class SalaryController extends Controller
             $query->whereYear('salary_month', $request->year);
         }
 
+        // Fetch the data
         $data = $query->orderByDesc('id')->get();
 
         return DataTables::of($data)
@@ -109,8 +117,11 @@ class SalaryController extends Controller
                 </button>';
                 }
                 return '<div class="d-flex">' . $button . '</div>';
-            })->rawColumns(['action', 'employee_name', 'salary_month', 'basic_salary_amount', 'bonus', 'total_salary', 'deduction', 'allowance'])->make(true);
+            })
+            ->rawColumns(['action', 'employee_name', 'salary_month', 'basic_salary_amount', 'bonus', 'total_salary', 'deduction', 'allowance'])
+            ->make(true);
     }
+
 
     public function details($id)
     {
@@ -428,13 +439,13 @@ class SalaryController extends Controller
     {
         // Find the salary record
         $salary = Salary::with(['employee.department', 'employee.position'])->findOrFail($id);
-    
+
         // Get the salary_month from the salary record
         $salaryMonth = Carbon::parse($salary->salary_month);
-    
+
         // Get employee
         $employee = $salary->employee;
-    
+
         // Get allowances for the employee without month/year filtering
         $allowanceDetails = Allowance::with('allowanceType')
             ->where('employee_id', $employee->id)
@@ -447,7 +458,7 @@ class SalaryController extends Controller
                 ];
             })
             ->values();
-    
+
         // Get deductions for the employee without month/year filtering
         $deductionDetails = Deduction::with('deductionType')
             ->where('employee_id', $employee->id)
@@ -460,20 +471,20 @@ class SalaryController extends Controller
                 ];
             })
             ->values();
-    
+
         // Format allowances and deductions for view
         $formatted_allowances = [];
         $formatted_deductions = [];
-    
+
         // Track the totals from detailed records
         $total_allowances_detail = $allowanceDetails->sum('amount');
         $total_deductions_detail = $deductionDetails->sum('amount');
-    
+
         // Process allowances
         if ($allowanceDetails->count() > 0) {
             // Use the detailed breakdown
             $formatted_allowances = $allowanceDetails->toArray();
-    
+
             // If there's a difference between detailed total and salary record total,
             // add an "Other Allowances" entry for the difference
             if ($total_allowances_detail != $salary->allowance) {
@@ -494,12 +505,12 @@ class SalaryController extends Controller
                 ];
             }
         }
-    
+
         // Process deductions
         if ($deductionDetails->count() > 0) {
             // Use the detailed breakdown
             $formatted_deductions = $deductionDetails->toArray();
-    
+
             // If there's a difference between detailed total and salary record total,
             // add an "Other Deductions" entry for the difference
             if ($total_deductions_detail != $salary->deduction) {
@@ -520,12 +531,12 @@ class SalaryController extends Controller
                 ];
             }
         }
-    
+
         // Use the values from the salary record for totals
         $total_allowances = $salary->allowance;
         $total_deductions = $salary->deduction;
         $net_salary = $salary->total_salary;
-    
+
         // Prepare data for the PDF
         $data = [
             'employee' => $employee,
@@ -537,7 +548,7 @@ class SalaryController extends Controller
             'net_salary' => $net_salary,
             'salaryMonth' => $salaryMonth->format('F Y'),
         ];
-    
+
         // Generate and stream the PDF
         $pdf = Pdf::loadView('pages.master.salary.salary_slip', $data);
         return $pdf->stream("salary_slip_{$employee->name}_{$salaryMonth->format('Y-m')}.pdf");

@@ -398,8 +398,7 @@
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td>
                                                             <div class="d-flex align-items-center">
-                                                                <span
-                                                                    class="rounded-circle bg-info text-white fw-bold me-2"
+                                                                <span class="rounded-circle bg-info text-white fw-bold me-2"
                                                                     style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">
                                                                     {{ isset($task->employee->name) ? substr($task->employee->name, 0, 1) : 'N' }}
                                                                 </span>
@@ -418,11 +417,18 @@
                                                                     class="btn btn-sm {{ $task->id == $employeeTask->id ? 'btn-secondary disabled' : 'btn-info' }}">
                                                                     <i class="fas fa-eye"></i>
                                                                 </a>
-    
-                                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"  data-route="{{ route('taskreport.review',['id'=>$task->id]) }}"
-                                                                data-bs-target="#reviewTaskModal">
-                                                                <i class="fas fa-clipboard-check me-1"></i>Review Task
-                                                            </button>
+
+                                                                @if ($task->status != 'complated')
+                                                                    <button type="button" class="btn btn-sm btn-primary"
+                                                                        data-bs-toggle="modal"
+                                                                        data-route="{{ route('taskreport.review', ['id' => $task->id]) }}"
+                                                                        data-bs-target="#reviewTaskModal">
+                                                                        <i class="fas fa-clipboard-check me-1"></i>Review
+                                                                        Task
+                                                                    </button>
+                                                                @endif
+
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
