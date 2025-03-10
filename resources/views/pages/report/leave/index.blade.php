@@ -42,7 +42,9 @@
                         <div class="card-header">
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
                                 data-action="create" data-proses="{{ route('leavereport.store') }}"
-                                data-title="{{ $title }}">Tambah {{ $title }}</button>
+                                data-title="{{ $title }}">
+                                {{ Auth::user()->hasRole('Employee') ? 'Ajukan Cuti' : 'Tambah ' . $title }}
+                            </button>
                         </div>
                     @endcan
                     <div class="card-body">
