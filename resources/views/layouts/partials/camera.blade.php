@@ -26,16 +26,16 @@
                 <i class="fa fa-camera me-1"></i> {{ $label }}
             </button>
             
-            <button type="button" id="switchCamera_{{ $id }}" 
+            {{-- <button type="button" id="switchCamera_{{ $id }}" 
                     class="btn btn-secondary ms-2"
                     onclick="toggleCameraMode('{{ $id }}')">
                 <i class="fa fa-sync me-1"></i> Switch Camera
-            </button>
+            </button> --}}
         </div>
     </div>
     
     <!-- Desktop Camera (Canvas) -->
-    <div class="camera-desktop" style="display: none;">
+    {{-- <div class="camera-desktop" style="display: none;">
         <video id="video_{{ $id }}" class="w-100" style="max-height: 300px; background: #000;" autoplay playsinline></video>
         <canvas id="canvas_{{ $id }}" style="display: none;"></canvas>
         
@@ -47,6 +47,27 @@
             <button type="button" class="btn btn-secondary ms-2 switch-cam-btn" data-id="{{ $id }}">
                 <i class="fa fa-sync me-1"></i> Switch Camera
             </button>
+        </div>
+    </div> --}}
+     <div class="camera-desktop" style="display: none">
+        <div class="mb-2">
+            <input type="file" id="fileInput_{{ $id }}" 
+                   accept="image/*" 
+                   capture="environment"
+                   class="d-none"
+                   onchange="handleCameraCapture('{{ $id }}')">
+            
+            <button type="button" id="cameraButton_{{ $id }}" 
+                    class="btn btn-primary" 
+                    onclick="document.getElementById('fileInput_{{ $id }}').click()">
+                <i class="fa fa-camera me-1"></i> {{ $label }}
+            </button>
+            
+            {{-- <button type="button" id="switchCamera_{{ $id }}" 
+                    class="btn btn-secondary ms-2"
+                    onclick="toggleCameraMode('{{ $id }}')">
+                <i class="fa fa-sync me-1"></i> Switch Camera
+            </button> --}}
         </div>
     </div>
     

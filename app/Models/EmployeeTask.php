@@ -46,6 +46,8 @@ class EmployeeTask extends Model
                 return '<span class="badge badge-label-success">Completed</span>';
             case 'pending':
                 return '<span class="badge badge-label-warning">Pending</span>';
+            case 'in_review':
+                return '<span class="badge badge-secondary">In Review</span>';
             default:
                 return '<span class="badge badge-label-danger">Overdue</span>';
         }
@@ -58,6 +60,8 @@ class EmployeeTask extends Model
                 return '<span class="badge badge-success">Completed</span>';
             case 'pending':
                 return '<span class="badge badge-info">Pending</span>';
+            case 'in_review':
+                return '<span class="badge badge-secondary">In Review</span>';
             default:
                 return '<span class="badge badge-danger">Overdue</span>';
         }

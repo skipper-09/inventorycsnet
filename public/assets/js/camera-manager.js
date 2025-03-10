@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
             wrapper.querySelector('.camera-desktop').style.display = 'block';
             
             // Initialize desktop camera
-            initDesktopCamera(id);
+            // initDesktopCamera(id);
         }
     });
 });
@@ -60,7 +60,7 @@ function handleCameraCapture(id) {
                         // Set value to hidden input
                         hiddenInput.value = pngData;
                         
-                        console.log(`[${id}] Mobile image captured and converted to PNG`);
+                        // console.log(`[${id}] Mobile image captured and converted to PNG`);
                     };
                     
                     img.onerror = function() {
@@ -109,83 +109,83 @@ function toggleCameraMode(id) {
 // Desktop camera functions
 let cameras = {}; // Store camera instances
 
-function initDesktopCamera(id) {
-    cameras[id] = {
-        stream: null,
-        facingMode: 'environment', // Start with back camera
-        videoElement: document.getElementById(`video_${id}`),
-        canvasElement: document.getElementById(`canvas_${id}`)
-    };
+// function initDesktopCamera(id) {
+//     cameras[id] = {
+//         stream: null,
+//         facingMode: 'environment', // Start with back camera
+//         videoElement: document.getElementById(`video_${id}`),
+//         canvasElement: document.getElementById(`canvas_${id}`)
+//     };
     
-    // Start camera
-    startCamera(id);
+//     // Start camera
+//     startCamera(id);
     
-    // Setup capture button
-    document.querySelector(`.capture-btn[data-id="${id}"]`).addEventListener('click', function() {
-        captureDesktopImage(id);
-    });
+//     // Setup capture button
+//     document.querySelector(`.capture-btn[data-id="${id}"]`).addEventListener('click', function() {
+//         captureDesktopImage(id);
+//     });
     
-    // Setup switch camera button
-    document.querySelector(`.switch-cam-btn[data-id="${id}"]`).addEventListener('click', function() {
-        switchDesktopCamera(id);
-    });
-}
+//     // Setup switch camera button
+//     document.querySelector(`.switch-cam-btn[data-id="${id}"]`).addEventListener('click', function() {
+//         switchDesktopCamera(id);
+//     });
+// }
 
-function startCamera(id) {
-    // Stop any existing stream
-    if (cameras[id].stream) {
-        cameras[id].stream.getTracks().forEach(track => track.stop());
-    }
+// function startCamera(id) {
+//     // Stop any existing stream
+//     if (cameras[id].stream) {
+//         cameras[id].stream.getTracks().forEach(track => track.stop());
+//     }
     
-    // Camera constraints
-    const constraints = {
-        video: {
-            facingMode: cameras[id].facingMode
-        },
-        audio: false
-    };
+//     // Camera constraints
+//     const constraints = {
+//         video: {
+//             facingMode: cameras[id].facingMode
+//         },
+//         audio: false
+//     };
     
-    // Start video stream
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then(stream => {
-            cameras[id].stream = stream;
-            cameras[id].videoElement.srcObject = stream;
-        })
-        .catch(err => {
-            console.error('Error accessing camera:', err);
-            alert('Could not access camera. Please check permissions or try a different browser.');
-        });
-}
+//     // Start video stream
+//     navigator.mediaDevices.getUserMedia(constraints)
+//         .then(stream => {
+//             cameras[id].stream = stream;
+//             cameras[id].videoElement.srcObject = stream;
+//         })
+//         .catch(err => {
+//             console.error('Error accessing camera:', err);
+//             alert('Could not access camera. Please check permissions or try a different browser.');
+//         });
+// }
 
-function captureDesktopImage(id) {
-    const video = cameras[id].videoElement;
-    const canvas = cameras[id].canvasElement;
-    const imagePreview = document.getElementById(`img_${id}`);
-    const previewContainer = document.getElementById(`preview_${id}`);
-    const hiddenInput = document.getElementById(`input_${id}`);
+// function captureDesktopImage(id) {
+//     const video = cameras[id].videoElement;
+//     const canvas = cameras[id].canvasElement;
+//     const imagePreview = document.getElementById(`img_${id}`);
+//     const previewContainer = document.getElementById(`preview_${id}`);
+//     const hiddenInput = document.getElementById(`input_${id}`);
     
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+//     // Set canvas dimensions to match video
+//     canvas.width = video.videoWidth;
+//     canvas.height = video.videoHeight;
     
-    // Draw video frame to canvas
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+//     // Draw video frame to canvas
+//     const ctx = canvas.getContext('2d');
+//     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Get image data as PNG for consistency with mobile version
-    const imageData = canvas.toDataURL('image/png');
+//     // Get image data as PNG for consistency with mobile version
+//     const imageData = canvas.toDataURL('image/png');
     
-    // Update preview and hidden input
-    imagePreview.src = imageData;
-    previewContainer.style.display = "block";
-    hiddenInput.value = imageData;
-}
+//     // Update preview and hidden input
+//     imagePreview.src = imageData;
+//     previewContainer.style.display = "block";
+//     hiddenInput.value = imageData;
+// }
 
-function switchDesktopCamera(id) {
-    // Toggle facing mode
-    cameras[id].facingMode = cameras[id].facingMode === 'user' ? 'environment' : 'user';
-    console.log(`[${id}] Switched to ${cameras[id].facingMode === 'user' ? 'front' : 'back'} camera`);
+// function switchDesktopCamera(id) {
+//     // Toggle facing mode
+//     cameras[id].facingMode = cameras[id].facingMode === 'user' ? 'environment' : 'user';
+//     console.log(`[${id}] Switched to ${cameras[id].facingMode === 'user' ? 'front' : 'back'} camera`);
     
-    // Restart camera with new facing mode
-    startCamera(id);
-}
+//     // Restart camera with new facing mode
+//     startCamera(id);
+// }

@@ -163,7 +163,7 @@ class AssigmentDataController extends Controller
             ]);
 
             // Update the task status to completed
-            // EmployeeTask::find($id)->update(['status' => 'completed']);
+            EmployeeTask::find($id)->update(['status' => 'in_review']);
 
             DB::commit();
             return redirect()->route('assigmentdata');
