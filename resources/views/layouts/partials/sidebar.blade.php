@@ -57,8 +57,8 @@
                     @can('read-assigmentdata')
                         <li>
                             <a href="{{ route('assigmentdata') }}" class="">
-                                <i class="fas fa-folder"></i>
-                                <span>Tugas Karyawan</span>
+                                <i class="fas fa-folder-open"></i>
+                                <span>Tugas</span>
                             </a>
                         </li>
                     @endcan

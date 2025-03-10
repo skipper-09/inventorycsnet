@@ -35,18 +35,17 @@ class DashboardController extends Controller
                 'taskAssign',
                 'taskDetail.task'
             ])
-            ->whereHas('taskAssign', function($query) {
-                $query->where('assign_date', '>=', now()->subHours(24));
-            })
-            ->orderByDesc('id')
-            ->get();
+                ->whereHas('taskAssign', function ($query) {
+                    $query->where('assign_date', '>=', now()->subHours(24));
+                })
+                ->orderByDesc('id')
+                ->get();
 
             // Mengambil semua data activity log terbaru
             $latestActivityLog = Activity::with('causer')
                 ->orderByDesc('created_at')
 
                 ->get();
-
 
             // Menentukan ucapan berdasarkan waktu
             $hour = date('H');
@@ -76,6 +75,12 @@ class DashboardController extends Controller
         // Mengambil data employee berdasarkan ID yang terkait dengan user
         $employee = Employee::with(['department', 'position', 'leaves', 'salaries'])
             ->findOrFail($currentUser->employee_id);
+
+        $totalTask = EmployeeTask::with(['employee', 'taskAssign'])
+            ->join('task_assigns', 'employee_tasks.task_assign_id', '=', 'task_assigns.id') // Join dengan tabel task_assigns
+            ->where('employee_tasks.employee_id', $currentUser->employee_id) // Filter berdasarkan employee_id
+            ->whereDate('task_assigns.assign_date', Carbon::today()) // Filter berdasarkan assign_date
+            ->count();
 
         // Menghitung sisa cuti
         $currentYear = date('Y');
@@ -154,12 +159,13 @@ class DashboardController extends Controller
             'title' => 'Dashboard',
             'greeting' => $greeting,
             'employee' => $employee,
+            'totalTask' => $totalTask,
             'remainingLeaves' => $remainingLeaves,
             'netSalary' => $netSalary,
             'currentSalary' => $currentSalary,
             'recentLeaves' => $recentLeaves,
             'salaryHistory' => $salaryHistory,
-            'notifications'=>$notifications,
+            'notifications' => $notifications,
         ];
 
         return view('pages.dashboard.employeedashboard', $data);

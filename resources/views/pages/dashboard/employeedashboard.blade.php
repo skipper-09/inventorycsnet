@@ -25,9 +25,25 @@
         </div>
 
         <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
+            <div class="col-md-4">
+                <a class="card shadow-sm" href="{{ route('assigmentdata') }}">
                     <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
+                                <i class="fas fa-calendar-alt text-info fa-2x"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-title text-muted mb-0">Total Tugas</h6>
+                                <h4 class="mb-0">{{ $totalTask ?? 0 }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm">
+                    <a class="card-body" href="{{ route('leavereport') }}">
                         <div class="d-flex align-items-center">
                             <div class="rounded-circle bg-info bg-opacity-10 p-3 me-3">
                                 <i class="fas fa-calendar-alt text-info fa-2x"></i>
@@ -37,12 +53,13 @@
                                 <h4 class="mb-0">{{ $remainingLeaves ?? 0 }} Hari</h4>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-6">
+
+            <div class="col-md-4">
                 <div class="card shadow-sm">
-                    <div class="card-body">
+                    <a class="card-body" href="{{ route('salary') }}">
                         <div class="d-flex align-items-center">
                             <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
                                 <i class="fas fa-money-bill-wave text-warning fa-2x"></i>
@@ -52,7 +69,7 @@
                                 <h4 class="mb-0">Rp {{ number_format($netSalary, 0, ',', '.') }}</h4>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </div>
