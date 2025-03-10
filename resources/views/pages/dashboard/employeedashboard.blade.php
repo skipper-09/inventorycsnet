@@ -49,8 +49,8 @@
                                 <i class="fas fa-calendar-alt text-info fa-2x"></i>
                             </div>
                             <div>
-                                <h6 class="card-title text-muted mb-0">Sisa Cuti</h6>
-                                <h4 class="mb-0">{{ $remainingLeaves ?? 0 }} Hari</h4>
+                                <h6 class="card-title text-muted mb-0">Total Cuti Diajukan</h6>
+                                <h4 class="mb-0">{{ $requestedLeaves ?? 0 }} Hari</h4>
                             </div>
                         </div>
                     </a>
