@@ -1,7 +1,5 @@
 <div class="sidebar-left">
-
     <div data-simplebar class="h-100">
-
         <!--- Sidebar-menu -->
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
@@ -15,226 +13,116 @@
                     </li>
                 @endcan
 
-                @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp',
-                    'read-product-role', 'read-task-template'])
+                @canany(['read-branch', 'read-unit-product', 'read-product', 'read-zone', 'read-zone-odp', 'read-product-role', 'read-task-template'])
                     <li class="menu-title">MASTER</li>
 
                     <li>
-                        <a href="javascript: void(0);" class="has-arrow ">
-                            <i class=" fas fa-archive"></i>
+                        <a href="javascript: void(0);" class="has-arrow">
+                            <i class="fas fa-archive"></i>
                             <span>Master Data</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
                             @can('read-branch')
-                                <li><a href="{{ route('branch') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Cabang</a></li>
+                                <li><a href="{{ route('branch') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Cabang</a></li>
                             @endcan
                             @can('read-unit-product')
-                                <li><a href="{{ route('unitproduk') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Unit Produk</a></li>
+                                <li><a href="{{ route('unitproduk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Unit Produk</a></li>
                             @endcan
                             @can('read-product')
-                                <li><a href="{{ route('produk') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Produk</a></li>
+                                <li><a href="{{ route('produk') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Produk</a></li>
                             @endcan
                             @can('read-zone')
-                                <li><a href="{{ route('zone') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Jalur</a></li>
+                                <li><a href="{{ route('zone') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Jalur</a></li>
                             @endcan
                             @can('read-zone-odp')
-                                <li><a href="{{ route('odp') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
+                                <li><a href="{{ route('odp') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
                             @endcan
                             @can('read-product-role')
-                                <li><a href="{{ route('productrole') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
+                                <li><a href="{{ route('productrole') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
+                            @endcan
+                            @can('read-task-template')
+                                <li><a href="{{ route('tasktemplate') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
                             @endcan
                         </ul>
                     </li>
                 @endcanany
 
-                @if (Auth::user()->hasRole('Employee'))
-                    @can('read-assigmentdata')
-                        <li>
-                            <a href="{{ route('assigmentdata') }}" class="">
-                                <i class="fas fa-folder-open"></i>
-                                <span>Tugas</span>
-                            </a>
-                        </li>
-                    @endcan
-                @else
-                    @canany(['read-task-template', 'read-task', 'read-assignment', 'read-assigmentdata'])
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow ">
-                                <i class="fas fa-clipboard-list"></i>
-                                <span>Task Master</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
+                @canany(['read-task', 'read-assignment', 'read-assigmentdata'])
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>{{ Auth::user()->hasRole('Employee') ? 'Tugas' : 'Task Master' }}</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @if (!Auth::user()->hasRole('Employee'))
                                 @can('read-task')
-                                    <li><a href="{{ route('taskdata') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
-                                @endcan
-                                @can('read-task-template')
-                                    <li><a href="{{ route('tasktemplate') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
+                                    <li><a href="{{ route('taskdata') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Data Task</a></li>
                                 @endcan
                                 @can('read-assignment')
-                                    <li><a href="{{ route('assignment') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
+                                    <li><a href="{{ route('assignment') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Penugasan</a></li>
                                 @endcan
-                                @can('read-assigmentdata')
-                                    <li><a href="{{ route('assigmentdata') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
-                                @endcan
-                            </ul>
-                        </li>
-                    @endcanany
-                @endif
+                            @endif
+                            @can('read-assigmentdata')
+                                <li><a href="{{ route('assigmentdata') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>{{ Auth::user()->hasRole('Employee') ? 'Tugas Saya' : 'Tugas Karyawan' }}</a></li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
 
-                @if (Auth::user()->hasRole('Employee'))
-                    @canany(['read-salary'])
-                        <li>
-                            <a href="{{ route('salary') }}" class="">
-                                <i class="fas fa-money-check"></i>
-                                <span>Gaji</span>
-                            </a>
-                        </li>
-                    @endcanany
-                @else
-                    @canany(['read-deduction', 'read-deduction-type', 'read-allowance', 'read-allowance-type',
-                        'read-position', 'read-department', 'read-employee', 'read-salary'])
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow ">
-                                <i class="fas fa-user-tie"></i>
-                                <span>Data Karyawan</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-
-                                {{-- @can('read-deduction')
-                                <li><a href="{{ route('deduction') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Potongan</a></li>
-                            @endcan --}}
+                @canany(['read-deduction-type', 'read-allowance-type', 'read-salary', 'read-position', 'read-department', 'read-employee'])
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow">
+                            <i class="fas fa-user-tie"></i>
+                            <span>{{ Auth::user()->hasRole('Employee') ? 'Data Saya' : 'Data Karyawan' }}</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @if (!Auth::user()->hasRole('Employee'))
                                 @can('read-deduction-type')
-                                    <li><a href="{{ route('deductiontype') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Jenis Potongan</a></li>
+                                    <li><a href="{{ route('deductiontype') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Jenis Potongan</a></li>
                                 @endcan
-                                {{-- @can('read-allowance')
-                                <li><a href="{{ route('allowance') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Tunjangan</a></li>
-                            @endcan --}}
                                 @can('read-allowance-type')
-                                    <li><a href="{{ route('allowancetype') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
-                                @endcan
-                                @can('read-salary')
-                                    <li><a href="{{ route('salary') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Gaji Karyawan</a></li>
+                                    <li><a href="{{ route('allowancetype') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Tipe Tunjangan</a></li>
                                 @endcan
                                 @can('read-position')
-                                    <li><a href="{{ route('position') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
+                                    <li><a href="{{ route('position') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Jabatan</a></li>
                                 @endcan
                                 @can('read-department')
-                                    <li><a href="{{ route('department') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
+                                    <li><a href="{{ route('department') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Departemen</a></li>
                                 @endcan
                                 @can('read-employee')
-                                    <li><a href="{{ route('employee') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
+                                    <li><a href="{{ route('employee') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Karyawan</a></li>
                                 @endcan
-                            </ul>
-                        </li>
-                    @endcanany
-                @endif
-                {{-- 
-                <li>
-                    <a href="{{ route('formbuilder') }}" class="">
-                        <i class="fas fa-user-alt"></i>
-                        <span>Form Template</span>
-                    </a>
-                </li> --}}
+                            @endif
+                            @can('read-salary')
+                                <li><a href="{{ route('salary') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>{{ Auth::user()->hasRole('Employee') ? 'Gaji Saya' : 'Gaji Karyawan' }}</a></li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
 
-                {{-- <li>
-                    <a href="{{ route('customer') }}" class="">
-                        <i class="fas fa-user-alt"></i>
-                        <span>Customer</span>
-                    </a>
-                </li> --}}
-
-                {{-- @canany(['read-leave'])
-                    <li class="menu-title">Pengajuan</li>
-                    @can('read-leave')
-                        <li>
-                            <a href="{{ route('leave') }}" class="">
-                                <i class="fas fa-file-contract"></i>
-                                <span>Cuti</span>
-                            </a>
-                        </li>
-                    @endcan
-                @endcanany --}}
-                @if (Auth::user()->hasRole('Employee'))
-                    <li class="menu-title">Laporan</li>
-                    @can('read-leave-report')
-                        <li>
-                            <a href="{{ route('leavereport') }}" class="">
-                                <i class="fas fa-file-alt"></i>
-                                <span>Cuti</span>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('read-task-report')
-                        <li>
-                            <a href="{{ route('taskreport') }}" class="">
-                                <i class="fas fa-tasks"></i>
-                                <span>Tugas</span>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('read-customer')
-                        <li>
-                            <a href="{{ route('customer') }}">
-                                <i class="fas fa-file-invoice"></i>
-                                <span>Pelanggan</span>
-                            </a>
-                        </li>
-                    @endcan
-                    @can('read-activity-report')
-                        <li>
-                            <a href="{{ route('activityreport') }}" class="">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Aktivitas</span>
-                            </a>
-                        </li>
-                    @endcan
-                @else
-                    <li class="menu-title">Laporan</li>
-                    @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
-                        <li>
-                            <a href="javascript: void(0);" class="has-arrow">
-                                <i class="fas fa-user-tie"></i>
-                                <span>Laporan Karyawan</span>
-                            </a>
-                            <ul class="sub-menu" aria-expanded="false">
-                                @can('read-leave-report')
-                                    <li><a href="{{ route('leavereport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Cuti Karyawan</a></li>
-                                @endcan
-                                @can('read-task-report')
-                                    <li><a href="{{ route('taskreport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Tugas Karyawan</a></li>
-                                @endcan
-                                @can('read-customer')
-                                    <li><a href="{{ route('customer') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
-                                @endcan
-                                @can('read-activity-report')
-                                    <li><a href="{{ route('activityreport') }}"><i
-                                                class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
-                                @endcan
-                            </ul>
-                        </li>
-                    @endcanany
-                @endif
+                <li class="menu-title">LAPORAN</li>
+                @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow">
+                            <i class="fas fa-chart-line"></i>
+                            <span>{{ Auth::user()->hasRole('Employee') ? 'Laporan Saya' : 'Laporan Karyawan' }}</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @can('read-leave-report')
+                                <li><a href="{{ route('leavereport') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>{{ Auth::user()->hasRole('Employee') ? 'Cuti Saya' : 'Cuti Karyawan' }}</a></li>
+                            @endcan
+                            @can('read-task-report')
+                                <li><a href="{{ route('taskreport') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>{{ Auth::user()->hasRole('Employee') ? 'Tugas Saya' : 'Tugas Karyawan' }}</a></li>
+                            @endcan
+                            @can('read-customer')
+                                <li><a href="{{ route('customer') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
+                            @endcan
+                            @can('read-activity-report')
+                                <li><a href="{{ route('activityreport') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
+                            @endcan
+                        </ul>
+                    </li>
+                @endcanany
 
                 @canany(['read-transaction-product', 'read-transfer-product'])
                     <li>
@@ -244,14 +132,10 @@
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
                             @can('read-transaction-product')
-                                <li><a href="{{ route('report.transaction-product') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Penggunaan Barang</a>
-                                </li>
+                                <li><a href="{{ route('report.transaction-product') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Penggunaan Barang</a></li>
                             @endcan
                             @can('read-transfer-product')
-                                <li><a href="{{ route('transfer') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Pemindahan Barang</a>
-                                </li>
+                                <li><a href="{{ route('transfer') }}"><i class="mdi mdi-checkbox-blank-circle align-middle"></i>Pemindahan Barang</a></li>
                             @endcan
                         </ul>
                     </li>
@@ -263,9 +147,7 @@
                         <li>
                             <a href="{{ route('user') }}" class="">
                                 <i class="fas fa-users"></i>
-                                <span>
-                                    User Management
-                                </span>
+                                <span>User Management</span>
                             </a>
                         </li>
                     @endcan
@@ -280,7 +162,7 @@
                     @can('read-activity-log')
                         <li>
                             <a href="{{ route('activitylog') }}" class="">
-                                <i class="fas fa-user-tag"></i>
+                                <i class="fas fa-history"></i>
                                 <span>Log Aktivitas</span>
                             </a>
                         </li>
