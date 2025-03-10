@@ -88,6 +88,15 @@ class TaskTemplateController extends Controller
 
             Template_task::insert($templateTasks);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties([
+                    'task_template_id' => $templatetask->id,
+                    'task_ids' => $request->taskdata,
+                ])
+                ->log("Template Task berhasil dibuat.");
+
             DB::commit();
 
             return response()->json([
@@ -133,6 +142,8 @@ class TaskTemplateController extends Controller
         try {
             $tasktemplate = TaskTemplate::findOrFail($id);
 
+            $oldData = $tasktemplate->toArray();
+
             $tasktemplate->update([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -149,6 +160,16 @@ class TaskTemplateController extends Controller
             }
 
             Template_task::insert($templateTasks);
+
+            // Log the activity
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldData,  // Old task template data
+                    'new' => $tasktemplate->toArray(), // New task template data
+                ])
+                ->log("Template Task berhasil diperbarui.");
 
             DB::commit();
 
@@ -190,7 +211,15 @@ class TaskTemplateController extends Controller
     {
         try {
             $tasktemplate = TaskTemplate::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($tasktemplate->toArray())
+                ->log("Task Template berhasil dihapus.");
+
             $tasktemplate->delete();
+            
             //return response
             return response()->json([
                 'status' => 'success',

@@ -47,7 +47,14 @@ class AllowanceTypeController extends Controller
         ]);
 
         try {
-            AllowanceType::create($validated);
+            $allowanceType = AllowanceType::create($validated);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($allowanceType->toArray())
+                ->log("Tipe Tunjangan berhasil dibuat.");
+
 
             return response()->json([
                 'success' => true,
@@ -78,7 +85,24 @@ class AllowanceTypeController extends Controller
         ]);
 
         try {
-            AllowanceType::findOrFail($id)->update($validated);
+            // Get the model before updating to store old values
+            $allowanceType = AllowanceType::findOrFail($id);
+            $oldAllowanceType = $allowanceType->toArray();
+
+            // Update the model
+            $allowanceType->update($validated);
+
+            // Refresh the model to get the updated values
+            $allowanceType->refresh();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldAllowanceType,
+                    'new' => $allowanceType->toArray()
+                ])
+                ->log("Tipe Tunjangan berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -97,7 +121,15 @@ class AllowanceTypeController extends Controller
     public function destroy($id)
     {
         try {
-            AllowanceType::findOrFail($id)->delete();
+            $allowanceType = AllowanceType::findOrFail($id);
+            
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($allowanceType->toArray())
+                ->log("Tipe Tunjangan berhasil dihapus.");
+            
+            $allowanceType->delete();
 
             return response()->json([
                 'status' => 'success',

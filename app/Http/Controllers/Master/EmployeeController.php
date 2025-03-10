@@ -173,6 +173,12 @@ class EmployeeController extends Controller
             // Assign roles to user
             $user->assignRole($request->role);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($employee->toArray())
+                ->log("Data Karyawan berhasil dibuat.");
+
             DB::commit();
 
             return redirect()->route('employee')->with([
@@ -270,7 +276,7 @@ class EmployeeController extends Controller
             "username.unique" => "Username sudah digunakan.",
             "password.min" => "Password minimal 8 karakter.",
             "roles.required" => "Role harus dipilih.",
-            "roles.exists"=> "Role yang dipilih tidak valid.",
+            "roles.exists" => "Role yang dipilih tidak valid.",
         ]);
 
         try {
@@ -306,6 +312,8 @@ class EmployeeController extends Controller
                 $user->picture = $picture;
             }
 
+            $oldEmployee = $employee->toArray();
+
             // Update employee data
             $employee->update([
                 'department_id' => $request->department_id,
@@ -337,6 +345,15 @@ class EmployeeController extends Controller
             $user->roles()->detach();
             $user->assignRole($request->role);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldEmployee,
+                    'new' => $employee->toArray()
+                ])
+                ->log("Data Karyawan berhasil diperbarui.");
+
             DB::commit();
 
             return redirect()->route('employee')->with([
@@ -360,6 +377,12 @@ class EmployeeController extends Controller
         try {
             // Find the employee
             $employee = Employee::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($employee->toArray())
+                ->log("Data Karyawan berhasil dihapus.");
 
             // Delete associated user (if exists)
             if ($employee->user) {

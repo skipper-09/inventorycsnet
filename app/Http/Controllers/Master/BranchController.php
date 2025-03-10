@@ -58,6 +58,13 @@ class BranchController extends Controller
             $branch->address = $request->address;
             $branch->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($branch->toArray())
+                ->log("Data Cabang berhasil dibuat.");
+
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
@@ -76,7 +83,7 @@ class BranchController extends Controller
     {
         $branch = Branch::findOrFail($id);
         return response()->json([
-            'branch'  => $branch,
+            'branch' => $branch,
         ], 200);
     }
 
@@ -92,9 +99,19 @@ class BranchController extends Controller
 
         try {
             $branch = Branch::findOrFail($id);
+            $oldBranch = $branch->toArray();
             $branch->name = $request->name;
             $branch->address = $request->address;
             $branch->save();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldBranch,
+                    'new' => $branch->toArray()
+                ])
+                ->log("Data Cabang berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -114,8 +131,15 @@ class BranchController extends Controller
     {
         try {
             $brach = Branch::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($brach->toArray())
+                ->log("Data Cabang berhasil dihapus.");
+
             $brach->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

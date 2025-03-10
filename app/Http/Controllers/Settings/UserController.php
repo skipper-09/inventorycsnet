@@ -20,7 +20,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        
+
         $data = [
             'title' => 'User',
             'roles' => Role::where('name', '!=', 'Developer')->get(),
@@ -49,14 +49,14 @@ class UserController extends Controller
 
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->addColumn('role', function ($data) {
-           return $data->roles->isNotEmpty() ? $data->roles->pluck('name')->implode(', ') : '-';
+            return $data->roles->isNotEmpty() ? $data->roles->pluck('name')->implode(', ') : '-';
         })->addColumn('employee', function ($data) {
             return $data->employee->name ?? '-';
         })->addColumn('status', function ($data) {
             return $data->is_block == 0 ? '<span class="badge badge-label-primary">Aktif</span>' : '<span class="badge badge-label-danger">Blokir</span>';
         })->editColumn('picture', function ($data) {
             return $data->picture == null ? '<img src="' . asset('assets/images/users/avatar-1.png') . '" alt="Profile Image" class="rounded-circle header-profile-user">' : '<img src="' . asset("storage/images/user/$data->picture") . '" alt="Profile Image" class="rounded-circle header-profile-user">';
-        })->rawColumns(['action', 'role', 'picture', 'status','employee'])->make(true);
+        })->rawColumns(['action', 'role', 'picture', 'status', 'employee'])->make(true);
     }
 
 
@@ -116,9 +116,15 @@ class UserController extends Controller
                 'is_block' => $request->is_block,
             ]);
 
-            foreach ($request->role as  $role) {
+            foreach ($request->role as $role) {
                 $user->assignRole($role);
             }
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($user->toArray())
+                ->log("User {$user->name} berhasil dibuat.");
 
             return response()->json([
                 'success' => true,
@@ -137,7 +143,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::with(['roles'])->findOrFail($id);
-        return response()->json(['user' => $user,'employee'=>Employee::all()], 200);
+        return response()->json(['user' => $user, 'employee' => Employee::all()], 200);
     }
 
     public function update(Request $request, $id)
@@ -190,6 +196,9 @@ class UserController extends Controller
         $request->validate($validationRules, $validationMessages);
         try {
             $user = User::findOrFail($id);
+
+            $oldUserData = $user->toArray();
+
             // Handle file upload
             if ($request->hasFile('picture')) {
                 // Delete old picture if exists
@@ -208,7 +217,7 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->is_block = $request->is_block;
-            $user->employee_id = $request->employee_id == null ? $user->employee_id :$request->employee_id;
+            $user->employee_id = $request->employee_id == null ? $user->employee_id : $request->employee_id;
 
             // Only update password if provided
             if ($request->filled('password')) {
@@ -218,9 +227,18 @@ class UserController extends Controller
             $user->save();
 
             DB::table('model_has_roles')->where('model_id', $id)->delete();
-            foreach ($request->role as  $role) {
+            foreach ($request->role as $role) {
                 $user->assignRole($role);
             }
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldUserData,
+                    'new' => $user->toArray(),
+                ])
+                ->log("User {$user->name} berhasil diupdate.");
 
             return response()->json([
                 'success' => true,
@@ -241,10 +259,22 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
+
+            $oldUserData = $user->toArray();
+
             if (file_exists(public_path('storage/images/user/' . $user->picture))) {
                 File::delete(public_path('storage/images/user/' . $user->picture));
             }
+
+            // Log the activity
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($oldUserData)
+                ->log("User {$user->name} berhasil dihapus.");
+
             $user->delete();
+
             //return response
             return response()->json([
                 'status' => 'success',

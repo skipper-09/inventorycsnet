@@ -287,6 +287,12 @@ class SalaryController extends Controller
                 'total_salary' => $request->basic_salary_amount + $request->bonus + $totalAllowances - $totalDeductions,
             ]);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($salary->toArray())
+                ->log("Data Gaji berhasil dibuat.");
+
             DB::commit();
 
             return redirect()->route('salary')->with([
@@ -343,6 +349,9 @@ class SalaryController extends Controller
             DB::beginTransaction();
 
             $salary = Salary::findOrFail($id);
+
+            $originalSalary = $salary->toArray();
+
             $salaryDate = Carbon::createFromFormat('Y-m', $request->salary_month);
 
             // Delete existing allowances and deductions
@@ -386,6 +395,15 @@ class SalaryController extends Controller
                 'total_salary' => $request->basic_salary_amount + $request->bonus + $totalAllowances - $totalDeductions,
             ]);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $originalSalary,
+                    'new' => $salary->toArray()
+                ])
+                ->log("Data Gaji berhasil diperbarui.");
+
             DB::commit();
 
             return redirect()->route('salary')->with([
@@ -410,12 +428,22 @@ class SalaryController extends Controller
 
             $salary = Salary::findOrFail($id);
 
+            // Store the salary data before deletion for logging
+            $salaryData = $salary->toArray();
+
             // Delete related allowances and deductions
             Allowance::where('employee_id', $salary->employee_id)->delete();
             Deduction::where('employee_id', $salary->employee_id)->delete();
 
             // Delete salary
             $salary->delete();
+
+            // Log the activity
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($salaryData)
+                ->log("Data Gaji berhasil dihapus.");
 
             DB::commit();
 

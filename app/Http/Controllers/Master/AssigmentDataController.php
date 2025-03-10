@@ -123,6 +123,8 @@ class AssigmentDataController extends Controller
                 'report_content' => $request->report_content,
             ]);
 
+            $oldTaskReport = $taskreport->toArray();
+
             // Handle before image
             $filebefore = '';
             if ($request->input('before_image')) {
@@ -164,6 +166,15 @@ class AssigmentDataController extends Controller
 
             // Update the task status to completed
             EmployeeTask::find($id)->update(['status' => 'in_review']);
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withProperties([
+                'old' => $oldTaskReport,
+                'new' => $taskreport->toArray()
+            ])
+            ->log("Data Assignment berhasil diperbarui.");
 
             DB::commit();
             return redirect()->route('assigmentdata');

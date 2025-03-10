@@ -7,6 +7,7 @@ use App\Models\Salary;
 use App\Models\User;
 use App\Models\Employee;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
@@ -40,16 +41,18 @@ class ProfileController extends Controller
     {
         // Determine update type based on form data
         $updateType = 'profile'; // Default type
-        
-        if ($request->has('nik') || $request->has('phone') || $request->has('date_of_birth') || 
-            $request->has('gender') || $request->has('address')) {
+
+        if (
+            $request->has('nik') || $request->has('phone') || $request->has('date_of_birth') ||
+            $request->has('gender') || $request->has('address')
+        ) {
             $updateType = 'employee';
         } elseif ($request->has('password')) {
             $updateType = 'password';
         }
-        
+
         $user = User::findOrFail($id);
-        
+
         // Set up validation rules based on update type
         $validationRules = [
             'name' => 'required|string|max:255',
@@ -64,7 +67,7 @@ class ProfileController extends Controller
                 Rule::unique('users', 'username')->ignore($id),
             ],
         ];
-        
+
         // Add specific validation rules based on update type
         if ($updateType === 'profile') {
             $validationRules['picture'] = 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048';
@@ -113,6 +116,9 @@ class ProfileController extends Controller
         DB::beginTransaction();
 
         try {
+            $oldUserData = $user->toArray();
+            $oldEmployeeData = $user->employee ? $user->employee->toArray() : null;
+
             // Update user basic information regardless of update type
             $userData = [
                 'name' => $request->name,
@@ -131,10 +137,10 @@ class ProfileController extends Controller
                 if ($user->picture && $user->picture !== 'default.png' && file_exists(public_path('storage/images/user/' . $user->picture))) {
                     File::delete(public_path('storage/images/user/' . $user->picture));
                 }
-                
+
                 $userData['picture'] = $filename;
             }
-            
+
             // Handle password update
             if ($updateType === 'password' && $request->filled('password')) {
                 $userData['password'] = Hash::make($request->password);
@@ -155,6 +161,18 @@ class ProfileController extends Controller
                     'nik' => $request->nik,
                 ]);
             }
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old_user' => $oldUserData,
+                    'new_user' => $user->toArray(),
+                    'old_employee' => $oldEmployeeData,
+                    'new_employee' => $user->employee ? $user->employee->toArray() : null,
+                ])
+                ->log("Profile atau Employee berhasil diperbarui.");
+
 
             DB::commit();
 

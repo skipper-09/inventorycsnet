@@ -20,7 +20,7 @@ class TaskDetailController extends Controller
         $taskdata = Task::where('id', $taskdataid)->first();
         $data = [
             'title' => 'Detail Task',
-            'name'=> $taskdata->name,
+            'name' => $taskdata->name,
             'taskdata' => $taskdataid,
         ];
 
@@ -98,7 +98,7 @@ class TaskDetailController extends Controller
 
     public function store(Request $request, $taskdataid)
     {
-        
+
         $request->validate([
             'name' => 'required',
             'description' => 'required',
@@ -106,18 +106,24 @@ class TaskDetailController extends Controller
             'name.required' => 'Nama Task harus diisi.',
             'description.required' => 'Deskripsi Task harus diisi.',
         ]);
-    
+
         try {
             $task = new TaskDetail();
-            
+
             $task->fill([
                 'name' => $request->name,
                 'description' => $request->description,
                 'task_id' => $taskdataid,
             ]);
-    
-            $task->save();  
-    
+
+            $task->save();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($task->toArray())
+                ->log("Detail Task berhasil dibuat.");
+
             return redirect()->route('taskdetail.index', ['taskdataid' => $taskdataid])->with([
                 'status' => 'Success!',
                 'message' => 'Berhasil Menambahkan Detail Task!'
@@ -129,7 +135,7 @@ class TaskDetailController extends Controller
             ]);
         }
     }
-    
+
     public function edit($id)
     {
         $taskdetail = TaskDetail::findOrFail($id);
@@ -154,7 +160,18 @@ class TaskDetailController extends Controller
 
         try {
             $taskdetail = TaskDetail::findOrFail($id);
+            $oldTaskDetail = $taskdetail->toArray();
+
             $taskdetail->update($request->all());
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldTaskDetail,
+                    'new' => $taskdetail->toArray()
+                ])
+                ->log("Detail Task berhasil diperbarui.");
 
             return redirect()->route('taskdetail.index', ['taskdataid' => $taskdetail->task_id])->with([
                 'status' => 'Success!',
@@ -164,7 +181,7 @@ class TaskDetailController extends Controller
             Log::error($e->getMessage());
             $taskdetail = TaskDetail::findOrFail($id);
             return redirect()->route('taskdetail.index', ['taskdataid' => $taskdetail->task_id])->with([
-                'status' => 'Error!', 
+                'status' => 'Error!',
                 'message' => 'Gagal Mengubah Detail Task!'
             ]);
         }
@@ -174,8 +191,15 @@ class TaskDetailController extends Controller
     {
         try {
             $taskdetail = TaskDetail::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($taskdetail->toArray())
+                ->log("Detail Task berhasil dihapus.");
+
             $taskdetail->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

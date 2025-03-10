@@ -167,33 +167,32 @@ class TaskReportController extends Controller
     }
 
     public function review($id, Request $request)
-{
-    try {
-        $employeeTask = EmployeeTask::findOrFail($id);
-        $validatedData = $request->validate([
-            'status' => 'required|in:complated,pending,overdue,in_review', // Fix typo here
-            'log' => 'required|string',
-        ]);
+    {
+        try {
+            $employeeTask = EmployeeTask::findOrFail($id);
+            $validatedData = $request->validate([
+                'status' => 'required|in:complated,pending,overdue,in_review', // Fix typo here
+                'log' => 'required|string',
+            ]);
 
-        $employeeTask->status = $validatedData['status'];
-        $employeeTask->save();
+            $employeeTask->status = $validatedData['status'];
+            $employeeTask->save();
 
-        employeTaskLog::create([
-            'employe_task_id' => $employeeTask->id, 
-            'log' => 'Tugas direview oleh ' . Auth::user()->name . ' - dengan alasan ' . $validatedData['log'],
-        ]);
+            employeTaskLog::create([
+                'employe_task_id' => $employeeTask->id,
+                'log' => 'Tugas direview oleh ' . Auth::user()->name . ' - dengan alasan ' . $validatedData['log'],
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Berhasil Review Tugas!',
-            'redirect_url' => route('taskreport.details', ['id' => $id]), // Send the URL for redirection
-        ]);
-    } catch (Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal Review Tugas! ' . $e->getMessage(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil Review Tugas!',
+                'redirect_url' => route('taskreport.details', ['id' => $id]), // Send the URL for redirection
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal Review Tugas! ' . $e->getMessage(),
+            ]);
+        }
     }
-}
-
 }

@@ -30,20 +30,18 @@ class UnitProductController extends Controller
             // $button .= ' <a href="' . route('dashboard') . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
             //                                             class="fas fa-pen "></i></a>';
 
-            if ($userauth-> can('update-unit-product')) {
-            $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
+            if ($userauth->can('update-unit-product')) {
+                $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data->id]) . '" data-proses="' . route('unitproduk.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                                                         class="fas fa-pen "></i></button>';
             }
             if ($userauth->can('delete-unit-product')) {
-            $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('unitproduk.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('unitproduk.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
             }
             return '<div class="d-flex gap-2">' . $button . '</div>';
         })->rawColumns(['action'])->make(true);
     }
-
-
 
     public function store(Request $request)
     {
@@ -56,6 +54,12 @@ class UnitProductController extends Controller
         try {
             $unit = new UnitProduct();
             $unit->create($request->all());
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($unit->toArray())
+                ->log("Unit Produk berhasil dibuat.");
 
             return response()->json([
                 'success' => true,
@@ -70,8 +74,6 @@ class UnitProductController extends Controller
             ]);
         }
     }
-
-
 
     public function show($id)
     {
@@ -90,7 +92,18 @@ class UnitProductController extends Controller
         ]);
         try {
             $unit = UnitProduct::findOrFail($id);
+            $oldUnit = $unit->toArray();
+
             $unit->update($request->all());
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldUnit,
+                    'new' => $unit->toArray()
+                ])
+                ->log("Unit Produk berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -106,14 +119,20 @@ class UnitProductController extends Controller
         }
     }
 
-
     //destroy data
     public function destroy($id)
     {
         try {
             $unitproduct = UnitProduct::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($unitproduct->toArray())
+                ->log("Unit Produk berhasil dihapus.");
+
             $unitproduct->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

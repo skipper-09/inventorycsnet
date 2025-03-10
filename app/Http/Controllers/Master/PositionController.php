@@ -47,7 +47,14 @@ class PositionController extends Controller
         ]);
 
         try {
-            position::create($validated);
+            $position = Position::create($validated);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($position->toArray())
+                ->log("Data Jabatan berhasil dibuat.");
+
 
             return response()->json([
                 'success' => true,
@@ -79,7 +86,22 @@ class PositionController extends Controller
         ]);
 
         try {
-            Position::findOrFail($id)->update($validated);
+            $position = Position::findOrFail($id);
+            $oldPosition = $position->toArray();
+
+            $position->update($validated);
+
+            $position->refresh();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldPosition,
+                    'new' => $position->toArray()
+                ])
+                ->log("Data Jabatan berhasil diperbarui.");
+
 
             return response()->json([
                 'success' => true,
@@ -98,7 +120,15 @@ class PositionController extends Controller
     public function destroy($id)
     {
         try {
-            Position::findOrFail($id)->delete();
+            $position = Position::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($position->toArray())
+                ->log("Data Jabatan berhasil dihapus.");
+
+            $position->delete();
 
             return response()->json([
                 'status' => 'success',

@@ -235,13 +235,13 @@ class LeaveReportController extends Controller
             }
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('updated')
-            ->withProperties([
-                'old' => $oldLeave,
-                'new' => $leave->toArray()
-            ])
-            ->log("Laporan Cuti berhasil diperbarui.");
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldLeave,
+                    'new' => $leave->toArray()
+                ])
+                ->log("Laporan Cuti berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -267,13 +267,14 @@ class LeaveReportController extends Controller
     {
         try {
             $leave = Leave::findOrFail($id);
-            $leave->delete();
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('deleted')
-            ->withProperties($leave->toArray())
-            ->log("Laaporan Cuti berhasil dihapus.");
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($leave->toArray())
+                ->log("Laaporan Cuti berhasil dihapus.");
+
+            $leave->delete();
 
             return response()->json([
                 'status' => 'success',
