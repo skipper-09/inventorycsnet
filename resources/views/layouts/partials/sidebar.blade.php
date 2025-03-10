@@ -133,7 +133,15 @@
                 @endcanany
 
                 <li class="menu-title">LAPORAN</li>
-                @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
+                @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report','read-kpi-employee'])
+                @can('read-kpi-employee')
+                <li>
+                    <a href="{{ route('kpi.employee') }}" class="">
+                        <i class="fas fa-users"></i>
+                        <span>Kpi Karyawan</span>
+                    </a>
+                </li>
+                @endcan
                     <li>
                         <a href="javascript: void(0);" class="has-arrow">
                             <i class="fas fa-chart-line"></i>

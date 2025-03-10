@@ -145,6 +145,8 @@ class PermissionSeeder extends Seeder
             'create-transfer-product',
             'update-transfer-product',
             'delete-transfer-product',
+            //kpi karyawan
+            'read-kpi-employee',
             // Work Product
             'read-work-product',
             'create-work-product',

@@ -22,6 +22,7 @@ use App\Http\Controllers\Master\UnitProductController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Notification\NotificatioinController;
 use App\Http\Controllers\Report\FreeReportController;
+use App\Http\Controllers\Report\Kpi\KpiController;
 use App\Http\Controllers\Report\LeaveReportController;
 use App\Http\Controllers\Report\TaskReportController;
 use App\Http\Controllers\Settings\ActivityLogController;
@@ -393,6 +394,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [CustomerController::class, 'destroy'])->name('customer.delete');
             Route::get('getdataodp/{zone_id}', [CustomerController::class, 'getOdpByZone'])->name('customer.getdataodp');
         });
+
+
+        //kpi karyawan
+        Route::prefix('kpi')->group(function () {
+            Route::get('', [KpiController::class, 'index'])->name('kpi.employee')->middleware('can:read-kpi-employee');
+            Route::get('getdata', [KpiController::class, 'getData'])->name('kpi.employee.getdata');
+        });
+
     });
 
     // //income product
