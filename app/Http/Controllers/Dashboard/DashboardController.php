@@ -39,11 +39,11 @@ class DashboardController extends Controller
                     $query->where('assign_date', '>=', Carbon::now()->subHours(24)); // Filter berdasarkan assign_date dalam 24 jam terakhir
                 })
                 ->orderByDesc('id'); // Mengurutkan berdasarkan id jika diperlukan
-            
+
             $taskReport = $query->get()->groupBy(function ($item) {
                 return $item->employee_id; // Grouping berdasarkan employee_id
             });
-            
+
             // Ambil tugas pertama dari setiap grup
             $latestTaskReport = $taskReport->map(function ($group) {
                 return $group->first(); // Ambil hanya tugas pertama dari setiap grup employee
@@ -90,18 +90,17 @@ class DashboardController extends Controller
             ->whereDate('task_assigns.assign_date', Carbon::today()) // Filter berdasarkan assign_date
             ->count();
 
-        // Menghitung sisa cuti
+
+        // Definisikan $currentYear
         $currentYear = date('Y');
-        $usedLeaves = $employee->leaves()
+
+        // Menghitung total cuti yang sudah diajukan
+        $requestedLeaves = $employee->leaves()
             ->whereYear('created_at', $currentYear)
-            ->where('status', 'approved')
-            ->get()
+            ->get() // Mengambil semua cuti tanpa memfilter berdasarkan status
             ->sum(function ($leave) {
                 return Carbon::parse($leave->start_date)->diffInDays(Carbon::parse($leave->end_date)) + 1;
             });
-
-        $annualLeaveAllowance = 12; // Asumsi 12 hari cuti tahunan
-        $remainingLeaves = $annualLeaveAllowance - $usedLeaves;
 
         // Mengambil gaji bulan ini
         $currentMonth = date('m');
@@ -168,7 +167,7 @@ class DashboardController extends Controller
             'greeting' => $greeting,
             'employee' => $employee,
             'totalTask' => $totalTask,
-            'remainingLeaves' => $remainingLeaves,
+            'requestedLeaves' => $requestedLeaves,
             'netSalary' => $netSalary,
             'currentSalary' => $currentSalary,
             'recentLeaves' => $recentLeaves,
