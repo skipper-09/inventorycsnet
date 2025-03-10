@@ -77,10 +77,6 @@
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>{{ Auth::user()->hasRole('Employee') ? 'Tugas Saya' : 'Tugas Karyawan' }}</a>
                                 </li>
                             @endcan
-                            @can('read-task-template')
-                                <li><a href="{{ route('tasktemplate') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Task Template</a></li>
-                            @endcan
                         </ul>
                     </li>
                 @endcanany
@@ -132,12 +128,12 @@
                     </li>
                 @endcanany
 
-                <li class="menu-title">LAPORAN</li>
+                {{-- <li class="menu-title">LAPORAN</li> --}}
                 @canany(['read-leave-report', 'read-task-report', 'read-customer', 'read-activity-report'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow">
                             <i class="fas fa-chart-line"></i>
-                            <span>{{ Auth::user()->hasRole('Employee') ? 'Laporan Saya' : 'Laporan Karyawan' }}</span>
+                            <span>{{ Auth::user()->hasRole('Employee') ? 'Laporan' : 'Laporan Karyawan' }}</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
                             <!-- Only show leave-report here for non-Employee roles -->
