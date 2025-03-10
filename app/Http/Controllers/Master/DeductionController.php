@@ -73,6 +73,12 @@ class DeductionController extends Controller
             $deduction->amount = $request->amount;
             $deduction->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($deduction->toArray())
+                ->log("Data Potongan berhasil dibuat.");
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
@@ -109,10 +115,20 @@ class DeductionController extends Controller
 
         try {
             $deduction = Deduction::findOrFail($id);
+            $oldDeduction = $deduction->toArray();
             $deduction->employee_id = $request->employee_id;
             $deduction->deduction_type_id = $request->deduction_type_id;
             $deduction->amount = $request->amount;
             $deduction->save();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldDeduction,
+                    'new' => $deduction->toArray()
+                ])
+                ->log("Data Potongan berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -132,8 +148,15 @@ class DeductionController extends Controller
     {
         try {
             $deduction = Deduction::findOrFail($id);
+            
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($deduction->toArray())
+                ->log("Data Potongan berhasil dihapus.");
+
             $deduction->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

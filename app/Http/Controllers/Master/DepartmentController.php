@@ -48,7 +48,13 @@ class DepartmentController extends Controller
         ]);
 
         try {
-            Department::create($validated);
+            $department = Department::create($validated);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($department->toArray())
+                ->log("Data Departemen berhasil dibuat.");
 
             return response()->json([
                 'success' => true,
@@ -81,7 +87,21 @@ class DepartmentController extends Controller
         ]);
 
         try {
-            Department::findOrFail($id)->update($validated);
+            $department = Department::findOrFail($id);
+            $oldDepartment = $department->toArray();
+
+            $department->update($validated);
+
+            $department->refresh();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldDepartment,
+                    'new' => $department->toArray()
+                ])
+                ->log("Data Departemen berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -100,7 +120,15 @@ class DepartmentController extends Controller
     public function destroy($id)
     {
         try {
-            Department::findOrFail($id)->delete();
+            $department = Department::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($department->toArray())
+                ->log("Data Departemen berhasil dihapus.");
+
+            $department->delete();
 
             return response()->json([
                 'status' => 'success',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
@@ -19,7 +20,6 @@ class SettingController extends Controller
         return view('pages.settings.settings.index', $data);
     }
 
-
     public function update(Request $request)
     {
 
@@ -31,6 +31,9 @@ class SettingController extends Controller
 
         // get data
         $setting = Setting::firstOrCreate([]);
+
+        $oldSettingsData = $setting->toArray();
+
         if ($request->hasFile('logo')) {
             $logoPath = 'public/logo/' . $setting->logo;
 
@@ -39,9 +42,18 @@ class SettingController extends Controller
             }
             $validated['logo'] = $request->file('logo')->store('logo', 'public');
         }
+
         $setting->update($validated);
+
+        activity()
+            ->causedBy(Auth::user())
+            ->event('updated')
+            ->withProperties([
+                'old' => $oldSettingsData,
+                'new' => $setting->toArray(),
+            ])
+            ->log("Setting Aplikasi berhasil diperbarui.");
 
         return redirect()->back()->with(['status' => 'Success!', 'message' => 'Berhasil Setting Aplication!']);
     }
-
 }

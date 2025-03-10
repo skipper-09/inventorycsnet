@@ -65,6 +65,12 @@ class ProductController extends Controller
             $product->unit_id = $request->unit_id;
             $product->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($product->toArray())
+                ->log("Data Produk berhasil dibuat.");
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
@@ -83,7 +89,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         return response()->json([
-            'product'  => $product,
+            'product' => $product,
         ], 200);
     }
 
@@ -101,10 +107,21 @@ class ProductController extends Controller
 
         try {
             $product = Product::findOrFail($id);
+            $oldProduct = $product->toArray();
+
             $product->name = $request->name;
             $product->description = $request->description;
             $product->unit_id = $request->unit_id;
             $product->save();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldProduct,
+                    'new' => $product->toArray()
+                ])
+                ->log("Data Produk berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -124,8 +141,15 @@ class ProductController extends Controller
     {
         try {
             $product = Product::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($product->toArray())
+                ->log("Data Produk berhasil dihapus.");
+
             $product->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

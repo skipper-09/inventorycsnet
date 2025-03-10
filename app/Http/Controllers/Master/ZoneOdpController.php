@@ -7,6 +7,7 @@ use App\Models\ZoneOdp;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
 class ZoneOdpController extends Controller
@@ -123,23 +124,30 @@ class ZoneOdpController extends Controller
 
 
 
-      //destroy data
-      public function destroy($id)
-      {
-          try {
-              $zone = ZoneOdp::findOrFail($id);
-              $zone->delete();
-              //return response
-              return response()->json([
-                  'status' => 'success',
-                  'success' => true,
-                  'message' => 'Data Zone Odp Berhasil Dihapus!.',
-              ]);
-          } catch (Exception $e) {
-              return response()->json([
-                  'message' => 'Gagal Menghapus Data Zone Odp!',
-                  'trace' => $e->getTrace()
-              ]);
-          }
-      }
+    //destroy data
+    public function destroy($id)
+    {
+        try {
+            $zone = ZoneOdp::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($zone->toArray())
+                ->log("Data Zone Odp berhasil dihapus.");
+
+            $zone->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Data Zone Odp Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Data Zone Odp!',
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
 }

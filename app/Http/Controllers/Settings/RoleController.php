@@ -83,6 +83,14 @@ class RoleController extends Controller
             $role = Role::create($request->only(['name']));
             $role->givePermissionTo($request->permissions);
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties([
+                    'role' => $role->toArray(),
+                ])
+                ->log("Role {$role->name} berhasil dibuat.");
+
             return redirect()->route('role')->with(['status' => 'Success!', 'message' => 'Berhasil Menambahkan Role!']);
         } catch (Exception $e) {
             return redirect()->route('role')->with(['status' => 'Error!', 'message' => 'Gagal Menambahkan Role!']);
@@ -107,9 +115,19 @@ class RoleController extends Controller
 
         try {
             $role = Role::find($id);
+            $oldRoleData = $role->toArray();
 
             $role->syncPermissions($request->permissions);
             $role->update($request->only(['name']));
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldRoleData,
+                    'new' => $role->toArray(),
+                ])
+                ->log("Role {$role->name} berhasil diperbarui.");
 
             return redirect()->route('role')->with(['status' => 'Success!', 'message' => 'Berhasil Mengubah Role!']);
         } catch (Exception $e) {
@@ -121,7 +139,17 @@ class RoleController extends Controller
     {
         try {
             $role = Role::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties([
+                    'role' => $role->toArray(),
+                ])
+                ->log("Role {$role->name} berhasil dihapus.");
+
             $role->delete();
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

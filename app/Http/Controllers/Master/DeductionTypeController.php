@@ -47,7 +47,13 @@ class DeductionTypeController extends Controller
         ]);
 
         try {
-            DeductionType::create($validated);
+            $deductionType = DeductionType::create($validated);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($deductionType->toArray())
+                ->log("Tipe Deduksi berhasil dibuat.");
 
             return response()->json([
                 'success' => true,
@@ -78,7 +84,24 @@ class DeductionTypeController extends Controller
         ]);
 
         try {
-            DeductionType::findOrFail($id)->update($validated);
+            // Get the model before updating to store old values
+            $deductionType = DeductionType::findOrFail($id);
+            $oldDeductionType = $deductionType->toArray();
+
+            // Update the model
+            $deductionType->update($validated);
+
+            // Refresh the model to get the updated values
+            $deductionType->refresh();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldDeductionType,
+                    'new' => $deductionType->toArray()
+                ])
+                ->log("Tipe Deduksi berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -97,7 +120,15 @@ class DeductionTypeController extends Controller
     public function destroy($id)
     {
         try {
-            DeductionType::findOrFail($id)->delete();
+            $deductionType = DeductionType::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($deductionType->toArray())
+                ->log("Tipe Potongan berhasil dihapus.");
+
+            $deductionType->delete();
 
             return response()->json([
                 'status' => 'success',

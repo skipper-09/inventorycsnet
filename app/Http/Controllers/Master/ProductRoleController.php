@@ -72,8 +72,13 @@ class ProductRoleController extends Controller
         try {
             DB::beginTransaction();
 
+            // Get old product roles before deletion for logging
+            $oldProductRoles = ProductRole::where('role_id', $roleId)->get()->toArray();
+
+            // Delete existing product roles
             ProductRole::where('role_id', $roleId)->delete();
 
+            // Prepare new product roles data
             $productRoles = array_map(function ($productId) use ($roleId) {
                 return [
                     'role_id' => $roleId,
@@ -83,7 +88,21 @@ class ProductRoleController extends Controller
                 ];
             }, $request->product_id);
 
+            // Insert new product roles
             ProductRole::insert($productRoles);
+
+            // Get new product roles for logging
+            $newProductRoles = ProductRole::where('role_id', $roleId)->get()->toArray();
+
+            // Log the activity
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldProductRoles,
+                    'new' => $newProductRoles
+                ])
+                ->log("Product Role berhasil diperbarui.");
 
             DB::commit();
 

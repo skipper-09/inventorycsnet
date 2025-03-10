@@ -9,6 +9,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class OdpController extends Controller
@@ -38,7 +39,7 @@ class OdpController extends Controller
                 // $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('odp.edit', ['id' => $data->id]) . '" data-proses="' . route('odp.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
                 //             data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
                 //                                         class="fas fa-pen "></i></button>';
-
+    
                 $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('odp.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
                 return '<div class="d-flex gap-2">' . $button . '</div>';
@@ -126,6 +127,12 @@ class OdpController extends Controller
             }
         }
 
+        activity()
+            ->causedBy(Auth::user())
+            ->event('created')
+            ->withProperties($zones->toArray())
+            ->log("Data Zona berhasil disinkronisasi.");
+
         return response()->json([
             'status' => 'Success',
             'message' => 'Data synced successfully.',
@@ -149,24 +156,32 @@ class OdpController extends Controller
     }
 
 
-      //destroy data
-      public function destroy($id)
-      {
-          try {
-              $odp = Odp::findOrFail($id);
-              $odp->delete();
-              //return response
-              return response()->json([
-                  'status' => 'success',
-                  'success' => true,
-                  'message' => 'Data Odp Berhasil Dihapus!.',
-              ]);
-          } catch (Exception $e) {
-              return response()->json([
-                  'message' => 'Gagal Menghapus Data Odp!',
-                  'trace' => $e->getTrace()
-              ]);
-          }
-      }
+    //destroy data
+    public function destroy($id)
+    {
+        try {
+            $odp = Odp::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($odp->toArray())
+                ->log("Data Odp berhasil dihapus.");
+
+            $odp->delete();
+
+            //return response
+            return response()->json([
+                'status' => 'success',
+                'success' => true,
+                'message' => 'Data Odp Berhasil Dihapus!.',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => 'Gagal Menghapus Data Odp!',
+                'trace' => $e->getTrace()
+            ]);
+        }
+    }
 
 }

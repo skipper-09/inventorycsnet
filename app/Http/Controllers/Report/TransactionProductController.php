@@ -8,6 +8,7 @@ use App\Models\Transaction;
 use App\Models\TransactionProduct;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +38,7 @@ class TransactionProductController extends Controller
             ->orderByDesc('created_at'); // Moved the orderByDesc here
 
 
-            
+
         // Apply transaction purpose filter
         if ($request->filled('transaksi')) {
             $query->whereHas('transaksi', function ($q) use ($request) {
@@ -150,7 +151,7 @@ class TransactionProductController extends Controller
         Log::info('Export Parameters:', $request->all()); // Logging untuk memverifikasi parameter
         return Excel::download(
             new TransactionProductExport($request),
-            'laporan_transaksi_barang_' . $request->start_date. '_'. $request->end_date . '.xlsx'
+            'laporan_transaksi_barang_' . $request->start_date . '_' . $request->end_date . '.xlsx'
         );
     }
 
@@ -176,11 +177,17 @@ class TransactionProductController extends Controller
                 'quantity' => 'required|numeric|min:1',
             ]);
 
-            TransactionProduct::create([
+            $transactionProduct = TransactionProduct::create([
                 'transaction_id' => $request->transaction_id,
                 'product_id' => $request->product_id,
                 'quantity' => $request->quantity,
             ]);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($transactionProduct->toArray())
+                ->log("Data transaksi barang berhasil dibuat.");
 
             DB::commit();
 
@@ -217,6 +224,8 @@ class TransactionProductController extends Controller
 
             $transactionProduct = TransactionProduct::findOrFail($id);
 
+            $oldTransactionProduct = $transactionProduct->toArray();
+
             $request->validate([
                 'transaction_id' => 'required|exists:transactions,id',
                 'product_id' => 'required|exists:products,id',
@@ -228,6 +237,15 @@ class TransactionProductController extends Controller
                 'product_id' => $request->product_id,
                 'quantity' => $request->quantity,
             ]);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldTransactionProduct,
+                    'new' => $transactionProduct->toArray()
+                ])
+                ->log("Data transaksi barang berhasil diperbarui.");
 
             DB::commit();
 
@@ -249,6 +267,13 @@ class TransactionProductController extends Controller
             DB::beginTransaction();
 
             $transactionProduct = TransactionProduct::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($transactionProduct->toArray())
+                ->log("Data transaksi barang berhasil dihapus.");
+
             $transactionProduct->delete();
 
             DB::commit();

@@ -73,6 +73,12 @@ class AllowanceController extends Controller
             $allowance->amount = $request->amount;
             $allowance->save();
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($allowance->toArray())
+                ->log("Data Tunjangan berhasil dibuat.");
+
             return response()->json([
                 'success' => true,
                 'status' => "Berhasil",
@@ -109,10 +115,20 @@ class AllowanceController extends Controller
 
         try {
             $allowance = Allowance::findOrFail($id);
+            $oldAllowance = $allowance->toArray();
             $allowance->employee_id = $request->employee_id;
             $allowance->allowance_type_id = $request->allowance_type_id;
             $allowance->amount = $request->amount;
             $allowance->save();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldAllowance,
+                    'new' => $allowance->toArray()
+                ])
+                ->log("Data Tunjangan berhasil diperbarui.");
 
             return response()->json([
                 'success' => true,
@@ -132,8 +148,15 @@ class AllowanceController extends Controller
     {
         try {
             $allowance = Allowance::findOrFail($id);
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($allowance->toArray())
+                ->log("Data Tunjangan berhasil dihapus.");
+
             $allowance->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,

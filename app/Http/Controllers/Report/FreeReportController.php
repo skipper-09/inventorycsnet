@@ -97,7 +97,7 @@ class FreeReportController extends Controller
                 return Str::limit($stripped, limit: 100);
             })->editColumn('created_at', function ($data) {
                 return formatDate($data->created_at);
-            })->addColumn('user_name', function ($freeReport)  {
+            })->addColumn('user_name', function ($freeReport) {
                 return $freeReport->user->name ?? '-';
             })->addColumn('position_name', function ($freeReport) {
                 return $freeReport->user->employee->position->name ?? '-';
@@ -185,13 +185,13 @@ class FreeReportController extends Controller
             $freeReport->save();
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('updated')
-            ->withProperties([
-                'old' => $oldFreeReport,
-                'new' => $freeReport->toArray()
-            ])
-            ->log("Laporan Aktivitas berhasil diperbarui.");
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldFreeReport,
+                    'new' => $freeReport->toArray()
+                ])
+                ->log("Laporan Aktivitas berhasil diperbarui.");
 
             return redirect()->route('activityreport')->with([
                 'status' => 'Success!',
@@ -207,13 +207,14 @@ class FreeReportController extends Controller
     {
         try {
             $freeReport = FreeReport::findOrFail($id);
-            $freeReport->delete();
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('deleted')
-            ->withProperties($freeReport->toArray())
-            ->log("Laaporan Aktivitas berhasil dihapus.");
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($freeReport->toArray())
+                ->log("Laporan Aktivitas berhasil dihapus.");
+
+            $freeReport->delete();
 
             return response()->json([
                 'status' => 'success',

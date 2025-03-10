@@ -79,6 +79,7 @@ class AssignmentController extends Controller
         DB::beginTransaction();
         try {
             $tasktemplate = TaskTemplate::find($request->task);
+
             if (!$tasktemplate) {
                 DB::rollBack();
                 return response()->json([
@@ -144,7 +145,7 @@ class AssignmentController extends Controller
                 }
             } else {
                 // Jika ditugaskan ke individu (employee)
-                $user = User::where('employee_id',$request->employee)->first(); // Menemukan user berdasarkan employee_id yang diberikan
+                $user = User::where('employee_id', $request->employee)->first(); // Menemukan user berdasarkan employee_id yang diberikan
                 if ($user) {
                     $user->notify(new NotificationJobs($taskassign));
                 }
@@ -170,6 +171,12 @@ class AssignmentController extends Controller
                 }
             }
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->withProperties($taskassign->toArray())
+                ->log("Penugasan berhasil dibuat.");
+
             return redirect()->route('assignment');
         } catch (Exception $e) {
             DB::rollBack();
@@ -186,8 +193,15 @@ class AssignmentController extends Controller
     {
         try {
             $taskassign = TaskAssign::findOrFail($id);
+
+            activity()
+            ->causedBy(Auth::user())
+            ->event('deleted')
+            ->withProperties($taskassign->toArray())
+            ->log("Penugasan berhasil dihapus.");
+            
             $taskassign->delete();
-            //return response
+
             return response()->json([
                 'status' => 'success',
                 'success' => true,
