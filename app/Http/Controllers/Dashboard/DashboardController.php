@@ -30,16 +30,24 @@ class DashboardController extends Controller
             $products = Product::all()->keyBy('id');
 
             // Mengambil semua data laporan task terbaru hari ini
-            $latestTaskReport = EmployeeTask::with([
+            $query = EmployeeTask::with([
                 'employee',
-                'taskAssign',
-                'taskDetail.task'
+                'taskAssign.tasktemplate',
+                'taskDetail.task',
             ])
                 ->whereHas('taskAssign', function ($query) {
-                    $query->where('assign_date', '>=', now()->subHours(24));
+                    $query->where('assign_date', '>=', Carbon::now()->subHours(24)); // Filter berdasarkan assign_date dalam 24 jam terakhir
                 })
-                ->orderByDesc('id')
-                ->get();
+                ->orderByDesc('id'); // Mengurutkan berdasarkan id jika diperlukan
+            
+            $taskReport = $query->get()->groupBy(function ($item) {
+                return $item->employee_id; // Grouping berdasarkan employee_id
+            });
+            
+            // Ambil tugas pertama dari setiap grup
+            $latestTaskReport = $taskReport->map(function ($group) {
+                return $group->first(); // Ambil hanya tugas pertama dari setiap grup employee
+            });
 
             // Mengambil semua data activity log terbaru
             $latestActivityLog = Activity::with('causer')
