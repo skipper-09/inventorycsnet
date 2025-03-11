@@ -72,6 +72,7 @@ class KpiController extends Controller
             $formattedBulanTahun = $bulanTahun->format('F Y');
 
             $data[] = [
+                'assigne_id' => $taskAssign->assignee_id,
                 'employee_name' => $employeeName,
                 'completed_tasks' => $completedTasks,
                 'inreview_tasks' => $inreview,
@@ -84,22 +85,87 @@ class KpiController extends Controller
         // Kembalikan DataTables response
         return DataTables::of($data)
             ->addIndexColumn()
-            ->addColumn('action', function ($data) {
+            ->addColumn('action', function ($data) use ($bulan, $tahun) {
                 $userauth = User::with('roles')->where('id', Auth::id())->first();
                 $button = '';
-
-                // Contoh: Tambahkan tombol untuk aksi edit dan delete
                 if ($userauth->can('update-unit-product')) {
-                    $button .= ' <button class="btn btn-sm btn-success" data-id="' . $data['employee_name'] . '" data-type="edit" data-route="' . route('unitproduk.edit', ['id' => $data['employee_name']]) . '" data-bs-toggle="modal" data-bs-target="#modal8" data-action="edit" data-title="Unit Produk" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pen "></i></button>';
-                }
-                if ($userauth->can('delete-unit-product')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id="' . $data['employee_name'] . '" data-type="delete" data-route="' . route('unitproduk.delete', ['id' => $data['employee_name']]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i class="fas fa-trash "></i></button>';
+                    $button .= ' <a href="' . route('kpi.employee.detail', ['assigne_id' => $data['assigne_id'],'bulan'=>$bulan,'tahun'=>$tahun]) . '" class="btn btn-sm btn-info action mr-1" data-id=' . $data['assigne_id'] . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Detail Data"><i class="fas fa-eye"></i></a>';
                 }
 
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
             ->rawColumns(['action'])
             ->make(true);
+    }
+
+
+    public function detail($assigne_id, $bulan, $tahun)
+    {
+        $bulanTahun = Carbon::createFromFormat('Y-m', $tahun . '-' . $bulan);
+
+        $taskAssigns = TaskAssign::with(['employeeTasks', 'employeeTasks.taskDetail', 'employeeTasks.taskReports', 'assignee', 'employeeTasks.taskDetail.task'])
+            ->where('assignee_id', $assigne_id)
+            ->whereMonth('assign_date', $bulan)
+            ->whereYear('assign_date', $tahun)
+            ->get();
+        
+        if ($taskAssigns->isEmpty()) {
+            return redirect()->route('employee.task.list')->with('error', 'Data tidak ditemukan');
+        }
+    
+        $tasks = [];
+        foreach ($taskAssigns as $taskAssign) {
+            $taskData = [];
+    
+            $groupedTasks = $taskAssign->employeeTasks->groupBy(function($task) {
+                return $task->taskDetail->task->name;
+            });
+    
+            foreach ($groupedTasks as $taskName => $employeeTasks) {
+                $taskReports = [];
+    
+                foreach ($employeeTasks as $employeeTask) {
+                    $reports = $employeeTask->taskReports;
+    
+                    $reportData = [];
+                    foreach ($reports as $report) {
+                        $reportData[] = [
+                            'report_content' => $report->report_content,
+                            'reason_not_complated' => $report->reason_not_complated,
+                            'report_images' => $report->reportImage->pluck('image'),
+                        ];
+                    }
+    
+                    $taskReports[] = [
+                        'task_name' => $employeeTask->taskDetail->name, 
+                        'status' => $employeeTask->getStatus(),              
+                        'reports' => $reportData,
+                    ];
+                }
+    
+                $taskData[] = [
+                    'task_name' => $taskName,
+                    'tasks' => $taskReports,
+                ];
+            }
+    
+            $tasks[] = [
+                'task_assign_id' => $taskAssign->id,
+                'task_assign_date' => Carbon::parse($taskAssign->assign_date)->format('F Y'),
+                'employee_name' => $taskAssign->assignee->name,
+                'position' => $taskAssign->assignee,
+                'place'=> $taskAssign->place,
+                'template'=> $taskAssign->tasktemplate->name,
+                'tasks' => $taskData,
+            ];
+        }
+        
+        // Mengembalikan data ke view
+        return view('pages.report.kpi.detail', [
+            'title'=>'Detail ' . $taskAssign->assignee->name,
+            'tasks' => $tasks,
+            'bulanTahun' => $bulanTahun->format('F Y'),
+        ]);
     }
 
 }

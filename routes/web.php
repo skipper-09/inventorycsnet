@@ -400,6 +400,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::prefix('kpi')->group(function () {
             Route::get('', [KpiController::class, 'index'])->name('kpi.employee')->middleware('can:read-kpi-employee');
             Route::get('getdata', [KpiController::class, 'getData'])->name('kpi.employee.getdata');
+            Route::get('detail/{assigne_id}/{bulan}/{tahun}', [KpiController::class, 'detail'])->name('kpi.employee.detail');
         });
 
     });

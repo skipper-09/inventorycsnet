@@ -228,7 +228,7 @@
 @endpush
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid">
         <!-- Page Header -->
         <div class="row">
             <div class="col-12">

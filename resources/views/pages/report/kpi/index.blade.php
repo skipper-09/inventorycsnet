@@ -84,9 +84,9 @@
                                     <th>Tugas Tidak Dikerjakan</th>
                                     <th>KPI (%)</th>
                                     <th>Bulan</th>
-                                    {{-- @canany(['update-task-report', 'delete-task-report'])
+                                    @canany(['update-task-report', 'delete-task-report'])
                                         <th>Action</th>
-                                    @endcanany --}}
+                                    @endcanany
                                 </tr>
                             </thead>
                         </table>

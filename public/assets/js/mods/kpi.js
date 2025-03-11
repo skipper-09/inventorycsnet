@@ -49,14 +49,14 @@ $(document).ready(function () {
     ];
 
     // Only add action column if user has permission
-    // if (hasActionPermission) {
-    //     columns.push({
-    //         data: "action",
-    //         name: "action",
-    //         orderable: false,
-    //         searchable: false,
-    //     });
-    // }
+    if (hasActionPermission) {
+        columns.push({
+            data: "action",
+            name: "action",
+            orderable: false,
+            searchable: false,
+        });
+    }
 
     // Initialize DataTable
     var table = $("#scroll-sidebar-datatable").DataTable({
