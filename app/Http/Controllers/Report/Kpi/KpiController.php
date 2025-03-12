@@ -15,16 +15,12 @@ class KpiController extends Controller
 {
     public function index()
     {
-
         $data = [
             'title' => 'Kpi Karyawan',
         ];
 
         return view('pages.report.kpi.index', $data);
     }
-
-
-
 
     //getdata
     public function getData(Request $request)
@@ -98,6 +94,47 @@ class KpiController extends Controller
             ->make(true);
     }
 
+    /**
+     * Get chart data for task status
+     */
+    private function getChartData($assigne_id, $bulan, $tahun)
+    {
+        // Get task assignments for the specific employee, month and year
+        $taskAssigns = TaskAssign::with(['employeeTasks'])
+            ->where('assignee_id', $assigne_id)
+            ->whereMonth('assign_date', $bulan)
+            ->whereYear('assign_date', $tahun)
+            ->get();
+        
+        // Initialize counters
+        $completed = 0;
+        $inReview = 0;
+        $notWorked = 0;
+        
+        // Count tasks by status
+        foreach ($taskAssigns as $taskAssign) {
+            foreach ($taskAssign->employeeTasks as $employeeTask) {
+                if ($employeeTask->status == 'complated') {
+                    $completed++;
+                } elseif ($employeeTask->status == 'in_review') {
+                    $inReview++;
+                } elseif ($employeeTask->status == 'pending') {
+                    $notWorked++;
+                }
+            }
+        }
+        
+        // Return data in format suitable for charts
+        return [
+            'labels' => ['Selesai', 'Dalam Review', 'Belum Dikerjakan'],
+            'datasets' => [
+                [
+                    'data' => [$completed, $inReview, $notWorked],
+                    'backgroundColor' => ['#28a745', '#ffc107', '#dc3545']
+                ]
+            ]
+        ];
+    }
 
     public function detail($assigne_id, $bulan, $tahun)
     {
@@ -113,6 +150,9 @@ class KpiController extends Controller
             return redirect()->route('employee.task.list')->with('error', 'Data tidak ditemukan');
         }
     
+        // Get chart data for this employee/month/year
+        $chartData = $this->getChartData($assigne_id, $bulan, $tahun);
+        
         $tasks = [];
         foreach ($taskAssigns as $taskAssign) {
             $taskData = [];
@@ -160,12 +200,12 @@ class KpiController extends Controller
             ];
         }
         
-        // Mengembalikan data ke view
+        // Return data to view
         return view('pages.report.kpi.detail', [
             'title'=>'Detail ' . $taskAssign->assignee->name,
             'tasks' => $tasks,
             'bulanTahun' => $bulanTahun->format('F Y'),
+            'chartData' => $chartData  // Pass chart data to view
         ]);
     }
-
 }
