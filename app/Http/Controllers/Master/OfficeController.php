@@ -9,7 +9,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\DataTables\DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
 class OfficeController extends Controller
 {
@@ -110,12 +110,19 @@ class OfficeController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'company_id' => 'required',
+            'company_id' => 'required|exists:companies,id',
             'name' => 'required|string',
-            'lat' => 'required',
-            'long' => 'required',
-            'radius' => 'required|integer',
-            'address' => 'required'
+            'lat' => 'required|string',
+            'long' => 'required|string',
+            'radius' => 'required|numeric|min:1',
+            'address' => 'required|string'
+        ], [
+            'company_id.required' => 'Perusahaan harus dipilih.',
+            'name.required' => 'Nama cabang harus diisi.',
+            'lat.required' => 'Latitude harus diisi.',
+            'long.required' => 'Longitude harus diisi',
+            'radius.required' => 'Radius harus diisi.',
+            'address' => 'Alamat harus diisi'
         ]);
 
         try {
@@ -168,5 +175,4 @@ class OfficeController extends Controller
             ]);
         }
     }
-
 }

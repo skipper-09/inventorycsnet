@@ -17,6 +17,7 @@ use App\Http\Controllers\Master\OfficeController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\SalaryController;
+use App\Http\Controllers\Master\ShiftController;
 use App\Http\Controllers\Master\TaskDataController;
 use App\Http\Controllers\Master\TaskDetailController;
 use App\Http\Controllers\Master\TaskTemplateController;
@@ -114,7 +115,6 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         // branch
         Route::prefix('cabang')->group(function () {
             Route::get('', [BranchController::class, 'index'])->name('branch')->middleware('can:read-branch');
-            ;
             Route::get('getdata', [BranchController::class, 'getData'])->name('branch.getdata');
             Route::post('store', [BranchController::class, 'store'])->name('branch.store');
             Route::get('/edit/{id}', [BranchController::class, 'show'])->name('branch.edit')->middleware('can:update-branch');
@@ -310,6 +310,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [SalaryController::class, 'destroy'])->name('salary.delete')->middleware('can:delete-salary');
             Route::get('/generate-slip/{id}', [SalaryController::class, 'generateSalarySlip'])->name('salary.generate-slip');
             Route::get('/export', [SalaryController::class, 'exportSalary'])->name('salary.export')->middleware('can:export-salary');
+        });
+
+        // Shift
+        Route::prefix('shift')->group(function () {
+            Route::get('', [ShiftController::class, 'index'])->name('shift')->middleware('can:read-shift');
+            Route::get('getdata', [ShiftController::class, 'getData'])->name('shift.getdata');
+            Route::post('store', [ShiftController::class, 'store'])->name('shift.store');
+            Route::get('/edit/{id}', [ShiftController::class, 'show'])->name('shift.edit')->middleware('can:update-shift');
+            Route::put('/update/{id}', [ShiftController::class, 'update'])->name('shift.update');
+            Route::delete('/delete/{id}', [ShiftController::class, 'destroy'])->name('shift.delete')->middleware('can:delete-shift');
         });
     });
 

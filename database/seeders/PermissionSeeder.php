@@ -89,6 +89,11 @@ class PermissionSeeder extends Seeder
             'create-office',
             'update-office',
             'delete-office',
+            //shift
+            'read-shift',
+            'create-shift',
+            'update-shift',
+            'delete-shift',
             //leave report
             'read-leave-report',
             'create-leave-report',

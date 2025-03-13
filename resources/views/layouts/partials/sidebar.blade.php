@@ -52,10 +52,10 @@
                     </li>
                 @endcanany
 
-                @canany(['read-company','read-office'])
+                @canany(['read-company', 'read-office', 'read-shift'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow">
-                            <i class="fas fa-archive"></i>
+                            <i class="fas fa-calendar"></i>
                             <span>Master Absensi</span>
                         </a>
                         <ul class="sub-menu" aria-expanded="false">
@@ -67,7 +67,10 @@
                             <li><a href="{{ route('office') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Kantor</a></li>
                             @endcan
-                           
+                            @can('read-shift')
+                            <li><a href="{{ route('shift') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Jadwal Kerja</a></li>
+                            @endcan
                         </ul>
                     </li>
                 @endcanany

@@ -11,7 +11,7 @@ class Office extends Model
     ];
     protected $primaryKey = 'id';
 
-    public function Company(){
+    public function company(){
         return $this->belongsTo(Company::class,'company_id','id');
     }
 }
