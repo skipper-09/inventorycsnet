@@ -13,6 +13,7 @@ use App\Http\Controllers\Master\DeductionTypeController;
 use App\Http\Controllers\Master\DepartmentController;
 use App\Http\Controllers\Master\EmployeeController;
 use App\Http\Controllers\Master\FormTemplateBuilderController;
+use App\Http\Controllers\Master\OfficeController;
 use App\Http\Controllers\Master\PositionController;
 use App\Http\Controllers\Master\ProductRoleController;
 use App\Http\Controllers\Master\SalaryController;
@@ -97,6 +98,17 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [CompanyController::class, 'show'])->name('company.edit')->middleware('can:update-company');
             Route::put('/update/{id}', [CompanyController::class, 'update'])->name('company.update');
             Route::delete('/delete/{id}', [CompanyController::class, 'destroy'])->name('company.delete')->middleware('can:delete-company');
+        });
+
+        //route office
+        Route::prefix('office')->group(function () {
+            Route::get('', [OfficeController::class, 'index'])->name('office')->middleware('can:read-office');
+            Route::get('add', [OfficeController::class, 'create'])->name('office.add')->middleware('can:create-office');
+            Route::get('getdata', [OfficeController::class, 'getData'])->name('office.getdata');
+            Route::post('store', [OfficeController::class, 'store'])->name('office.store');
+            Route::get('/edit/{id}', [OfficeController::class, 'show'])->name('office.edit')->middleware('can:update-office');
+            Route::put('/update/{id}', [OfficeController::class, 'update'])->name('office.update');
+            Route::delete('/delete/{id}', [OfficeController::class, 'destroy'])->name('office.delete')->middleware('can:delete-office');
         });
 
         // branch

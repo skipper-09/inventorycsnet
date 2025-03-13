@@ -84,6 +84,11 @@ class PermissionSeeder extends Seeder
             'create-company',
             'update-company',
             'delete-company',
+            //office
+            'read-office',
+            'create-office',
+            'update-office',
+            'delete-office',
             //leave report
             'read-leave-report',
             'create-leave-report',

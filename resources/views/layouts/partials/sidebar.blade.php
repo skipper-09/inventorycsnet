@@ -52,7 +52,7 @@
                     </li>
                 @endcanany
 
-                @canany(['read-company',])
+                @canany(['read-company','read-office'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow">
                             <i class="fas fa-archive"></i>
@@ -62,6 +62,10 @@
                             @can('read-company')
                             <li><a href="{{ route('company') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Perusahaan</a></li>
+                            @endcan
+                            @can('read-office')
+                            <li><a href="{{ route('office') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Kantor</a></li>
                             @endcan
                            
                         </ul>
