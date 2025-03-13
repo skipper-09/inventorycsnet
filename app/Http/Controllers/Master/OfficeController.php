@@ -17,76 +17,74 @@ class OfficeController extends Controller
     {
         $data = [
             'title' => 'Kantor',
-            'companies' => Company::all(),
         ];
-
         return view('pages.master.office.index', $data);
     }
 
+
     public function getData()
     {
-        $data = Office::with('company')->orderByDesc('id')->get();
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('company_name', function ($row) {
-                return $row->company->name ?? '-';
-            })
-            ->addColumn('action', function ($data) {
-                $userauth = User::with('roles')->where('id', Auth::id())->first();
-                $button = '';
-                if ($userauth->can('update-office')) {
-                    $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('office.edit', ['id' => $data->id]) . '" data-proses="' . route('office.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                            data-action="edit" data-title="Deduksi" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                                                        class="fas fa-pen "></i></button>';
-                }
-                if ($userauth->can('delete-office')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('office.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
+        $data = Office::with(['Company'])->orderByDesc('id')->get();
+        return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
+            $userauth = User::with('roles')->where('id', Auth::id())->first();
+            $button = '';
+
+            if ($userauth->can('update-office')) {
+                $button .= ' <a href="' . route('office.edit', ['id' => $data->id]) . '" class="btn btn-sm btn-success action mr-1" data-id=' . $data->id . ' data-type="edit" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i class="fas fa-pencil-alt"></i></a>';
+            }
+            if ($userauth->can('delete-office')) {
+                $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('office.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
                                                         class="fas fa-trash "></i></button>';
-                }
-                return '<div class="d-flex gap-2">' . $button . '</div>';
-            })->rawColumns(['action', 'company_name'])->make(true);
+            }
+            return '<div class="d-flex gap-2">' . $button . '</div>';
+        })->editColumn('company', function ($data) {
+            return $data->Company->name;
+        })->editColumn('radius', function ($data) {
+            return $data->radius . ' Meter';
+        })->editColumn('location', function ($data) {
+            if ($data->lat && $data->long) {
+                $locationLink = 'https://www.google.com/maps?q=' . $data->lat . ',' . $data->long;
+                return '<a href="' . $locationLink . '" target="_blank">Lihat Lokasi</a>';
+            } else {
+                return 'Lokasi tidak tersedia';
+            }
+        })->rawColumns(['action', 'company', 'location', 'radius'])->make(true);
     }
+
+
+    public function create()
+    {
+        $data = [
+            'title' => 'Kantor',
+            'company' => Company::all()
+        ];
+        return view('pages.master.office.add', $data);
+    }
+
 
     public function store(Request $request)
     {
+
         $request->validate([
-            'company_id' => 'required|exists:companies,id',
+            'company_id' => 'required',
             'name' => 'required|string',
-            'lat' => 'required|string',
-            'long' => 'required|string',
-            'radius' => 'required|numeric|min:1',
-            'address' => 'required|string'
-        ], [
-            'company_id.required' => 'Perusahaan harus dipilih.',
-            'name.required' => 'Nama cabang harus diisi.',
-            'lat.required' => 'Latitude harus diisi.',
-            'long.required' => 'Longitude harus diisi',
-            'radius.required' => 'Radius harus diisi.',
-            'address' => 'Alamat harus diisi'
+            'lat' => 'required',
+            'long' => 'required',
+            'radius' => 'required|integer',
+            'address' => 'required'
         ]);
 
         try {
-            $office = new Office();
-            $office->company_id = $request->company_id;
-            $office->name = $request->name;
-            $office->lat = $request->lat;
-            $office->long = $request->long;
-            $office->radius = $request->radius;
-            $office->address = $request->address;
+            Office::create([
+                'company_id' => $request->company_id,
+                'name' => $request->name,
+                'lat' => $request->lat,
+                'long' => $request->long,
+                'radius' => $request->radius,
+                'address' => $request->address,
 
-            $office->save();
-
-            activity()
-                ->causedBy(Auth::user())
-                ->event('created')
-                ->withProperties($office->toArray())
-                ->log("Data Kantor berhasil dibuat.");
-
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Data Kantor Berhasil dibuat.'
             ]);
+            return redirect()->route('office')->with('success', 'Data berhasil disimpan.');
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -96,12 +94,17 @@ class OfficeController extends Controller
         }
     }
 
+
+
     public function show($id)
     {
         $office = Office::findOrFail($id);
-        return response()->json([
+        $data = [
+            'title' => 'Kantor',
+            'company' => Company::all(),
             'office' => $office,
-        ], 200);
+        ];
+        return view('pages.master.office.edit', $data);
     }
 
     public function update(Request $request, $id)
@@ -124,30 +127,16 @@ class OfficeController extends Controller
 
         try {
             $office = Office::findOrFail($id);
-            $oldOffice = $office->toArray();
-            $office->company_id = $request->company_id;
-            $office->name = $request->name;
-            $office->lat = $request->lat;
-            $office->long = $request->long;
-            $office->radius = $request->radius;
-            $office->address = $request->address;
+            $office->update([
+                'company_id' => $request->company_id,
+                'name' => $request->name,
+                'lat' => $request->lat,
+                'long' => $request->long,
+                'radius' => $request->radius,
+                'address' => $request->address,
 
-            $office->save();
-
-            activity()
-                ->causedBy(Auth::user())
-                ->event('updated')
-                ->withProperties([
-                    'old' => $oldOffice,
-                    'new' => $office->toArray()
-                ])
-                ->log("Data Kantor berhasil diperbarui.");
-
-            return response()->json([
-                'success' => true,
-                'status' => "Berhasil",
-                'message' => 'Data Kantor Berhasil diupdate.'
             ]);
+            return redirect()->route('office')->with('success', 'Data berhasil diupdate.');
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
@@ -157,6 +146,10 @@ class OfficeController extends Controller
         }
     }
 
+
+
+
+
     public function destroy($id)
     {
         try {
@@ -165,7 +158,7 @@ class OfficeController extends Controller
             activity()
                 ->causedBy(Auth::user())
                 ->event('deleted')
-                ->withProperties($office->toArray())
+                ->withProperties(['new' => $office->toArray()])
                 ->log("Data Kantor berhasil dihapus.");
 
             $office->delete();
@@ -177,7 +170,7 @@ class OfficeController extends Controller
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Gagal Menghapus Data Kantor!',
+                'message' => 'Gagal Menghapus Data Cabang!',
                 'trace' => $e->getTrace()
             ]);
         }

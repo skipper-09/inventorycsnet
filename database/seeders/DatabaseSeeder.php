@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
             ZoneOdpSeeder::class,
             OdpSeeder::class,
             CompanySeeder::class,
+            OfficeSeedeer::class,
         ]);
     }
 }

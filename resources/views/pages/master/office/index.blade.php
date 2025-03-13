@@ -5,12 +5,10 @@
     <!-- DataTables -->
     <link href="{{ asset('assets/libs/datatables.net-bs5/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
+
     <!-- Responsive datatable examples -->
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
-    {{-- select 2 --}}
-    <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 @section('content')
     <div class="container-fluid">
@@ -31,16 +29,14 @@
             </div>
         </div>
         <!-- end page title -->
-
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     @can('create-office')
-                        <div class="card-header">
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
-                                data-action="create" data-proses="{{ route('office.store') }}"
-                                data-title="{{ $title }}">Tambah {{ $title }}</button>
-                        </div>
+                    <div class="card-header">
+                        <a href="{{ route('office.add') }}" class="btn btn-primary btn-sm">Tambah
+                            {{ $title }}</a>
+                    </div>
                     @endcan
                     <div class="card-body">
                         <table id="scroll-sidebar-datatable"
@@ -50,11 +46,13 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama</th>
+                                    <th>Nama Kantor</th>
                                     <th>Perusahaan</th>
                                     <th>Alamat</th>
+                                    <th>Lokasi</th>
+                                    <th>Radius</th>
                                     @canany(['update-office', 'delete-office'])
-                                        <th>Action</th>
+                                    <th>Action</th>
                                     @endcanany
                                 </tr>
                             </thead>
@@ -64,8 +62,6 @@
             </div><!-- end col-->
         </div>
     </div>
-
-    @include('pages.master.office.form')
 
 @endsection
 
@@ -80,7 +76,4 @@
 
     {{-- route datatable init and js definition --}}
     <script src="{{ asset('assets/js/mods/office.js') }}"></script>
-    {{-- select 2 deifinition --}}
-    <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 @endpush

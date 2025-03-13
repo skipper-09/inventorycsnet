@@ -15,7 +15,7 @@ $(document).ready(function () {
         var modalTitle = $("#modal8 .modal-header .modal-title");
         var route = button.data("route");
         var proses = button.data("proses");
-        var form = $("#addOfficeForm");
+        var form = $("#addForm");
 
         // Reset form errors
         $(".is-invalid").removeClass("is-invalid");
@@ -27,7 +27,6 @@ $(document).ready(function () {
             form[0].reset();
             form.attr("action", proses);
             form.attr("method", "POST");
-            $("#addOfficeForm #company_id").val("").trigger("change");
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -37,18 +36,10 @@ $(document).ready(function () {
                 url: route,
                 type: "GET",
                 success: function (response) {
-                    if (response.office) {
-                        $("#addOfficeForm #company_id")
-                            .val(response.office.company_id)
-                            .trigger("change");
-                        $("#addOfficeForm #name").val(response.office.name);
-                        $("#addOfficeForm #lat").val(response.office.lat);
-                        $("#addOfficeForm #long").val(response.office.long);
-                        $("#addOfficeForm #address").val(
-                            response.office.address
-                        );
-                        $("#addOfficeForm #radius").val(
-                            numberFormat(response.office.radius)
+                    if (response.company) {
+                        $("#addForm #name").val(response.company.name);
+                        $("#addForm #address").val(
+                            response.company.address
                         );
                     }
                 },
@@ -59,15 +50,8 @@ $(document).ready(function () {
         }
     });
 
-    function numberFormat(number) {
-        if (!number && number !== 0) return "";
-        return Math.round(number);
-    }
-
     var route = $("#scroll-sidebar-datatable").data("route");
-    var hasActionPermission = $("#scroll-sidebar-datatable").data(
-        "has-action-permission"
-    );
+    var hasActionPermission = $("#scroll-sidebar-datatable").data("has-action-permission");
 
     var columns = [
         {
@@ -81,12 +65,20 @@ $(document).ready(function () {
             name: "name",
         },
         {
-            data: "company_name",
-            name: "company_name",
+            data: "company",
+            name: "company",
         },
         {
             data: "address",
             name: "address",
+        },
+        {
+            data: "location",
+            name: "location",
+        },
+        {
+            data: "radius",
+            name: "radius",
         },
     ];
 
@@ -119,7 +111,7 @@ $(document).ready(function () {
         columns: columns,
     });
 
-    $("#addOfficeForm").on("submit", function (e) {
+    $("#addForm").on("submit", function (e) {
         e.preventDefault();
         var formData = $(this).serialize();
         $.ajax({
@@ -130,7 +122,7 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     $("#modal8").modal("hide");
-                    $("#addOfficeForm")[0].reset();
+                    $("#addForm")[0].reset();
                     table.ajax.reload();
                     n.fire({
                         position: "center",

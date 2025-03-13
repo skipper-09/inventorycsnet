@@ -102,9 +102,10 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::delete('/delete/{id}', [CompanyController::class, 'destroy'])->name('company.delete')->middleware('can:delete-company');
         });
 
-        // office
+        //route office
         Route::prefix('office')->group(function () {
             Route::get('', [OfficeController::class, 'index'])->name('office')->middleware('can:read-office');
+            Route::get('add', [OfficeController::class, 'create'])->name('office.add')->middleware('can:create-office');
             Route::get('getdata', [OfficeController::class, 'getData'])->name('office.getdata');
             Route::post('store', [OfficeController::class, 'store'])->name('office.store');
             Route::get('/edit/{id}', [OfficeController::class, 'show'])->name('office.edit')->middleware('can:update-office');
