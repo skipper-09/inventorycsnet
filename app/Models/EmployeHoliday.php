@@ -11,7 +11,7 @@ class EmployeHoliday extends Model
         'day_off'
     ];
     protected $primaryKey = 'id';
-    public function Employee()
+    public function employee()
     {
         return $this->belongsTo(Employee::class, 'employee_id', 'id');
     }

@@ -22,6 +22,7 @@ use App\Http\Controllers\Master\TaskDataController;
 use App\Http\Controllers\Master\TaskDetailController;
 use App\Http\Controllers\Master\TaskTemplateController;
 use App\Http\Controllers\Master\UnitProductController;
+use App\Http\Controllers\Master\WorkScheduleController;
 use App\Http\Controllers\Master\ZoneOdpController;
 use App\Http\Controllers\Notification\NotificatioinController;
 use App\Http\Controllers\Report\FreeReportController;
@@ -319,6 +320,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [ShiftController::class, 'show'])->name('shift.edit')->middleware('can:update-shift');
             Route::put('/update/{id}', [ShiftController::class, 'update'])->name('shift.update');
             Route::delete('/delete/{id}', [ShiftController::class, 'destroy'])->name('shift.delete')->middleware('can:delete-shift');
+        });
+
+        // Work Schedule
+        Route::prefix('workschedule')->group(function () {
+            Route::get('', [WorkScheduleController::class, 'index'])->name('workschedule')->middleware('can:read-workschedule');
+            Route::get('getdata', [WorkScheduleController::class, 'getData'])->name('workschedule.getdata');
+            // Route::get('/details/{id}', [WorkScheduleController::class, 'details'])->name('workschedule.details')->middleware('can:read-workschedule');
+            Route::get('/add', [WorkScheduleController::class, 'create'])->name('workschedule.add')->middleware('can:create-workschedule');
+            Route::post('store', [WorkScheduleController::class, 'store'])->name('workschedule.store');
+            Route::get('/edit/{id}', [WorkScheduleController::class, 'show'])->name('workschedule.edit')->middleware('can:update-workschedule');
+            Route::put('/update/{id}', [WorkScheduleController::class, 'update'])->name('workschedule.update');
+            Route::delete('/delete/{id}', [WorkScheduleController::class, 'destroy'])->name('workschedule.delete')->middleware('can:delete-workschedule');
         });
     });
 

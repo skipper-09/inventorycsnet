@@ -11,11 +11,11 @@ class WorkSchedule extends Model
     ];
     protected $primaryKey = 'id';
 
-    public function Employee(){
+    public function employee(){
         return $this->belongsTo(Employee::class,'employee_id','id');
     }
 
-    public function Shift(){
+    public function shift(){
         return $this->belongsTo(Shift::class,'shift_id','id');
     }
 }

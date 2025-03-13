@@ -94,6 +94,11 @@ class PermissionSeeder extends Seeder
             'create-shift',
             'update-shift',
             'delete-shift',
+            //work schedule
+            'read-workschedule',
+            'create-workschedule',
+            'update-workschedule',
+            'delete-workschedule',
             //leave report
             'read-leave-report',
             'create-leave-report',

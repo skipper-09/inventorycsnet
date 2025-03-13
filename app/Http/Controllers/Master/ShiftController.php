@@ -14,7 +14,7 @@ class ShiftController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Jadwal',
+            'title' => 'Shift',
         ];
 
         return view('pages.master.shift.index', $data);

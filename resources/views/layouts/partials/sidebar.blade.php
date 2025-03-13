@@ -52,7 +52,7 @@
                     </li>
                 @endcanany
 
-                @canany(['read-company', 'read-office', 'read-shift'])
+                @canany(['read-company', 'read-office', 'read-shift', 'read-workschedule'])
                     <li>
                         <a href="javascript: void(0);" class="has-arrow">
                             <i class="fas fa-calendar"></i>
@@ -69,6 +69,10 @@
                             @endcan
                             @can('read-shift')
                             <li><a href="{{ route('shift') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Shift</a></li>
+                            @endcan
+                            @can('read-workschedule')
+                            <li><a href="{{ route('workschedule') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Jadwal Kerja</a></li>
                             @endcan
                         </ul>
