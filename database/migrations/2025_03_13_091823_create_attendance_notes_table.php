@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('shifts', function (Blueprint $table) {
+        Schema::create('attendance_notes', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->string('name');
-            $table->time('shift_start');
-            $table->time('shift_end');
-            $table->boolean('status')->default(true);
+            $table->unsignedBigInteger('attendance_id');
+            $table->longText('notes');
+            $table->enum('attendance_type',['in','out']);
+            $table->foreign('attendance_id')->references('id')->on('attendances')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('shifts');
+        Schema::dropIfExists('attendance_notes');
     }
 };
