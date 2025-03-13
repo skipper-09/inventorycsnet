@@ -10,4 +10,9 @@ class Company extends Model
         'name','address'
     ];
     protected $primaryKey = 'id';
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class);
+    }
 }

@@ -24,7 +24,7 @@ class RoleSeeder extends Seeder
         $allpermission = Permission::all();
         $developer->givePermissionTo([
             $allpermission
-]);
+        ]);
 
         $admin->givePermissionTo([
             'read-dashboard',
@@ -101,7 +101,7 @@ class RoleSeeder extends Seeder
             'read-assigmentdata',
             'create-assigmentdata',
             'update-assigmentdata',
-            'delete-assigmentdata', 
+            'delete-assigmentdata',
             //activity report
             'read-activity-report',
             'create-activity-report',
