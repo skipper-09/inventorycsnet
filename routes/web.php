@@ -6,6 +6,7 @@ use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\AssigmentDataController;
 use App\Http\Controllers\Master\AssignmentController;
 use App\Http\Controllers\Master\BranchController;
+use App\Http\Controllers\Master\CompanyController;
 use App\Http\Controllers\Master\CustomerController;
 use App\Http\Controllers\Master\DeductionController;
 use App\Http\Controllers\Master\DeductionTypeController;
@@ -86,6 +87,16 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [ProductController::class, 'show'])->name('produk.edit')->middleware('can:update-product');
             Route::put('/update/{id}', [ProductController::class, 'update'])->name('produk.update');
             Route::delete('/delete/{id}', [ProductController::class, 'destroy'])->name('produk.delete')->middleware('can:delete-product');
+        });
+
+        //route company
+        Route::prefix('company')->group(function () {
+            Route::get('', [CompanyController::class, 'index'])->name('company')->middleware('can:read-company');
+            Route::get('getdata', [CompanyController::class, 'getData'])->name('company.getdata');
+            Route::post('store', [CompanyController::class, 'store'])->name('company.store');
+            Route::get('/edit/{id}', [CompanyController::class, 'show'])->name('company.edit')->middleware('can:update-company');
+            Route::put('/update/{id}', [CompanyController::class, 'update'])->name('company.update');
+            Route::delete('/delete/{id}', [CompanyController::class, 'destroy'])->name('company.delete')->middleware('can:delete-company');
         });
 
         // branch

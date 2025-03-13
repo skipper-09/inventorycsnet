@@ -43,10 +43,27 @@
                                 <li><a href="{{ route('odp') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>ODP</a></li>
                             @endcan
+                           
                             @can('read-product-role')
                                 <li><a href="{{ route('productrole') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Barang Per Role</a></li>
                             @endcan
+                        </ul>
+                    </li>
+                @endcanany
+
+                @canany(['read-company',])
+                    <li>
+                        <a href="javascript: void(0);" class="has-arrow">
+                            <i class="fas fa-archive"></i>
+                            <span>Master Absensi</span>
+                        </a>
+                        <ul class="sub-menu" aria-expanded="false">
+                            @can('read-company')
+                            <li><a href="{{ route('company') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Perusahaan</a></li>
+                            @endcan
+                           
                         </ul>
                     </li>
                 @endcanany
