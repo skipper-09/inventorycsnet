@@ -1,10 +1,10 @@
 <?php
-
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Master\AllowanceController;
 use App\Http\Controllers\Master\AllowanceTypeController;
 use App\Http\Controllers\Master\AssigmentDataController;
 use App\Http\Controllers\Master\AssignmentController;
+use App\Http\Controllers\Master\AttendanceController;
 use App\Http\Controllers\Master\BranchController;
 use App\Http\Controllers\Master\CompanyController;
 use App\Http\Controllers\Master\CustomerController;
@@ -333,6 +333,19 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [WorkScheduleController::class, 'show'])->name('workschedule.edit')->middleware('can:update-workschedule');
             Route::put('/update/{id}', [WorkScheduleController::class, 'update'])->name('workschedule.update');
             Route::delete('/delete/{id}', [WorkScheduleController::class, 'destroy'])->name('workschedule.delete')->middleware('can:delete-workschedule');
+        });
+
+        // Attendance
+        Route::prefix('attendance')->group(function () {
+            Route::get('', [AttendanceController::class, 'index'])->name('attendance')->middleware('can:read-attendance');
+            Route::get('getdata', [AttendanceController::class, 'getData'])->name('attendance.getdata');
+            Route::get('getEmployeeSchedules', [AttendanceController::class, 'getEmployeeSchedules'])->name('attendance.getEmployeeSchedules');
+            Route::get('/details/{id}', [AttendanceController::class, 'details'])->name('attendance.details')->middleware('can:read-attendance');
+            Route::get('/add', [AttendanceController::class, 'create'])->name('attendance.add')->middleware('can:create-attendance');
+            Route::post('store', [AttendanceController::class, 'store'])->name('attendance.store');
+            Route::get('/edit/{id}', [AttendanceController::class, 'show'])->name('attendance.edit')->middleware('can:update-attendance');
+            Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
+            Route::delete('/delete/{id}', [AttendanceController::class, 'destroy'])->name('attendance.delete')->middleware('can:delete-attendance');
         });
     });
 

@@ -99,6 +99,11 @@ class PermissionSeeder extends Seeder
             'create-workschedule',
             'update-workschedule',
             'delete-workschedule',
+            //attendance
+            'read-attendance',
+            'create-attendance',
+            'update-attendance',
+            'delete-attendance',
             //leave report
             'read-leave-report',
             'create-leave-report',
