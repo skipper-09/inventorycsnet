@@ -326,13 +326,18 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         // Work Schedule
         Route::prefix('workschedule')->group(function () {
             Route::get('', [WorkScheduleController::class, 'index'])->name('workschedule')->middleware('can:read-workschedule');
-            Route::get('getdata', [WorkScheduleController::class, 'getData'])->name('workschedule.getdata');
-            // Route::get('/details/{id}', [WorkScheduleController::class, 'details'])->name('workschedule.details')->middleware('can:read-workschedule');
-            Route::get('/add', [WorkScheduleController::class, 'create'])->name('workschedule.add')->middleware('can:create-workschedule');
-            Route::post('store', [WorkScheduleController::class, 'store'])->name('workschedule.store');
-            Route::get('/edit/{id}', [WorkScheduleController::class, 'show'])->name('workschedule.edit')->middleware('can:update-workschedule');
-            Route::put('/update/{id}', [WorkScheduleController::class, 'update'])->name('workschedule.update');
-            Route::delete('/delete/{id}', [WorkScheduleController::class, 'destroy'])->name('workschedule.delete')->middleware('can:delete-workschedule');
+            Route::get('/shifts', [WorkScheduleController::class, 'getShifts']);
+            Route::get('/events/{employeeId}', [WorkScheduleController::class, 'getEmployeeEvents']);
+            Route::post('/create-schedule', [WorkScheduleController::class, 'createSchedule']);
+            Route::post('/create-bulk-schedule', [WorkScheduleController::class, 'createBulkSchedule']);
+            Route::post('/create-bulk-offday', [WorkScheduleController::class, 'createBulkSchedule']);
+            // Route::get('getdata', [WorkScheduleController::class, 'getData'])->name('workschedule.getdata');
+            // // Route::get('/details/{id}', [WorkScheduleController::class, 'details'])->name('workschedule.details')->middleware('can:read-workschedule');
+            // Route::get('/add', [WorkScheduleController::class, 'create'])->name('workschedule.add')->middleware('can:create-workschedule');
+            // Route::post('store', [WorkScheduleController::class, 'store'])->name('workschedule.store');
+            // Route::get('/edit/{id}', [WorkScheduleController::class, 'show'])->name('workschedule.edit')->middleware('can:update-workschedule');
+            // Route::put('/update/{id}', [WorkScheduleController::class, 'update'])->name('workschedule.update');
+            // Route::delete('/delete/{id}', [WorkScheduleController::class, 'destroy'])->name('workschedule.delete')->middleware('can:delete-workschedule');
         });
     });
 

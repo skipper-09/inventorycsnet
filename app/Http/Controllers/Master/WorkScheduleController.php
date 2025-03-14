@@ -17,312 +17,418 @@ use Illuminate\Validation\ValidationException;
 
 class WorkScheduleController extends Controller
 {
+    public function getShifts()
+    {
+        // Fetch all shifts
+        $shifts = Shift::all();
+        return response()->json($shifts);
+    }
+
     public function index()
     {
         $data = [
             "title" => "Jadwal Kerja Karyawan",
+            "employees" => Employee::all(),
         ];
 
         return view("pages.master.workschedule.index", $data);
     }
 
-    public function getData()
+
+
+    public function getEmployeeEvents($employeeId, Request $request)
     {
-        $data = WorkSchedule::with('employee', 'shift')
-            ->orderByDesc('schedule_date')
+        $events = WorkSchedule::with('shift')
+            ->where('employee_id', $employeeId)
+            ->whereBetween('schedule_date', [$request->start, $request->end])
             ->get();
-
-        return DataTables::of($data)
-            ->addIndexColumn()
-            ->addColumn('employee_name', function ($data) {
-                return $data->employee->name ?? 'N/A';
-            })
-            ->addColumn('shift_name', function ($data) {
-                return $data->shift->name ?? 'N/A';
-            })
-            ->addColumn('schedule_date_formatted', function ($data) {
-                return Carbon::parse($data->schedule_date)->format('d F Y');
-            })
-            ->addColumn('is_offday', function ($data) {
-                $isOffday = EmployeHoliday::where('employee_id', $data->employee_id)
-                    ->where('day_off', $data->schedule_date)
-                    ->exists();
-                
-                return $isOffday ? '<span class="badge bg-warning">Hari Libur</span>' : '<span class="badge bg-success">Hari Kerja</span>';
-            })
-            ->addColumn('action', function ($data) {
-                $userauth = Auth::user();
-                $button = '';
-
-                // Tampilkan tombol edit jika user memiliki akses
-                if ($userauth->can('update-workschedule')) {
-                    $button .= ' <button class="btn btn-sm btn-success btn-edit" data-id="' . $data->id . '" data-route="' . route('workschedule.edit', ['id' => $data->id]) . '" title="Edit Jadwal Kerja"><i class="fas fa-pen"></i></button>';
-                }
-
-                // Tampilkan tombol hapus jika user memiliki akses
-                if ($userauth->can('delete-workschedule')) {
-                    $button .= ' <button class="btn btn-sm btn-danger btn-delete" data-id="' . $data->id . '" data-route="' . route('workschedule.delete', ['id' => $data->id]) . '" title="Hapus Jadwal Kerja"><i class="fas fa-trash"></i></button>';
-                }
-
-                return '<div class="d-flex gap-2">' . $button . '</div>';
-            })
-            ->rawColumns(['action', 'is_offday', 'employee_name', 'shift_name', 'schedule_date_formatted', 'is_offday'])
-            ->make(true);
-    }
-
-    public function create()
-    {
-        $data = [
-            'title' => 'Tambah Jadwal Kerja Karyawan',
-            'employees' => Employee::orderBy('name')->get(),
-            'shifts' => Shift::orderBy('name')->get(),
-        ];
-
-        return view('pages.master.workschedule.add', $data);
-    }
-
-    public function store(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'employee_id' => 'required|exists:employees,id',
-                'shift_id' => 'required|exists:shifts,id',
-                'schedule_date' => 'required|date',
-                'is_offday' => 'sometimes|boolean',
-            ]);
-            
-            // Check if schedule for this employee on this date already exists
-            $existingSchedule = WorkSchedule::where('employee_id', $request->employee_id)
-                ->where('schedule_date', $request->schedule_date)
-                ->first();
-                
-            if ($existingSchedule) {
-                throw ValidationException::withMessages([
-                    'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
-                ]);
+    
+        $formattedEvents = $events->map(function ($event) {
+            $shiftStart = optional($event->shift)->shift_start;
+            $shiftEnd = optional($event->shift)->shift_end;
+            $shiftName = optional($event->shift)->name;
+    
+            if (!$shiftStart || !$shiftEnd) {
+                $shiftStart = '09:00:00';  
+                $shiftEnd = '17:00:00';    
+                $shiftName = 'Default Shift';
             }
-            
-            $employee = Employee::findOrFail($request->employee_id);
-            $shift = Shift::findOrFail($request->shift_id);
-
-            // Check if this is an off day request
-            $isOffday = $request->has('is_offday') && $request->is_offday == 1;
-            
-            if ($isOffday) {
-                // Check number of holidays in the month
-                $month = Carbon::parse($request->schedule_date)->month;
-                $year = Carbon::parse($request->schedule_date)->year;
-                
-                $holidaysCount = EmployeHoliday::where('employee_id', $employee->id)
-                    ->whereMonth('day_off', $month)
-                    ->whereYear('day_off', $year)
-                    ->count();
-                
-                if ($holidaysCount >= 4) {
-                    throw ValidationException::withMessages([
-                        'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
-                    ]);
-                }
-            }
-
-            // Create work schedule
-            $workSchedule = WorkSchedule::create([
-                'employee_id' => $employee->id,
-                'shift_id' => $shift->id,
-                'schedule_date' => $request->schedule_date,
-            ]);
-
-            // If it's an off day, create holiday record
-            if ($isOffday) {
-                EmployeHoliday::create([
-                    'employee_id' => $employee->id,
-                    'day_off' => $request->schedule_date,
-                ]);
-            }
-
-            activity()
-                ->causedBy(Auth::user())
-                ->event('created')
-                ->withProperties($workSchedule->toArray())
-                ->log("Jadwal Kerja Baru Ditambahkan");
-
-            return redirect()->route('workschedule.index')->with([
-                'status' => 'Success!',
-                'message' => 'Berhasil Menambahkan Jadwal Kerja!'
-            ]);
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
-        } catch (Exception $e) {
-            Log::error('WorkScheduleController@store: ' . $e->getMessage());
-            return redirect()->back()->with([
-                'status' => 'Error!', 
-                'message' => 'Gagal Menambahkan Jadwal Kerja: ' . $e->getMessage()
-            ])->withInput();
-        }
-    }
-
-    public function edit($id)
-    {
-        try {
-            $workSchedule = WorkSchedule::with('employee', 'shift')->findOrFail($id);
-            
-            // Check if this date is a holiday for this employee
-            $isOffday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
-                ->where('day_off', $workSchedule->schedule_date)
-                ->exists();
-
-            $data = [
-                'title' => 'Edit Jadwal Kerja Karyawan',
-                'workSchedule' => $workSchedule,
-                'employees' => Employee::orderBy('name')->get(),
-                'shifts' => Shift::orderBy('name')->get(),
-                'isOffday' => $isOffday,
+    
+            return [
+                'title' => $event->is_offdays ? 'Offday' : 'Jadwal Kerja' . ' (' . $shiftName . ')',
+                'start' => Carbon::parse($event->schedule_date)->setTimeFrom(Carbon::parse($shiftStart))->toIso8601String(),
+                'end' => Carbon::parse($event->schedule_date)->setTimeFrom(Carbon::parse($shiftEnd))->toIso8601String(),
+                'status' => $event->is_offdays ? 'offday' : 'work',
+                'shift_name' => $shiftName,  // Include shift name
+                'shift_start' => Carbon::parse($shiftStart)->toIso8601String(),
+                'shift_end' => Carbon::parse($shiftEnd)->toIso8601String(),
             ];
+        });
+    
+        return response()->json($formattedEvents);
+    }
+    
 
-            return view('pages.master.workschedule.edit', $data);
-        } catch (Exception $e) {
-            Log::error('WorkScheduleController@edit: ' . $e->getMessage());
-            return redirect()->route('workschedule.index')->with([
-                'status' => 'Error!', 
-                'message' => 'Jadwal Kerja tidak ditemukan'
-            ]);
-        }
+
+
+    public function createSchedule(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'shift_id' => 'required_if:status,work|exists:shifts,id',
+            'status' => 'required|in:work,offday',
+        ]);
+
+        $shiftId = (int) $validated['shift_id']; 
+        $schedule = WorkSchedule::create([
+            'employee_id' => $validated['employee_id'],
+            'shift_id' => $shiftId,
+            'schedule_date' => Carbon::parse($validated['date']),
+            'status' => $validated['status'],
+        ]);
+
+        return response()->json(['success' => true, 'schedule' => $schedule]);
     }
 
-    public function update(Request $request, $id)
+    // Create multiple schedules for an employee within a date range
+    public function createBulkSchedule(Request $request)
     {
-        try {
-            $validated = $request->validate([
-                'employee_id' => 'required|exists:employees,id',
-                'shift_id' => 'required|exists:shifts,id',
-                'schedule_date' => 'required|date',
-                'is_offday' => 'sometimes|boolean',
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'status' => 'required|in:work,offday',
+        ]);
+
+        $startDate = Carbon::parse($validated['start_date']);
+        $endDate = Carbon::parse($validated['end_date']);
+        $employeeId = $validated['employee_id'];
+        $status = $validated['status'];
+
+        // Create schedules for the selected date range
+        $schedules = [];
+        for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+            $schedules[] = WorkSchedule::create([
+                'employee_id' => $employeeId,
+                'date' => $date,
+                'status' => $status,
             ]);
+        }
 
-            $workSchedule = WorkSchedule::findOrFail($id);
-            $oldSchedule = $workSchedule->toArray();
-            $dateChanged = $workSchedule->schedule_date != $request->schedule_date || 
-                          $workSchedule->employee_id != $request->employee_id;
+        return response()->json(['success' => true, 'schedules' => $schedules]);
+    }
 
-            // Check for duplicate if date or employee changed
-            if ($dateChanged) {
-                $existingSchedule = WorkSchedule::where('employee_id', $request->employee_id)
-                    ->where('schedule_date', $request->schedule_date)
-                    ->where('id', '!=', $id)
-                    ->first();
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // public function getData()
+    // {
+    //     $data = WorkSchedule::with('employee', 'shift')
+    //         ->orderByDesc('schedule_date')
+    //         ->get();
+
+    //     return DataTables::of($data)
+    //         ->addIndexColumn()
+    //         ->addColumn('employee_name', function ($data) {
+    //             return $data->employee->name ?? 'N/A';
+    //         })
+    //         ->addColumn('shift_name', function ($data) {
+    //             return $data->shift->name ?? 'N/A';
+    //         })
+    //         ->addColumn('schedule_date_formatted', function ($data) {
+    //             return Carbon::parse($data->schedule_date)->format('d F Y');
+    //         })
+    //         ->addColumn('is_offday', function ($data) {
+    //             $isOffday = EmployeHoliday::where('employee_id', $data->employee_id)
+    //                 ->where('day_off', $data->schedule_date)
+    //                 ->exists();
+                
+    //             return $isOffday ? '<span class="badge bg-warning">Hari Libur</span>' : '<span class="badge bg-success">Hari Kerja</span>';
+    //         })
+    //         ->addColumn('action', function ($data) {
+    //             $userauth = Auth::user();
+    //             $button = '';
+
+    //             // Tampilkan tombol edit jika user memiliki akses
+    //             if ($userauth->can('update-workschedule')) {
+    //                 $button .= ' <button class="btn btn-sm btn-success btn-edit" data-id="' . $data->id . '" data-route="' . route('workschedule.edit', ['id' => $data->id]) . '" title="Edit Jadwal Kerja"><i class="fas fa-pen"></i></button>';
+    //             }
+
+    //             // Tampilkan tombol hapus jika user memiliki akses
+    //             if ($userauth->can('delete-workschedule')) {
+    //                 $button .= ' <button class="btn btn-sm btn-danger btn-delete" data-id="' . $data->id . '" data-route="' . route('workschedule.delete', ['id' => $data->id]) . '" title="Hapus Jadwal Kerja"><i class="fas fa-trash"></i></button>';
+    //             }
+
+    //             return '<div class="d-flex gap-2">' . $button . '</div>';
+    //         })
+    //         ->rawColumns(['action', 'is_offday', 'employee_name', 'shift_name', 'schedule_date_formatted', 'is_offday'])
+    //         ->make(true);
+    // }
+
+    // public function create()
+    // {
+    //     $data = [
+    //         'title' => 'Tambah Jadwal Kerja Karyawan',
+    //         'employees' => Employee::orderBy('name')->get(),
+    //         'shifts' => Shift::orderBy('name')->get(),
+    //     ];
+
+    //     return view('pages.master.workschedule.add', $data);
+    // }
+
+    // public function store(Request $request)
+    // {
+    //     try {
+    //         $validated = $request->validate([
+    //             'employee_id' => 'required|exists:employees,id',
+    //             'shift_id' => 'required|exists:shifts,id',
+    //             'schedule_date' => 'required|date',
+    //             'is_offday' => 'sometimes|boolean',
+    //         ]);
+            
+    //         // Check if schedule for this employee on this date already exists
+    //         $existingSchedule = WorkSchedule::where('employee_id', $request->employee_id)
+    //             ->where('schedule_date', $request->schedule_date)
+    //             ->first();
+                
+    //         if ($existingSchedule) {
+    //             throw ValidationException::withMessages([
+    //                 'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
+    //             ]);
+    //         }
+            
+    //         $employee = Employee::findOrFail($request->employee_id);
+    //         $shift = Shift::findOrFail($request->shift_id);
+
+    //         // Check if this is an off day request
+    //         $isOffday = $request->has('is_offday') && $request->is_offday == 1;
+            
+    //         if ($isOffday) {
+    //             // Check number of holidays in the month
+    //             $month = Carbon::parse($request->schedule_date)->month;
+    //             $year = Carbon::parse($request->schedule_date)->year;
+                
+    //             $holidaysCount = EmployeHoliday::where('employee_id', $employee->id)
+    //                 ->whereMonth('day_off', $month)
+    //                 ->whereYear('day_off', $year)
+    //                 ->count();
+                
+    //             if ($holidaysCount >= 4) {
+    //                 throw ValidationException::withMessages([
+    //                     'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
+    //                 ]);
+    //             }
+    //         }
+
+    //         // Create work schedule
+    //         $workSchedule = WorkSchedule::create([
+    //             'employee_id' => $employee->id,
+    //             'shift_id' => $shift->id,
+    //             'schedule_date' => $request->schedule_date,
+    //         ]);
+
+    //         // If it's an off day, create holiday record
+    //         if ($isOffday) {
+    //             EmployeHoliday::create([
+    //                 'employee_id' => $employee->id,
+    //                 'day_off' => $request->schedule_date,
+    //             ]);
+    //         }
+
+    //         activity()
+    //             ->causedBy(Auth::user())
+    //             ->event('created')
+    //             ->withProperties($workSchedule->toArray())
+    //             ->log("Jadwal Kerja Baru Ditambahkan");
+
+    //         return redirect()->route('workschedule.index')->with([
+    //             'status' => 'Success!',
+    //             'message' => 'Berhasil Menambahkan Jadwal Kerja!'
+    //         ]);
+    //     } catch (ValidationException $e) {
+    //         return redirect()->back()->withErrors($e->errors())->withInput();
+    //     } catch (Exception $e) {
+    //         Log::error('WorkScheduleController@store: ' . $e->getMessage());
+    //         return redirect()->back()->with([
+    //             'status' => 'Error!', 
+    //             'message' => 'Gagal Menambahkan Jadwal Kerja: ' . $e->getMessage()
+    //         ])->withInput();
+    //     }
+    // }
+
+    // public function edit($id)
+    // {
+    //     try {
+    //         $workSchedule = WorkSchedule::with('employee', 'shift')->findOrFail($id);
+            
+    //         // Check if this date is a holiday for this employee
+    //         $isOffday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
+    //             ->where('day_off', $workSchedule->schedule_date)
+    //             ->exists();
+
+    //         $data = [
+    //             'title' => 'Edit Jadwal Kerja Karyawan',
+    //             'workSchedule' => $workSchedule,
+    //             'employees' => Employee::orderBy('name')->get(),
+    //             'shifts' => Shift::orderBy('name')->get(),
+    //             'isOffday' => $isOffday,
+    //         ];
+
+    //         return view('pages.master.workschedule.edit', $data);
+    //     } catch (Exception $e) {
+    //         Log::error('WorkScheduleController@edit: ' . $e->getMessage());
+    //         return redirect()->route('workschedule.index')->with([
+    //             'status' => 'Error!', 
+    //             'message' => 'Jadwal Kerja tidak ditemukan'
+    //         ]);
+    //     }
+    // }
+
+    // public function update(Request $request, $id)
+    // {
+    //     try {
+    //         $validated = $request->validate([
+    //             'employee_id' => 'required|exists:employees,id',
+    //             'shift_id' => 'required|exists:shifts,id',
+    //             'schedule_date' => 'required|date',
+    //             'is_offday' => 'sometimes|boolean',
+    //         ]);
+
+    //         $workSchedule = WorkSchedule::findOrFail($id);
+    //         $oldSchedule = $workSchedule->toArray();
+    //         $dateChanged = $workSchedule->schedule_date != $request->schedule_date || 
+    //                       $workSchedule->employee_id != $request->employee_id;
+
+    //         // Check for duplicate if date or employee changed
+    //         if ($dateChanged) {
+    //             $existingSchedule = WorkSchedule::where('employee_id', $request->employee_id)
+    //                 ->where('schedule_date', $request->schedule_date)
+    //                 ->where('id', '!=', $id)
+    //                 ->first();
                     
-                if ($existingSchedule) {
-                    throw ValidationException::withMessages([
-                        'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
-                    ]);
-                }
-            }
+    //             if ($existingSchedule) {
+    //                 throw ValidationException::withMessages([
+    //                     'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
+    //                 ]);
+    //             }
+    //         }
 
-            // Update the schedule
-            $workSchedule->update([
-                'employee_id' => $request->employee_id,
-                'shift_id' => $request->shift_id,
-                'schedule_date' => $request->schedule_date,
-            ]);
+    //         // Update the schedule
+    //         $workSchedule->update([
+    //             'employee_id' => $request->employee_id,
+    //             'shift_id' => $request->shift_id,
+    //             'schedule_date' => $request->schedule_date,
+    //         ]);
             
-            // Handle off day status
-            $isOffday = $request->has('is_offday') && $request->is_offday == 1;
-            $existingHoliday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
-                ->where('day_off', $oldSchedule['schedule_date'])
-                ->first();
+    //         // Handle off day status
+    //         $isOffday = $request->has('is_offday') && $request->is_offday == 1;
+    //         $existingHoliday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
+    //             ->where('day_off', $oldSchedule['schedule_date'])
+    //             ->first();
             
-            // If it was a holiday before but not now, or date changed
-            if ($existingHoliday) {
-                if (!$isOffday) {
-                    // Remove holiday
-                    $existingHoliday->delete();
-                } elseif ($dateChanged) {
-                    // Update holiday date
-                    $existingHoliday->update(['day_off' => $request->schedule_date]);
-                }
-            } 
-            // Wasn't a holiday before but is now
-            elseif ($isOffday) {
-                // Check holiday count first
-                $month = Carbon::parse($request->schedule_date)->month;
-                $year = Carbon::parse($request->schedule_date)->year;
+    //         // If it was a holiday before but not now, or date changed
+    //         if ($existingHoliday) {
+    //             if (!$isOffday) {
+    //                 // Remove holiday
+    //                 $existingHoliday->delete();
+    //             } elseif ($dateChanged) {
+    //                 // Update holiday date
+    //                 $existingHoliday->update(['day_off' => $request->schedule_date]);
+    //             }
+    //         } 
+    //         // Wasn't a holiday before but is now
+    //         elseif ($isOffday) {
+    //             // Check holiday count first
+    //             $month = Carbon::parse($request->schedule_date)->month;
+    //             $year = Carbon::parse($request->schedule_date)->year;
                 
-                $holidaysCount = EmployeHoliday::where('employee_id', $request->employee_id)
-                    ->whereMonth('day_off', $month)
-                    ->whereYear('day_off', $year)
-                    ->count();
+    //             $holidaysCount = EmployeHoliday::where('employee_id', $request->employee_id)
+    //                 ->whereMonth('day_off', $month)
+    //                 ->whereYear('day_off', $year)
+    //                 ->count();
                 
-                if ($holidaysCount >= 4) {
-                    throw ValidationException::withMessages([
-                        'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
-                    ]);
-                }
+    //             if ($holidaysCount >= 4) {
+    //                 throw ValidationException::withMessages([
+    //                     'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
+    //                 ]);
+    //             }
                 
-                // Create new holiday
-                EmployeHoliday::create([
-                    'employee_id' => $request->employee_id,
-                    'day_off' => $request->schedule_date,
-                ]);
-            }
+    //             // Create new holiday
+    //             EmployeHoliday::create([
+    //                 'employee_id' => $request->employee_id,
+    //                 'day_off' => $request->schedule_date,
+    //             ]);
+    //         }
 
-            $workSchedule->refresh();
+    //         $workSchedule->refresh();
 
-            activity()
-                ->causedBy(Auth::user())
-                ->event('updated')
-                ->withProperties([
-                    'old' => $oldSchedule,
-                    'new' => $workSchedule->toArray()
-                ])
-                ->log("Jadwal Kerja Berhasil Diperbarui");
+    //         activity()
+    //             ->causedBy(Auth::user())
+    //             ->event('updated')
+    //             ->withProperties([
+    //                 'old' => $oldSchedule,
+    //                 'new' => $workSchedule->toArray()
+    //             ])
+    //             ->log("Jadwal Kerja Berhasil Diperbarui");
 
-            return redirect()->route('workschedule.index')->with([
-                'status' => 'Success!',
-                'message' => 'Berhasil Mengupdate Jadwal Kerja!'
-            ]);
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
-        } catch (Exception $e) {
-            Log::error('WorkScheduleController@update: ' . $e->getMessage());
-            return redirect()->back()->with([
-                'status' => 'Error!',
-                'message' => 'Gagal Mengupdate Jadwal Kerja: ' . $e->getMessage()
-            ])->withInput();
-        }
-    }
+    //         return redirect()->route('workschedule.index')->with([
+    //             'status' => 'Success!',
+    //             'message' => 'Berhasil Mengupdate Jadwal Kerja!'
+    //         ]);
+    //     } catch (ValidationException $e) {
+    //         return redirect()->back()->withErrors($e->errors())->withInput();
+    //     } catch (Exception $e) {
+    //         Log::error('WorkScheduleController@update: ' . $e->getMessage());
+    //         return redirect()->back()->with([
+    //             'status' => 'Error!',
+    //             'message' => 'Gagal Mengupdate Jadwal Kerja: ' . $e->getMessage()
+    //         ])->withInput();
+    //     }
+    // }
 
-    public function destroy($id)
-    {
-        try {
-            $workSchedule = WorkSchedule::findOrFail($id);
+    // public function destroy($id)
+    // {
+    //     try {
+    //         $workSchedule = WorkSchedule::findOrFail($id);
             
-            // Check if this is a holiday and delete the holiday record if it exists
-            $holiday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
-                ->where('day_off', $workSchedule->schedule_date)
-                ->first();
+    //         // Check if this is a holiday and delete the holiday record if it exists
+    //         $holiday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
+    //             ->where('day_off', $workSchedule->schedule_date)
+    //             ->first();
             
-            if ($holiday) {
-                $holiday->delete();
-            }
+    //         if ($holiday) {
+    //             $holiday->delete();
+    //         }
 
-            activity()
-                ->causedBy(Auth::user())
-                ->event('deleted')
-                ->withProperties($workSchedule->toArray())
-                ->log("Jadwal Kerja Berhasil Dihapus");
+    //         activity()
+    //             ->causedBy(Auth::user())
+    //             ->event('deleted')
+    //             ->withProperties($workSchedule->toArray())
+    //             ->log("Jadwal Kerja Berhasil Dihapus");
 
-            $workSchedule->delete();
+    //         $workSchedule->delete();
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Jadwal Kerja Berhasil Dihapus!',
-            ]);
-        } catch (Exception $e) {
-            Log::error('WorkScheduleController@destroy: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus jadwal kerja: ' . $e->getMessage(),
-            ]);
-        }
-    }
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Jadwal Kerja Berhasil Dihapus!',
+    //         ]);
+    //     } catch (Exception $e) {
+    //         Log::error('WorkScheduleController@destroy: ' . $e->getMessage());
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Gagal menghapus jadwal kerja: ' . $e->getMessage(),
+    //         ]);
+    //     }
+    // }
 }
