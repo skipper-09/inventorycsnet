@@ -75,6 +75,10 @@
                             <li><a href="{{ route('workschedule') }}"><i
                                         class="mdi mdi-checkbox-blank-circle align-middle"></i>Jadwal Kerja</a></li>
                             @endcan
+                            @can('read-attendance')
+                            <li><a href="{{ route('attendance') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Absensi</a></li>
+                            @endcan
                         </ul>
                     </li>
                 @endcanany
