@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('clock_in_status',['normal','late'])->default('normal');
             $table->enum('clock_out_status',['normal','early'])->default('normal')->nullable();
             $table->longText('clock_in_image');
-            $table->longText('clock_out_image');
+            $table->longText('clock_out_image')->nullable();
             $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('work_schedule_id')->references('id')->on('work_schedules')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();
