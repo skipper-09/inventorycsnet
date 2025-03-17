@@ -9,6 +9,7 @@ class WorkSchedule extends Model
     protected $fillable = [
         'employee_id','shift_id','schedule_date','is_offdays'
     ];
+    
     protected $primaryKey = 'id';
 
     public function employee(){
