@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             OfficeSeedeer::class,
             ShiftSeeder::class,
+            WorkScheduleSeeder::class,
         ]);
     }
 }

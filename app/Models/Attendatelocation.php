@@ -11,6 +11,7 @@ class Attendatelocation extends Model
         'attendance_id','lat','long','status','attendance_type'
     ];
     protected $primaryKey = 'id';
+    
     public function Attendance(){
         return $this->belongsTo(Attendance::class,'attendance_id','id');
     }
