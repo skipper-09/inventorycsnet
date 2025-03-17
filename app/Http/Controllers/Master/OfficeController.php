@@ -56,8 +56,9 @@ class OfficeController extends Controller
     {
         $data = [
             'title' => 'Kantor',
-            'company' => Company::all()
+            'company' => Company::all(),
         ];
+
         return view('pages.master.office.add', $data);
     }
 
@@ -93,8 +94,6 @@ class OfficeController extends Controller
             ]);
         }
     }
-
-
 
     public function show($id)
     {
