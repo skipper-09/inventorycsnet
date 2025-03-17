@@ -21,4 +21,9 @@ class Attendance extends Model
     public function AttendanceNotes(){
         return $this->hasMany(AttendanceNotes::class);
     }
+
+    public function locations()
+    {
+        return $this->hasMany(Attendatelocation::class);
+    }
 }
