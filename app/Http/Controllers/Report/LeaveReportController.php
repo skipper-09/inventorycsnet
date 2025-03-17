@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Leave;
 use App\Models\User;
+use App\Models\WorkSchedule;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
@@ -132,6 +134,7 @@ class LeaveReportController extends Controller
 
         $request->validate($rules);
 
+        DB::beginTransaction();
         try {
             $leave = new Leave();
             $leave->start_date = $request->start_date;
@@ -145,6 +148,18 @@ class LeaveReportController extends Controller
             } else {
                 $leave->employee_id = $request->employee_id;
                 $leave->status = $request->status;
+
+                if ($leave->status == 'approved') {
+                    for ($date = Carbon::parse($request->start_date); $date->lte(Carbon::parse($request->end_date)); $date->addDay()) {
+                       WorkSchedule::updateOrCreate([
+                            'employee_id' => $request->employee_id,
+                            'schedule_date' => $date,
+                        ], [
+                            'status' => 'offday',
+                            'shift_id' => null,
+                        ]);
+                    }
+                }
             }
 
             $leave->save();
@@ -155,6 +170,7 @@ class LeaveReportController extends Controller
                 ->withProperties($leave->toArray())
                 ->log("Laporan Cuti berhasil dibuat.");
 
+                DB::commit();
             return response()->json([
                 'success' => true,
                 'status' => 'Success',
@@ -162,6 +178,7 @@ class LeaveReportController extends Controller
             ]);
 
         } catch (Exception $e) {
+            DB::rollBack();
             Log::error('Terjadi kesalahan: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
@@ -232,6 +249,18 @@ class LeaveReportController extends Controller
                     'status' => $request->status,
                     'year' => $request->year
                 ]);
+
+                if ($leave->status == 'approved') {
+                    for ($date = Carbon::parse($request->start_date); $date->lte(Carbon::parse($request->end_date)); $date->addDay()) {
+                       WorkSchedule::updateOrCreate([
+                            'employee_id' => $request->employee_id,
+                            'schedule_date' => $date,
+                        ], [
+                            'status' => 'offday',
+                            'shift_id' => null,
+                        ]);
+                    }
+                }
             }
 
             activity()

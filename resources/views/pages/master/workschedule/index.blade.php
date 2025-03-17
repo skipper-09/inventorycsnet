@@ -5,45 +5,39 @@
     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.css" rel="stylesheet" type="text/css" />
+
+    {{-- range picker --}}
+    <link href="{{ asset('assets/libs/daterangepicker/daterangepicker.css') }}" rel="stylesheet">
+
     <style>
-        /* Ensure event text is always visible */
         .fc-event-title {
             color: #fff !important;
-            /* Always white text */
             font-weight: bold;
         }
 
         .fc-event-time {
             color: #000000 !important;
-            /* Always white text */
             font-weight: bold;
         }
 
-        /* Custom colors for each shift */
         .shift-1 {
             background-color: #007bff;
-            /* Blue */
         }
 
         .shift-2 {
             background-color: #28a745;
-            /* Green */
         }
 
         .shift-3 {
             background-color: #dc3545;
-            /* Red */
         }
 
         .shift-4 {
             background-color: #ffc107;
-            /* Yellow */
         }
 
-        /* Additional styling for offdays */
         .fc-offday {
             background-color: #6c757d !important;
-            /* Gray */
         }
     </style>
 @endpush
@@ -54,8 +48,11 @@
             <div class="col-md-4">
                 <!-- Employee List with Search -->
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header justify-content-between">
                         <h5>Karyawan</h5>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal8"
+                            data-action="create" data-proses="{{ route('group.schedule') }}" data-title="{{ $title }}">Group
+                            Jadwal</button>
                     </div>
                     <div class="card-body">
                         <label for="employee-select" class="form-label">Pilih Karyawan</label>
@@ -71,7 +68,6 @@
                     </div>
                 </div>
             </div>
-
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
@@ -83,14 +79,24 @@
                 </div>
             </div>
         </div>
-
     </div>
+
+    @include('pages.master.workschedule.form')
+
 @endsection
 
 @push('js')
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"></script>
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
+    <script src="{{ asset('assets/js/mods/workschedule.js') }}"></script>
+
+
+    <!-- Bootstrap datepicker -->
+    <script src="{{ asset('assets/libs/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/form-rangepicker.init.js') }}"></script>
+
 
     <script>
 
@@ -112,7 +118,19 @@
         let selectedDates = [];
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize FullCalendar
+            const selectElement = document.getElementById('employee-select');
+
+            if (selectedEmployeeId !== null) {
+                const options = selectElement.options;
+
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].value === selectedEmployeeId) {
+                        options[i].selected = true;  // Select the option
+                        break;
+                    }
+                }
+            }
+
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
@@ -125,19 +143,19 @@
                                 data.forEach(event => {
                                     switch (event.shift_name) {
                                         case "PAGI":
-                                            event.className = 'shift-1';  // Blue
+                                            event.className = 'shift-1';
                                             break;
                                         case "SIANG":
-                                            event.className = 'shift-2';  // Green
+                                            event.className = 'shift-2';
                                             break;
                                         case "SORE":
-                                            event.className = 'shift-3';  // Red
+                                            event.className = 'shift-3';
                                             break;
                                         case "MALAM":
-                                            event.className = 'shift-4';  // Yellow
+                                            event.className = 'shift-4';
                                             break;
                                         default:
-                                            event.className = 'fc-offday';  // Gray for offday
+                                            event.className = 'fc-offday';
                                     }
                                 });
                                 successCallback(data);
@@ -146,12 +164,10 @@
                     }
                 },
                 select: function (info) {
-                    // Push the selected date range into the selectedDates array
                     selectedDates = [];
                     if (info.startStr === info.endStr) {
-                        selectedDates.push(info.startStr);  // Only add the single selected date
+                        selectedDates.push(info.startStr);
                     } else {
-                        // Otherwise, we are dealing with a range of dates
                         for (let date = info.start; date <= info.end; date.setDate(date.getDate() + 1)) {
                             selectedDates.push(date.toISOString().split('T')[0]);
                         }
@@ -168,16 +184,16 @@
 
                                 Swal.fire({
                                     title: 'Set Jadwal Kerja untuk Beberapa Tanggal',
-                                    html: `
-                                                                <p>Apakah Anda ingin menambahkan jadwal atau offday untuk ${selectedEmployeeName} pada tanggal yang dipilih?</p>
-                                                                <label for="shift">Pilih Shift:</label>
-                                                                <select id="shift" class="form-control select2form">${shiftOptions}</select>
-                                                            `,
+                                    html: `<p>Apakah Anda ingin menambahkan jadwal atau offday untuk ${selectedEmployeeName} pada tanggal yang dipilih?</p>
+                                                                                <label for="shift">Pilih Shift:</label>
+                                                                                <select id="shift" class="form-control select2form">${shiftOptions}</select>
+                                                                            `,
                                     icon: 'question',
                                     showCancelButton: true,
                                     confirmButtonText: 'Set Jadwal',
                                     cancelButtonText: 'Offday',
                                 }).then(result => {
+
                                     const shiftId = document.getElementById('shift').value;
                                     if (result.isConfirmed) {
                                         createBulkSchedule(shiftId);
@@ -203,7 +219,6 @@
             });
 
 
-            // Load shifts into bulk schedule modal
             fetch('/admin/master/workschedule/shifts')
                 .then(response => response.json())
                 .then(shifts => {
@@ -215,7 +230,6 @@
                 });
         });
 
-        // Function for creating a single schedule
         function createSingleSchedule(shiftId, date) {
             fetch(`/admin/master/workschedule/create-schedule`, {
                 method: 'POST',
@@ -245,7 +259,6 @@
                 });
         }
 
-        // Function for creating bulk schedules
         function createBulkSchedule(shiftId) {
             if (selectedDates.length > 2) {
                 const startDate = selectedDates[1];
@@ -284,15 +297,7 @@
             }
         }
 
-        // remove localStorage
-        // window.addEventListener('beforeunload', function () {
-        //     localStorage.removeItem('selectedEmployeeId');
-        //     localStorage.removeItem('selectedEmployeeName');
-        // });
 
-
-
-        // Function for creating a single offdays
         function createSingleOffday(date) {
             fetch(`/admin/master/workschedule/create-offday`, {
                 method: 'POST',
@@ -321,7 +326,6 @@
                 });
         }
 
-        // Function for creating bulk offdays
         function createBulkOffday() {
             if (selectedDates.length > 2) {
                 const startDate = selectedDates[1];
@@ -356,9 +360,6 @@
                 createSingleOffday(selectedDates[1]);
             }
         }
-
-
-
     </script>
 
 @endpush
