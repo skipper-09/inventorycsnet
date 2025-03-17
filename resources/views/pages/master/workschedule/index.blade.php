@@ -8,34 +8,42 @@
     <style>
         /* Ensure event text is always visible */
         .fc-event-title {
-            color: #fff !important;  /* Always white text */
+            color: #fff !important;
+            /* Always white text */
             font-weight: bold;
         }
+
         .fc-event-time {
-            color: #000000 !important;  /* Always white text */
+            color: #000000 !important;
+            /* Always white text */
             font-weight: bold;
         }
 
         /* Custom colors for each shift */
         .shift-1 {
-            background-color: #007bff;  /* Blue */
+            background-color: #007bff;
+            /* Blue */
         }
 
         .shift-2 {
-            background-color: #28a745;  /* Green */
+            background-color: #28a745;
+            /* Green */
         }
 
         .shift-3 {
-            background-color: #dc3545;  /* Red */
+            background-color: #dc3545;
+            /* Red */
         }
 
         .shift-4 {
-            background-color: #ffc107;  /* Yellow */
+            background-color: #ffc107;
+            /* Yellow */
         }
 
         /* Additional styling for offdays */
         .fc-offday {
-            background-color: #6c757d !important; /* Gray */
+            background-color: #6c757d !important;
+            /* Gray */
         }
     </style>
 @endpush
@@ -50,11 +58,12 @@
                         <h5>Karyawan</h5>
                     </div>
                     <div class="card-body">
+                        <label for="employee-select" class="form-label">Pilih Karyawan</label>
                         <select id="employee-select" class="form-control select2form">
-                            <option value="" disabled selected>-- Select Employee --</option>
+                            <option value="" selected disabled>-- Select Employee --</option>
                             @foreach($employees as $employee)
                                 <option value="{{ $employee->id }}" data-name="{{ $employee->name }}"
-                                        data-department="{{ $employee->department->name }}">
+                                    data-department="{{ $employee->department->name }}">
                                     {{ $employee->name }} - ({{ $employee->department->name }})
                                 </option>
                             @endforeach
@@ -64,7 +73,6 @@
             </div>
 
             <div class="col-md-8">
-                <!-- FullCalendar -->
                 <div class="card">
                     <div class="card-header">
                         <h5>Jadwal Kerja</h5>
@@ -76,29 +84,6 @@
             </div>
         </div>
 
-        <!-- Bulk Set Schedule Modal -->
-        <div class="modal fade" id="bulkScheduleModal" tabindex="-1" aria-labelledby="bulkScheduleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="bulkScheduleModalLabel">Bulk Set Jadwal</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="bulk-shift">Pilih Shift:</label>
-                            <select id="bulk-shift" class="form-control select2form">
-                                <!-- Dynamic shift options will go here -->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                        <button type="button" class="btn btn-primary" id="bulk-set-schedule">Set Jadwal</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 @endsection
 
@@ -108,17 +93,31 @@
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 
     <script>
-        let selectedEmployeeId = null;
-        let selectedEmployeeName = ''; // Variable to store selected employee's name
-        let selectedDates = []; // To hold the selected dates for bulk scheduling
 
-        document.addEventListener('DOMContentLoaded', function() {
+
+        let selectedEmployeeId = null;
+        let selectedEmployeeName = '';
+
+        const storedEmployeeId = localStorage.getItem('selectedEmployeeId');
+        const storedEmployeeName = localStorage.getItem('selectedEmployeeName');
+
+        if (storedEmployeeId !== null && storedEmployeeName !== null) {
+            selectedEmployeeId = storedEmployeeId;
+            selectedEmployeeName = storedEmployeeName;
+        } else {
+            selectedEmployeeId = null;
+            selectedEmployeeName = '';
+        }
+
+        let selectedDates = [];
+
+        document.addEventListener('DOMContentLoaded', function () {
             // Initialize FullCalendar
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
                 selectable: true,
-                events: function(info, successCallback, failureCallback) {
+                events: function (info, successCallback, failureCallback) {
                     if (selectedEmployeeId) {
                         fetch(`/admin/master/workschedule/events/${selectedEmployeeId}?start=${info.startStr}&end=${info.endStr}`)
                             .then(response => response.json())
@@ -146,14 +145,18 @@
                             .catch(error => failureCallback(error));
                     }
                 },
-                select: function(info) {
+                select: function (info) {
                     // Push the selected date range into the selectedDates array
                     selectedDates = [];
-                    for (let date = info.start; date <= info.end; date.setDate(date.getDate() + 1)) {
-                        selectedDates.push(date.toISOString().split('T')[0]);
+                    if (info.startStr === info.endStr) {
+                        selectedDates.push(info.startStr);  // Only add the single selected date
+                    } else {
+                        // Otherwise, we are dealing with a range of dates
+                        for (let date = info.start; date <= info.end; date.setDate(date.getDate() + 1)) {
+                            selectedDates.push(date.toISOString().split('T')[0]);
+                        }
                     }
 
-                    // Show the bulk scheduling modal
                     if (selectedEmployeeId) {
                         fetch('/admin/master/workschedule/shifts')
                             .then(response => response.json())
@@ -166,10 +169,10 @@
                                 Swal.fire({
                                     title: 'Set Jadwal Kerja untuk Beberapa Tanggal',
                                     html: `
-                                        <p>Apakah Anda ingin menambahkan jadwal atau offday untuk ${selectedEmployeeName} pada tanggal yang dipilih?</p>
-                                        <label for="shift">Pilih Shift:</label>
-                                        <select id="shift" class="form-control select2form">${shiftOptions}</select>
-                                    `,
+                                                                <p>Apakah Anda ingin menambahkan jadwal atau offday untuk ${selectedEmployeeName} pada tanggal yang dipilih?</p>
+                                                                <label for="shift">Pilih Shift:</label>
+                                                                <select id="shift" class="form-control select2form">${shiftOptions}</select>
+                                                            `,
                                     icon: 'question',
                                     showCancelButton: true,
                                     confirmButtonText: 'Set Jadwal',
@@ -188,29 +191,17 @@
             });
             calendar.render();
 
-            // Handle employee selection and calendar refresh
-            $('#employee-select').on('change', function() {
+            $('#employee-select').on('change', function () {
                 selectedEmployeeId = $(this).val();
                 selectedEmployeeName = $('#employee-select option:selected').data('name');
 
-                // Refresh the calendar to show the selected employee's schedule
+                localStorage.setItem('selectedEmployeeId', selectedEmployeeId);
+                localStorage.setItem('selectedEmployeeName', selectedEmployeeName);
                 if (selectedEmployeeId) {
-                    calendar.refetchEvents(); // This will reload the events for the selected employee
+                    calendar.refetchEvents();
                 }
             });
 
-            // Show Bulk Schedule Modal
-            $('#bulk-set-schedule').on('click', function() {
-                const shiftId = $('#bulk-shift').val();
-
-                if (shiftId && selectedDates.length > 0) {
-                    createBulkSchedule(shiftId);
-                }
-
-                // Close modal and refresh calendar after bulk schedule
-                $('#bulkScheduleModal').modal('hide');
-                calendar.refetchEvents();
-            });
 
             // Load shifts into bulk schedule modal
             fetch('/admin/master/workschedule/shifts')
@@ -224,34 +215,43 @@
                 });
         });
 
-        function createBulkSchedule(shiftId) {
-            selectedDates.forEach(date => {
-                fetch(`/admin/master/workschedule/create-schedule`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    },
-                    body: JSON.stringify({
-                        employee_id: selectedEmployeeId,
-                        date: date,
-                        shift_id: shiftId,
-                        status: 'work',
-                    })
-                }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          Swal.fire('Success', 'Jadwal telah ditambahkan', 'success');
-                          // Refresh events after successful schedule
-                          calendar.refetchEvents();
-                      }
-                  });
-            });
+        // Function for creating a single schedule
+        function createSingleSchedule(shiftId, date) {
+            fetch(`/admin/master/workschedule/create-schedule`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    employee_id: selectedEmployeeId,
+                    date: date,
+                    shift_id: shiftId,
+                    status: 'work',
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Jadwal untuk tanggal tersebut telah ditambahkan',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                });
         }
 
-        function createBulkOffday() {
-            selectedDates.forEach(date => {
-                fetch(`/admin/master/workschedule/create-offday`, {
+        // Function for creating bulk schedules
+        function createBulkSchedule(shiftId) {
+            if (selectedDates.length > 2) {
+                const startDate = selectedDates[1];
+                const endDate = selectedDates[selectedDates.length - 1];
+
+                fetch(`/admin/master/workschedule/create-bulk-schedule`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -259,18 +259,106 @@
                     },
                     body: JSON.stringify({
                         employee_id: selectedEmployeeId,
-                        date: date,
+                        start_date: startDate,
+                        end_date: endDate,
+                        status: 'work',
+                        shift_id: shiftId
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success',
+                                text: 'Jadwal telah ditambahkan untuk beberapa tanggal',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+            } else {
+                // For single date scheduling
+                createSingleSchedule(shiftId, selectedDates[1]);
+            }
+        }
+
+        // remove localStorage
+        // window.addEventListener('beforeunload', function () {
+        //     localStorage.removeItem('selectedEmployeeId');
+        //     localStorage.removeItem('selectedEmployeeName');
+        // });
+
+
+
+        // Function for creating a single offdays
+        function createSingleOffday(date) {
+            fetch(`/admin/master/workschedule/create-offday`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    employee_id: selectedEmployeeId,
+                    date: date,
+                    status: 'offday',
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success',
+                            text: 'Offday untuk tanggal tersebut telah ditambahkan',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    }
+                });
+        }
+
+        // Function for creating bulk offdays
+        function createBulkOffday() {
+            if (selectedDates.length > 2) {
+                const startDate = selectedDates[1];
+                const endDate = selectedDates[selectedDates.length - 1];
+
+                fetch(`/admin/master/workschedule/create-bulk-offday`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                    body: JSON.stringify({
+                        employee_id: selectedEmployeeId,
+                        start_date: startDate,
+                        end_date: endDate,
                         status: 'offday',
                     })
                 }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          Swal.fire('Success', 'Offday telah ditambahkan', 'success');
-                          // Refresh events after successful offday creation
-                          calendar.refetchEvents();
-                      }
-                  });
-            });
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success',
+                                text: 'Offday telah ditambahkan untuk beberapa tanggal',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        }
+                    });
+            } else {
+                createSingleOffday(selectedDates[1]);
+            }
         }
+
+
+
     </script>
+
 @endpush

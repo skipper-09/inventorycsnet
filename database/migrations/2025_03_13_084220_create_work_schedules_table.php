@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('shift_id')->nullable();
             $table->date('schedule_date');
-            $table->boolean('is_offdays')->default(false);
+            $table->enum('status',['work','offday'])->default('work');
             $table->foreign('employee_id')->references('id')->on('employees')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('shift_id')->references('id')->on('shifts')->cascadeOnDelete()->cascadeOnUpdate();
             $table->timestamps();

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class WorkSchedule extends Model
 {
     protected $fillable = [
-        'employee_id','shift_id','schedule_date','is_offdays'
+        'employee_id','shift_id','schedule_date','status'
     ];
     protected $primaryKey = 'id';
 

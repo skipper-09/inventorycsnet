@@ -9,6 +9,7 @@ use App\Models\Shift;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
@@ -42,32 +43,32 @@ class WorkScheduleController extends Controller
             ->where('employee_id', $employeeId)
             ->whereBetween('schedule_date', [$request->start, $request->end])
             ->get();
-    
+
         $formattedEvents = $events->map(function ($event) {
             $shiftStart = optional($event->shift)->shift_start;
             $shiftEnd = optional($event->shift)->shift_end;
             $shiftName = optional($event->shift)->name;
-    
-            if (!$shiftStart || !$shiftEnd) {
-                $shiftStart = '09:00:00';  
-                $shiftEnd = '17:00:00';    
-                $shiftName = 'Default Shift';
-            }
-    
+
+            // if (!$shiftStart || !$shiftEnd) {
+            //     $shiftStart = '08:00:00';  
+            //     $shiftEnd = '17:00:00';    
+            //     $shiftName = 'Default Shift';
+            // }
+
             return [
-                'title' => $event->is_offdays ? 'Offday' : 'Jadwal Kerja' . ' (' . $shiftName . ')',
+                'title' => $event->status == 'offday' ? 'offday' : 'Jadwal Kerja' . ' (' . $shiftName . ')',
                 'start' => Carbon::parse($event->schedule_date)->setTimeFrom(Carbon::parse($shiftStart))->toIso8601String(),
                 'end' => Carbon::parse($event->schedule_date)->setTimeFrom(Carbon::parse($shiftEnd))->toIso8601String(),
-                'status' => $event->is_offdays ? 'offday' : 'work',
+                'status' => $event->status == 'offday' ? 'offday' : 'work',
                 'shift_name' => $shiftName,  // Include shift name
                 'shift_start' => Carbon::parse($shiftStart)->toIso8601String(),
                 'shift_end' => Carbon::parse($shiftEnd)->toIso8601String(),
             ];
         });
-    
+
         return response()->json($formattedEvents);
     }
-    
+
 
 
 
@@ -80,7 +81,7 @@ class WorkScheduleController extends Controller
             'status' => 'required|in:work,offday',
         ]);
 
-        $shiftId = (int) $validated['shift_id']; 
+        $shiftId = (int) $validated['shift_id'];
         $schedule = WorkSchedule::create([
             'employee_id' => $validated['employee_id'],
             'shift_id' => $shiftId,
@@ -98,6 +99,7 @@ class WorkScheduleController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
+            'shift_id' => 'required',
             'status' => 'required|in:work,offday',
         ]);
 
@@ -105,18 +107,99 @@ class WorkScheduleController extends Controller
         $endDate = Carbon::parse($validated['end_date']);
         $employeeId = $validated['employee_id'];
         $status = $validated['status'];
+        $shift_id = $validated['shift_id'];
 
         // Create schedules for the selected date range
         $schedules = [];
         for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
             $schedules[] = WorkSchedule::create([
                 'employee_id' => $employeeId,
-                'date' => $date,
+                'schedule_date' => $date,
                 'status' => $status,
+                'shift_id' => $shift_id,
             ]);
         }
 
         return response()->json(['success' => true, 'schedules' => $schedules]);
+    }
+
+
+    //create offdays
+    public function createOffday(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+            'status' => 'required|in:work,offday',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $schedule = WorkSchedule::create([
+                'employee_id' => $validated['employee_id'],
+                // 'shift_id' => $shiftId,
+                'schedule_date' => Carbon::parse($validated['date']),
+                'status' => $validated['status'],
+            ]);
+
+            EmployeHoliday::create([
+                'employee_id' => $validated['employee_id'],
+                'day_off' => Carbon::parse($validated['date']),
+            ]);
+            DB::commit();
+            return response()->json(['success' => true, 'schedule' => $schedule]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
+
+    }
+
+
+    
+    public function createBulkOffday(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'status' => 'required|in:work,offday',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $startDate = Carbon::parse($validated['start_date']);
+            $endDate = Carbon::parse($validated['end_date']);
+            $employeeId = $validated['employee_id'];
+            $status = $validated['status'];
+    
+            $schedules = [];
+            for ($date = $startDate; $date->lte($endDate); $date->addDay()) {
+                $schedules[] = WorkSchedule::create([
+                    'employee_id' => $employeeId,
+                    'schedule_date' => $date,
+                    'status' => $status,
+                ]);
+                EmployeHoliday::create([
+                    'employee_id' => $employeeId,
+                    'day_off' => $date,
+                ]);
+            }
+    
+            DB::commit();
+            return response()->json(['success' => true, 'schedules' => $schedules]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'status' => "Gagal",
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ]);
+        }
     }
 
 
@@ -153,7 +236,7 @@ class WorkScheduleController extends Controller
     //             $isOffday = EmployeHoliday::where('employee_id', $data->employee_id)
     //                 ->where('day_off', $data->schedule_date)
     //                 ->exists();
-                
+
     //             return $isOffday ? '<span class="badge bg-warning">Hari Libur</span>' : '<span class="badge bg-success">Hari Kerja</span>';
     //         })
     //         ->addColumn('action', function ($data) {
@@ -196,34 +279,34 @@ class WorkScheduleController extends Controller
     //             'schedule_date' => 'required|date',
     //             'is_offday' => 'sometimes|boolean',
     //         ]);
-            
+
     //         // Check if schedule for this employee on this date already exists
     //         $existingSchedule = WorkSchedule::where('employee_id', $request->employee_id)
     //             ->where('schedule_date', $request->schedule_date)
     //             ->first();
-                
+
     //         if ($existingSchedule) {
     //             throw ValidationException::withMessages([
     //                 'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
     //             ]);
     //         }
-            
+
     //         $employee = Employee::findOrFail($request->employee_id);
     //         $shift = Shift::findOrFail($request->shift_id);
 
     //         // Check if this is an off day request
     //         $isOffday = $request->has('is_offday') && $request->is_offday == 1;
-            
+
     //         if ($isOffday) {
     //             // Check number of holidays in the month
     //             $month = Carbon::parse($request->schedule_date)->month;
     //             $year = Carbon::parse($request->schedule_date)->year;
-                
+
     //             $holidaysCount = EmployeHoliday::where('employee_id', $employee->id)
     //                 ->whereMonth('day_off', $month)
     //                 ->whereYear('day_off', $year)
     //                 ->count();
-                
+
     //             if ($holidaysCount >= 4) {
     //                 throw ValidationException::withMessages([
     //                     'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
@@ -271,7 +354,7 @@ class WorkScheduleController extends Controller
     // {
     //     try {
     //         $workSchedule = WorkSchedule::with('employee', 'shift')->findOrFail($id);
-            
+
     //         // Check if this date is a holiday for this employee
     //         $isOffday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
     //             ->where('day_off', $workSchedule->schedule_date)
@@ -316,7 +399,7 @@ class WorkScheduleController extends Controller
     //                 ->where('schedule_date', $request->schedule_date)
     //                 ->where('id', '!=', $id)
     //                 ->first();
-                    
+
     //             if ($existingSchedule) {
     //                 throw ValidationException::withMessages([
     //                     'schedule_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.'
@@ -330,13 +413,13 @@ class WorkScheduleController extends Controller
     //             'shift_id' => $request->shift_id,
     //             'schedule_date' => $request->schedule_date,
     //         ]);
-            
+
     //         // Handle off day status
     //         $isOffday = $request->has('is_offday') && $request->is_offday == 1;
     //         $existingHoliday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
     //             ->where('day_off', $oldSchedule['schedule_date'])
     //             ->first();
-            
+
     //         // If it was a holiday before but not now, or date changed
     //         if ($existingHoliday) {
     //             if (!$isOffday) {
@@ -352,18 +435,18 @@ class WorkScheduleController extends Controller
     //             // Check holiday count first
     //             $month = Carbon::parse($request->schedule_date)->month;
     //             $year = Carbon::parse($request->schedule_date)->year;
-                
+
     //             $holidaysCount = EmployeHoliday::where('employee_id', $request->employee_id)
     //                 ->whereMonth('day_off', $month)
     //                 ->whereYear('day_off', $year)
     //                 ->count();
-                
+
     //             if ($holidaysCount >= 4) {
     //                 throw ValidationException::withMessages([
     //                     'is_offday' => 'Karyawan sudah mencapai batas hari libur (4 kali) dalam bulan ini.'
     //                 ]);
     //             }
-                
+
     //             // Create new holiday
     //             EmployeHoliday::create([
     //                 'employee_id' => $request->employee_id,
@@ -401,12 +484,12 @@ class WorkScheduleController extends Controller
     // {
     //     try {
     //         $workSchedule = WorkSchedule::findOrFail($id);
-            
+
     //         // Check if this is a holiday and delete the holiday record if it exists
     //         $holiday = EmployeHoliday::where('employee_id', $workSchedule->employee_id)
     //             ->where('day_off', $workSchedule->schedule_date)
     //             ->first();
-            
+
     //         if ($holiday) {
     //             $holiday->delete();
     //         }

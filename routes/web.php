@@ -329,8 +329,9 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/shifts', [WorkScheduleController::class, 'getShifts']);
             Route::get('/events/{employeeId}', [WorkScheduleController::class, 'getEmployeeEvents']);
             Route::post('/create-schedule', [WorkScheduleController::class, 'createSchedule']);
+            Route::post('/create-offday', [WorkScheduleController::class, 'createOffday']);
             Route::post('/create-bulk-schedule', [WorkScheduleController::class, 'createBulkSchedule']);
-            Route::post('/create-bulk-offday', [WorkScheduleController::class, 'createBulkSchedule']);
+            Route::post('/create-bulk-offday', [WorkScheduleController::class, 'createBulkOffday']);
             // Route::get('getdata', [WorkScheduleController::class, 'getData'])->name('workschedule.getdata');
             // // Route::get('/details/{id}', [WorkScheduleController::class, 'details'])->name('workschedule.details')->middleware('can:read-workschedule');
             // Route::get('/add', [WorkScheduleController::class, 'create'])->name('workschedule.add')->middleware('can:create-workschedule');

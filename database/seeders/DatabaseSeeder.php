@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             OdpSeeder::class,
             CompanySeeder::class,
             OfficeSeedeer::class,
+            ShiftSeeder::class,
         ]);
     }
 }
