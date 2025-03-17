@@ -13,7 +13,7 @@ class ProfileController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
-        $user->load('employee');
+        $user->load(['employee', 'employee.department', 'employee.position']);
 
         return response()->json([
             'status' => 'success',

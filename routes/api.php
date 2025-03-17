@@ -29,6 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [AttendanceController::class, 'index']);
         Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
         Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
-        Route::post('/status', [AttendanceController::class, 'getStatus']);
+        Route::get('/status', [AttendanceController::class, 'getStatus']);
     });
 });
