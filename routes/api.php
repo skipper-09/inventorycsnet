@@ -12,12 +12,8 @@ use App\Http\Controllers\Api\SallaryApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('auth')->group(function () {
-    // Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
-    // Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
-    // Route::post('reset-password', [AuthController::class, 'resetPassword']);
-});
+// Auth routes
+Route::post('login', [AuthController::class, 'login']);
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -43,26 +39,27 @@ Route::middleware('auth:sanctum')->group(function () {
     // Attendance routes
     Route::prefix('attendance')->group(function () {
         Route::get('/', [AttendanceController::class, 'index']);
+        Route::get('/today', [AttendanceController::class, 'getTodayAttendances']);
         Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
         Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         Route::get('/status', [AttendanceController::class, 'getStatus']);
+        Route::post('/{id}/notes', [AttendanceController::class, 'addAttendanceNotes']);
+        Route::get('/{id}/notes', [AttendanceController::class, 'getAttendanceNotes']);
     });
 
-    //assigment employee route
+    // Assignment employee route
     Route::prefix('assigment')->group(function () {
         Route::get('/', [AssigmentApiController::class, 'index']);
         Route::get('/alltask', [AssigmentApiController::class, 'AllTask']);
         Route::post('/report/{id}', [AssigmentApiController::class, 'ReportTask']);
     });
-
-
-    //get sallary
+    
+    // Get salary
     Route::prefix('sallary')->group(function () {
         Route::get('/', [SallaryApiController::class, 'index']);
     });
-
-
-    //get leave
+    
+    // Get leave
     Route::prefix('leave')->group(function () {
         Route::get('/', [LeaveApiController::class, 'index']);
         Route::post('/req-leave', [LeaveApiController::class, 'ReqLeave']);

@@ -191,4 +191,18 @@ class AuthController extends Controller
             'message' => __($status)
         ], 400);
     }
+
+    public function me(Request $request)
+    {
+        // Get the authenticated user with employee relationship if it exists
+        $user = $request->user()->load('employee');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User profile retrieved successfully',
+            'data' => [
+                'user' => $user
+            ]
+        ]);
+    }
 }
