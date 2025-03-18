@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AssigmentApiController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LeaveApiController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\SallaryApiController;
@@ -45,5 +46,12 @@ Route::middleware('auth:sanctum')->group(function () {
     //get sallary
     Route::prefix('sallary')->group(function () {
         Route::get('/', [SallaryApiController::class, 'index']);
+    });
+
+
+    //get leave
+    Route::prefix('leave')->group(function () {
+        Route::get('/', [LeaveApiController::class, 'index']);
+        Route::post('/req-leave', [LeaveApiController::class, 'ReqLeave']);
     });
 });

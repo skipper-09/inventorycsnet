@@ -154,7 +154,7 @@ class AssigmentApiController extends Controller
         return response()->json([
             'success' => true,
             'status' => 'success',
-            'message' => 'Data Assignment berhasil diperbarui.',
+            'message' => 'Berhasil Membuat Report.',
             'data' => $taskreport
         ], 200);
     }
