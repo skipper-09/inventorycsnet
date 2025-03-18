@@ -99,10 +99,10 @@ class AssigmentApiController extends Controller
     public function ReportTask(Request $request, $id)
     {
 
-    dd($request->input('before_image'));
+        // dd($request->input('before_image'));
         $validator = Validator::make($request->all(), [
-            'before_image' => 'required|file',
-            'after_image' => 'required|file',
+            'before_image' => 'required',
+            'after_image' => 'required',
         ], [
             'before_image.required' => 'Gambar sebelum harus dilengkapi.',
             'after_image.required' => 'Gambar sesudah harus dilengkapi.',
@@ -121,9 +121,20 @@ class AssigmentApiController extends Controller
             'report_content' => $request->report_content,
         ]);
 
-        $filebefore = $this->handleImage($request->before_image);
+        $filebefore = '';
 
-        $fileafter = $this->handleImage($request->after_image);
+        if ($request->hasFile('before_image')) {
+            $file = $request->file('before_image');
+            $filebefore = 'report_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/report/'), $filebefore);
+        }
+
+        $fileafter='';
+        if ($request->hasFile('after_image')) {
+            $file = $request->file('after_image');
+            $fileafter = 'report_' . rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('storage/report/'), $fileafter);
+        }
 
         ReportImage::insert([
             [
@@ -147,28 +158,4 @@ class AssigmentApiController extends Controller
             'data' => $taskreport
         ], 200);
     }
-
-
-
-    //privat funtion
-    private function handleImage($imageData)
-    {
-        if (!$imageData) {
-            return null;
-        }
-
-        // Clean up base64 string
-        $imageData = preg_replace('/^data:image\/(png|jpg);base64,/', '', $imageData);
-        $imageData = str_replace(' ', '+', $imageData);
-        $image = base64_decode($imageData);
-
-        // Generate a unique file name
-        $fileName = 'report_' . rand(0, 999999999) . '.png';
-
-        // Store the image
-        Storage::disk('public')->put('report/' . $fileName, $image);
-
-        return $fileName;
-    }
-
 }
