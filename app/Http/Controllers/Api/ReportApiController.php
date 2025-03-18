@@ -22,6 +22,8 @@ class ReportApiController extends Controller
             // 'zone_id' => 'required',
             'address' => 'required|string|max:255',
             'tecnition' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
         ], [
             'name.required' => 'Nama wajib diisi.',
             // 'purpose.required' => 'Tujuan wajib diisi.',
@@ -90,6 +92,7 @@ class ReportApiController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Berhasil Laporan Pemasangan Baru.',
+            'data' => $customer,
         ]);
 
 
