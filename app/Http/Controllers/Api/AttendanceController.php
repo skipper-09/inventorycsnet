@@ -21,6 +21,7 @@ class AttendanceController extends Controller
 {
     public function index()
     {
+        // Existing code remains the same
         try {
             $user = Auth::user();
 
@@ -48,7 +49,6 @@ class AttendanceController extends Controller
         }
     }
 
-
     /**
      * Clock in API endpoint
      * 
@@ -62,7 +62,6 @@ class AttendanceController extends Controller
             'clock_in_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'notes' => 'nullable|string',
         ]);
 
         try {
@@ -207,28 +206,13 @@ class AttendanceController extends Controller
 
             $attendanceLocation->save();
 
-            // Tambahkan catatan jika telat atau offsite
-            if ($isLate || $isOffsite) {
-                $noteReason = [];
-
-                if ($isLate) {
-                    $noteReason[] = 'Telat';
-                }
-
-                if ($isOffsite) {
-                    $noteReason[] = 'Di luar lokasi kantor';
-                }
-
-                $defaultNote = 'Karyawan ' . implode(' dan ', $noteReason);
-                $notes = $request->notes ?? $defaultNote;
-
-                $attendanceNote = new AttendanceNotes([
-                    'attendance_id' => $attendance->id,
-                    'notes' => $notes,
-                    'attendance_type' => 'in'
-                ]);
-
-                $attendanceNote->save();
+            // Siapkan alasan yang diperlukan jika telat atau offsite
+            $noteReasons = [];
+            if ($isLate) {
+                $noteReasons[] = 'Telat';
+            }
+            if ($isOffsite) {
+                $noteReasons[] = 'Di luar lokasi kantor';
             }
 
             // Log the activity
@@ -250,6 +234,7 @@ class AttendanceController extends Controller
                     'location_status' => $locationStatus,
                     'shift_match' => $shiftMatchMessage,
                     'require_notes' => ($isLate || $isOffsite),
+                    'note_reasons' => !empty($noteReasons) ? $noteReasons : null,
                     'work_schedule' => $workSchedule ? [
                         'id' => $workSchedule->id,
                         'shift_name' => $workSchedule->shift->name ?? null,
@@ -269,6 +254,76 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal melakukan clock in: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Add notes to an existing attendance record
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addAttendanceNotes(Request $request)
+    {
+        $request->validate([
+            'attendance_id' => 'required|exists:attendances,id',
+            'notes' => 'required|string',
+            'attendance_type' => 'required|in:in,out',
+        ]);
+
+        try {
+            $user = Auth::user();
+            $attendance = Attendance::findOrFail($request->attendance_id);
+
+            // Check if the user has permission to add notes to this attendance
+            if (!$user->hasRole('Admin') && $user->employee_id != $attendance->employee_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak diizinkan untuk menambahkan catatan pada kehadiran ini.'
+                ], 403);
+            }
+
+            // Check if notes already exist for this attendance and type
+            $existingNote = AttendanceNotes::where('attendance_id', $request->attendance_id)
+                ->where('attendance_type', $request->attendance_type)
+                ->first();
+
+            if ($existingNote) {
+                // Update existing note
+                $existingNote->update([
+                    'notes' => $request->notes
+                ]);
+                $message = 'Catatan kehadiran berhasil diperbarui.';
+                $note = $existingNote;
+            } else {
+                // Create new note
+                $note = new AttendanceNotes([
+                    'attendance_id' => $request->attendance_id,
+                    'notes' => $request->notes,
+                    'attendance_type' => $request->attendance_type
+                ]);
+                $note->save();
+                $message = 'Catatan kehadiran berhasil ditambahkan.';
+            }
+
+            // Log the activity
+            activity()
+                ->causedBy($user)
+                ->event('add_attendance_notes')
+                ->withProperties($note->toArray())
+                ->log("Menambahkan catatan kehadiran");
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $note
+            ]);
+        } catch (Exception $e) {
+            Log::error('AttendanceApiController@addAttendanceNotes: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan catatan kehadiran: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -319,7 +374,6 @@ class AttendanceController extends Controller
             'clock_out_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
-            'notes' => 'nullable|string', // Tambahkan validasi untuk notes
         ]);
 
         try {
@@ -430,28 +484,13 @@ class AttendanceController extends Controller
 
             $attendanceLocation->save();
 
-            // Tambahkan catatan jika pulang awal atau offsite
-            if ($isEarly || $isOffsite) {
-                $noteReason = [];
-
-                if ($isEarly) {
-                    $noteReason[] = 'Pulang lebih awal';
-                }
-
-                if ($isOffsite) {
-                    $noteReason[] = 'Di luar lokasi kantor';
-                }
-
-                $defaultNote = 'Karyawan ' . implode(' dan ', $noteReason);
-                $notes = $request->notes ?? $defaultNote;
-
-                $attendanceNote = new AttendanceNotes([
-                    'attendance_id' => $attendance->id,
-                    'notes' => $notes,
-                    'attendance_type' => 'out'
-                ]);
-
-                $attendanceNote->save();
+            // Siapkan alasan yang diperlukan jika pulang awal atau offsite
+            $noteReasons = [];
+            if ($isEarly) {
+                $noteReasons[] = 'Pulang lebih awal';
+            }
+            if ($isOffsite) {
+                $noteReasons[] = 'Di luar lokasi kantor';
             }
 
             // Calculate work duration
@@ -482,6 +521,7 @@ class AttendanceController extends Controller
                     'location_status' => $locationStatus,
                     'work_duration' => $workDuration,
                     'require_notes' => ($isEarly || $isOffsite),
+                    'note_reasons' => !empty($noteReasons) ? $noteReasons : null,
                     'work_schedule' => $workSchedule ? [
                         'id' => $workSchedule->id,
                         'shift_name' => $workSchedule->shift->name ?? null,
@@ -513,6 +553,7 @@ class AttendanceController extends Controller
      */
     public function getStatus(Request $request)
     {
+        // Existing code remains the same
         try {
             $user = Auth::user();
             if (!$user->employee_id) {
@@ -571,6 +612,48 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal mendapatkan status absensi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get attendance notes for an attendance record
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAttendanceNotes(Request $request)
+    {
+        $request->validate([
+            'attendance_id' => 'required|exists:attendances,id',
+            'attendance_type' => 'required|in:in,out',
+        ]);
+
+        try {
+            $user = Auth::user();
+            $attendance = Attendance::findOrFail($request->attendance_id);
+
+            // Check if the user has permission to view notes for this attendance
+            if (!$user->hasRole('Admin') && $user->employee_id != $attendance->employee_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak diizinkan untuk melihat catatan pada kehadiran ini.'
+                ], 403);
+            }
+
+            $notes = AttendanceNotes::where('attendance_id', $request->attendance_id)
+                ->where('attendance_type', $request->attendance_type)
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'data' => $notes
+            ]);
+        } catch (Exception $e) {
+            Log::error('AttendanceApiController@getAttendanceNotes: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mendapatkan catatan kehadiran: ' . $e->getMessage()
             ], 500);
         }
     }
