@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AssigmentApiController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\AttendanceController;
@@ -30,5 +31,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/clock-in', [AttendanceController::class, 'clockIn']);
         Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
         Route::get('/status', [AttendanceController::class, 'getStatus']);
+    });
+
+    //assigment employee route
+    Route::prefix('assigment')->group(function () {
+        Route::get('/', [AssigmentApiController::class, 'index']);
+        Route::get('/alltask', [AssigmentApiController::class, 'AllTask']);
+        Route::post('/report/{id}', [AssigmentApiController::class, 'ReportTask']);
+        // Route::post('/clock-out', [AttendanceController::class, 'clockOut']);
+        // Route::get('/status', [AttendanceController::class, 'getStatus']);
     });
 });
