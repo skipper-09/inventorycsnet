@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Office;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -194,37 +195,22 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        // Get the authenticated user with employee relationship
-        $user = $request->user()->load('employee');
+        // Get the authenticated user with employee relationship and eager load the required relationships
+        $user = $request->user()->load(['employee', 'employee.company', 'employee.department', 'employee.position']);
 
         // Initialize variables
-        $employee = null;
-        $company = null;
+        $employee = $user->employee;
+        $company = $employee ? $employee->company : null;
         $office = null;
-        $department = null;
-        $position = null;
+        $department = $employee ? $employee->department : null;
+        $position = $employee ? $employee->position : null;
 
-        // If user has an employee relationship, load additional data
-        if ($user->employee) {
-            $employee = $user->employee;
-
-            // Load company, department, and position if they exist
-            if ($employee->company) {
-                $company = $employee->company;
-
-                // Load office related to the company
-                $office = $company->offices()->first();
-            }
-
-            if ($employee->department) {
-                $department = $employee->department;
-            }
-
-            if ($employee->position) {
-                $position = $employee->position;
-            }
+        // If company exists, load the office associated with it
+        if ($company) {
+            $office = Office::where('company_id', $company->id)->first(); // Get the first office associated with the company
         }
 
+        // Return the response with user profile data including office, department, and position
         return response()->json([
             'status' => 'success',
             'message' => 'User profile retrieved successfully',
@@ -232,10 +218,11 @@ class AuthController extends Controller
                 'user' => $user,
                 'employee' => $employee,
                 'company' => $company,
-                'office' => $office,
+                'office' => $office, // Add office information to the response
                 'department' => $department,
                 'position' => $position
             ]
         ]);
     }
+
 }
