@@ -9,6 +9,7 @@ class Company extends Model
     protected $fillable = [
         'name','address'
     ];
+    
     protected $primaryKey = 'id';
 
     public function employees()
