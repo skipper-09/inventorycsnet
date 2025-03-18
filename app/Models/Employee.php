@@ -13,6 +13,7 @@ class Employee extends Model
     protected $fillable = [
         "department_id",
         "position_id",
+        "company_id",
         "name",
         "address",
         "phone",
@@ -22,6 +23,11 @@ class Employee extends Model
         "nik",
         "identity_card",
     ];
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
 
     public function department()
     {

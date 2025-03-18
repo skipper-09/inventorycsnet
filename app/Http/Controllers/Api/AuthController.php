@@ -194,14 +194,47 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        // Get the authenticated user with employee relationship if it exists
+        // Get the authenticated user with employee relationship
         $user = $request->user()->load('employee');
+
+        // Initialize variables
+        $employee = null;
+        $company = null;
+        $office = null;
+        $department = null;
+        $position = null;
+
+        // If user has an employee relationship, load additional data
+        if ($user->employee) {
+            $employee = $user->employee;
+
+            // Load company, department, and position if they exist
+            if ($employee->company) {
+                $company = $employee->company;
+
+                // Load office related to the company
+                $office = $company->offices()->first();
+            }
+
+            if ($employee->department) {
+                $department = $employee->department;
+            }
+
+            if ($employee->position) {
+                $position = $employee->position;
+            }
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'User profile retrieved successfully',
             'data' => [
-                'user' => $user
+                'user' => $user,
+                'employee' => $employee,
+                'company' => $company,
+                'office' => $office,
+                'department' => $department,
+                'position' => $position
             ]
         ]);
     }

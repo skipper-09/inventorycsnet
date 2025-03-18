@@ -24,6 +24,7 @@ class EmployeeSeeder extends Seeder
             $employee = Employee::create([
                 'department_id' => rand(1, 5), // Assuming there are 5 departments
                 'position_id' => rand(1, 10), // Assuming there are 10 positions
+                'company_id' => rand(1, 2), // Assuming have 2 company
                 'name' => $faker->name,
                 'address' => $faker->address,
                 'phone' => $faker->phoneNumber,
@@ -38,7 +39,7 @@ class EmployeeSeeder extends Seeder
             $user = User::create([
                 'employee_id' => $employee->id, // Link user to employee
                 'name' => $employee->name,
-                'username' => Str::lower(Str::random(10)), // Random username, lowercase
+                'username' => 'testing' . $i,
                 'email' => $faker->unique()->safeEmail, // Unique email
                 'password' => Hash::make('password'), // Default password
                 'picture' => 'picture_' . $i . '.jpg', // Placeholder for user picture

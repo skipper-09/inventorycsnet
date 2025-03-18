@@ -11,8 +11,13 @@ class Company extends Model
     ];
     protected $primaryKey = 'id';
 
-    public function companies()
+    public function employees()
     {
-        return $this->hasMany(Company::class);
+        return $this->hasMany(Employee::class);
+    }
+
+    public function offices()
+    {
+        return $this->hasMany(Office::class);
     }
 }

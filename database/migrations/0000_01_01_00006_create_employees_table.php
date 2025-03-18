@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('department_id');
             $table->unsignedBigInteger('position_id');
+            $table->unsignedBigInteger('company_id');
             $table->string('name');
             $table->text('address');
             $table->string('phone');
@@ -26,6 +27,7 @@ return new class extends Migration
             $table->timestamps();
             $table->foreign('department_id')->references('id')->on('departments')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('position_id')->references('id')->on('positions')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreign('company_id')->references('id')->on('companies')->cascadeOnDelete()->cascadeOnUpdate();
         });
     }
 
