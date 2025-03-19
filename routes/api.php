@@ -76,6 +76,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //Report
     Route::prefix('report')->group(function () {
         Route::get('/', [ReportApiController::class, 'index']);
+        Route::get('/psbreport', [ReportApiController::class, 'getPsbReport']);
         Route::post('/psbreport', [ReportApiController::class, 'PsbReport']);
+        Route::post('/repairreport', [ReportApiController::class, 'RepairReport']);
     });
 });
