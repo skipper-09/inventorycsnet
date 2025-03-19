@@ -8,6 +8,7 @@ use App\Models\Office;
 use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -195,34 +196,34 @@ class AuthController extends Controller
 
     public function me(Request $request)
     {
-        // Get the authenticated user with employee relationship and eager load the required relationships
-        $user = $request->user()->load(['employee', 'employee.company', 'employee.department', 'employee.position']);
+        // Get user and relationships
+        $user = $request->user()->load([
+            'employee',
+            'employee.company',
+            'employee.department',
+            'employee.position',
+        ]);
 
-        // Initialize variables
-        $employee = $user->employee;
-        $company = $employee ? $employee->company : null;
-        $office = null;
-        $department = $employee ? $employee->department : null;
-        $position = $employee ? $employee->position : null;
+        $userData = $user->toArray();
 
-        // If company exists, load the office associated with it
-        if ($company) {
-            $office = Office::where('company_id', $company->id)->first(); // Get the first office associated with the company
+        // Find office directly
+        if ($user->employee && $user->employee->company) {
+            $office = DB::table('offices')
+                ->where('company_id', $user->employee->company->id)
+                ->first();
+
+            if ($office) {
+                // Convert stdClass to array
+                $userData['office'] = (array) $office;
+            }
         }
 
-        // Return the response with user profile data including office, department, and position
         return response()->json([
             'status' => 'success',
             'message' => 'User profile retrieved successfully',
             'data' => [
-                'user' => $user,
-                'employee' => $employee,
-                'company' => $company,
-                'office' => $office, // Add office information to the response
-                'department' => $department,
-                'position' => $position
+                'user' => $userData,
             ]
         ]);
     }
-
 }
