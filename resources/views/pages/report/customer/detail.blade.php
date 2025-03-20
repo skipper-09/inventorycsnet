@@ -90,7 +90,7 @@
                                                 @foreach($customer->transaction->Transactionproduct as $index => $item)
                                                 <tr>
                                                     <td class="text-center">{{ $index + 1 }}</td>
-                                                    <td>{{ $item->product->name }}</td>
+                                                    <td>{{ $item->product->name }} - {{ $item->product->transactionProduct->sn_modem }}</td>
                                                     <td>{{ $item->quantity }} {{ $item->product->unit->name }}</td>
                                                 </tr>
                                                 @endforeach

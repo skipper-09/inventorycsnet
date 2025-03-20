@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             UnitProductSeeder::class,
             ProductSeeder::class,
-            // BranchSeeder::class,
+            BranchSeeder::class,
             SettingSeeder::class,
             TaskTemplateSeeder::class,
             TaskDataSeeder::class,

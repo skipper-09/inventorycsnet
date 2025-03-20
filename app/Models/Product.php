@@ -24,4 +24,9 @@ class Product extends Model
     {
         return $this->hasOne(ProductRole::class);
     }
+
+    public function transactionProduct()
+    {
+        return $this->hasOne(TransactionProduct::class);
+    }
 }

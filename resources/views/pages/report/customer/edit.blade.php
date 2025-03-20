@@ -195,23 +195,18 @@
                                                             </td>
                                                             <td class="sn-modem-container" style="visibility: hidden;">
                                                                 @php
-                                                                    $snModemArray = json_decode(
-                                                                        $item->transaksi->customer->sn_modem,
-                                                                    );
-                                                                    $snModemArray = array_filter(
-                                                                        $snModemArray,
-                                                                        function ($value) {
-                                                                            return !empty($value);
-                                                                        },
-                                                                    );
-                                                                    $snModemValue =
-                                                                        count($snModemArray) > 0
-                                                                            ? implode(', ', $snModemArray)
-                                                                            : '';
+                                                                    // Get the SN modem for this specific product
+                                                                    $snModemValue = '';
+                                                                    if (isset($item->sn_modem)) {
+                                                                        $snModemValue = $item->sn_modem;
+                                                                    } elseif (isset($customer->sn_modem)) {
+                                                                        $snModemArray = json_decode($customer->sn_modem, true);
+                                                                        if (is_array($snModemArray) && isset($snModemArray[$index])) {
+                                                                            $snModemValue = $snModemArray[$index];
+                                                                        }
+                                                                    }
                                                                 @endphp
-                                                                <input type="text" name="sn_modem[]"
-                                                                    class="form-control" value="{{ $snModemValue }}">
-                                                            </td>
+                                                                <input type="text" name="sn_modem[]" class="form-control" value="{{ $snModemValue }}">
                                                             </td>
                                                             <td>
                                                                 <input type="text" name="quantity[]"
