@@ -14,11 +14,11 @@ class DepartmentSeeder extends Seeder
     public function run(): void
     {
         $departments = [
-            ['name' => 'Human Resources'],
-            ['name' => 'Information Technology'],
-            ['name' => 'Finance'],
+            ['name' => 'HR'],
+            ['name' => 'IT'],
+            ['name' => 'Keuangan'],
             ['name' => 'Marketing'],
-            ['name' => 'Operations'],
+            ['name' => 'Operasional'],
         ];
 
         foreach ($departments as $department) {

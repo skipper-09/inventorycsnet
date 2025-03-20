@@ -19,7 +19,7 @@ class EmployeeSeeder extends Seeder
         $faker = Faker::create();
 
         // Create 2 employees with associated users
-        for ($i = 0; $i < 2; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             // Create employee data
             $employee = Employee::create([
                 'department_id' => rand(1, 5), // Assuming there are 5 departments
