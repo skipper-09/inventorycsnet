@@ -15,20 +15,23 @@ class ProductSeeder extends Seeder
     {
         Product::insert([
             [
-                'name' => 'Modem',
+                'name' => 'Zte',
                 'description' => 'Modem Zte, Xpon',
+                'is_modem' => true,
                 'unit_id' => 1
             ],
             
             [
                 'name' => 'Router',
                 'description' => 'Router Zte, Xpon',
+                'is_modem' => false,
                 'unit_id' => 1
             ],
 
             [
                 'name' => 'Switch',
                 'description' => 'Switch Zte, Xpon',
+                'is_modem' => false,
                 'unit_id' => 1
             ],
         ]);

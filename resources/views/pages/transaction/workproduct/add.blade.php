@@ -202,7 +202,7 @@
             <select name="item_id[]" class="form-control select2form">
                 <option selected>Pilih Barang</option>
                 @foreach ($product as $unit)
-                    <option value="{{ $unit->id }}" data-name="{{ $unit->name }}">
+                    <option value="{{ $unit->id }}" data-name="{{ $unit->name }}" data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
                         {{ $unit->name }}
                     </option>
                 @endforeach
@@ -235,15 +235,11 @@
 
             function toggleSnModemInput(selectElement) {
                 const selectedOption = selectElement.find('option:selected');
-                const selectedText = selectedOption.data('name');
-
-                if (!selectedText) {
-                    return;
-                }
+                const isModel = selectedOption.data('is-modem') === true;
 
                 const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
 
-                if (selectedText.toLowerCase() === 'modem') {
+                if (isModel) {
                     snModemInputField.css('visibility', 'visible');
                 } else {
                     snModemInputField.css('visibility', 'hidden').find('input').val('');

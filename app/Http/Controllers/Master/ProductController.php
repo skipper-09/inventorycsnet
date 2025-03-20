@@ -52,6 +52,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_products,id',
+            'is_modem' => 'nullable|boolean',
         ], [
             'name.required' => 'Nama produk harus diisi.',
             'description.required' => 'Deskripsi produk harus diisi.',
@@ -63,6 +64,7 @@ class ProductController extends Controller
             $product->name = $request->name;
             $product->description = $request->description;
             $product->unit_id = $request->unit_id;
+            $product->is_modem = $request->is_modem ?? false;
             $product->save();
 
             activity()
@@ -99,6 +101,7 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:255',
             'unit_id' => 'required|exists:unit_products,id',
+            'is_modem' => 'nullable|boolean',
         ], [
             'name.required' => 'Nama produk harus diisi.',
             'description.required' => 'Deskripsi produk harus diisi.',
@@ -112,6 +115,7 @@ class ProductController extends Controller
             $product->name = $request->name;
             $product->description = $request->description;
             $product->unit_id = $request->unit_id;
+            $product->is_modem = $request->is_modem ?? false;
             $product->save();
 
             activity()

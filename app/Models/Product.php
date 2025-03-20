@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     protected $fillable = [
-        'unit_id','name','description'
+        'unit_id',
+        'name',
+        'description',
+        'is_modem'
     ];
+    
     protected $primaryKey = 'id';
 
     public function unit()

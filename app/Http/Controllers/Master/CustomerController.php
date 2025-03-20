@@ -105,6 +105,9 @@ class CustomerController extends Controller
                 ->whereHas('employee.position', function ($query) {
                     $query->where('name', 'Technician');  // Filter by position name
                 })
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['Employee', 'Technician']);  // Filter by roles: Employee or Technician
+                })
                 ->orderByDesc('id')
                 ->get()
         ];
@@ -134,6 +137,9 @@ class CustomerController extends Controller
                 ->whereHas('employee.position', function ($query) {
                     $query->where('name', 'Technician');  // Filter by position name
                 })
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['Employee', 'Technician']);  // Filter by roles: Employee or Technician
+                })
                 ->orderByDesc('id')
                 ->get()
         ];
@@ -162,6 +168,9 @@ class CustomerController extends Controller
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
                     $query->where('name', 'Technician');  // Filter by position name
+                })
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['Employee', 'Technician']);  // Filter by roles: Employee or Technician
                 })
                 ->orderByDesc('id')
                 ->get()
@@ -293,6 +302,9 @@ class CustomerController extends Controller
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
                     $query->where('name', 'Technician');  // Filter by position name
+                })
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('name', ['Employee', 'Technician']);
                 })
                 ->orderByDesc('id')
                 ->get()
