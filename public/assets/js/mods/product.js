@@ -28,6 +28,7 @@ $(document).ready(function () {
             form.attr("action", proses);
             form.attr("method", "POST");
             $("#addProductForm #unit_id").val('').trigger('change');
+            $("#addProductForm #is_modem").val('').trigger('change');
         } else if (action === "edit") {
             modalTitle.text("Edit " + title);
             form.attr("action", proses);
@@ -45,6 +46,7 @@ $(document).ready(function () {
                             response.product.description
                         );
                         $("#addProductForm #unit_id").val(response.product.unit_id).trigger('change');
+                        $("#addProductForm #is_modem").val(response.product.is_modem).trigger('change');
                     }
                 },
                 error: function (xhr, status, error) {
