@@ -154,7 +154,8 @@ class WorkProductController extends Controller
                 TransactionProduct::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $item,
-                    'quantity' => $request->quantity[$index]
+                    'quantity' => $request->quantity[$index],
+                    'sn_modem' => $request->sn_modem[$index],
                 ]);
             }
 
@@ -261,7 +262,8 @@ class WorkProductController extends Controller
                 TransactionProduct::create([
                     'transaction_id' => $transaction->id,
                     'product_id' => $item,
-                    'quantity' => $request->quantity[$index]
+                    'quantity' => $request->quantity[$index],
+                    'sn_modem' => $request->sn_modem[$index],
                 ]);
             }
 

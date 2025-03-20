@@ -120,10 +120,10 @@ class TransactionProductExport implements FromCollection, WithHeadings, WithMapp
             return "• " . ($technition->user->name ?? '-');
         })->implode("\n");
 
-        // Format products with bullet points and new lines
         $products = $group->map(function ($item) {
             $unit = $item->product->unit->name ?? '';
-            return "• {$item->product->name} ({$item->quantity} {$unit})";
+            $snmodem = $item->product->is_modem == true ?  $item->product->transactionProduct->sn_modem : '';
+            return "• {$item->product->name} ($snmodem) ({$item->quantity} {$unit})";
         })->implode("\n");
 
         static $index = 0;
