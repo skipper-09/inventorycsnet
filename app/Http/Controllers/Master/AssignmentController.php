@@ -76,6 +76,24 @@ class AssignmentController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'task' => 'required|exists:task_templates,id',
+            'assign_date' => 'required|string',
+            'type' => 'required|in:departement,employee',
+            'place' => 'required|string',
+        ], [
+            'task.required' => 'Template tugas wajib diisi.',
+            'task.exists' => 'Template tugas yang dipilih tidak ditemukan.',
+            'assign_date.required' => 'Tanggal penugasan wajib diisi.',
+            'assign_date.string' => 'Format tanggal penugasan tidak valid.',
+            'type.required' => 'Tipe penugasan wajib dipilih.',
+            'type.in' => 'Tipe penugasan harus "departement" atau "employee".',
+            'departement.required_if' => 'Departemen wajib diisi jika tipe penugasan adalah departemen.',
+            'departement.exists' => 'Departemen yang dipilih tidak ditemukan.',
+            'employee.required_if' => 'Karyawan wajib diisi jika tipe penugasan adalah karyawan.',
+            'employee.exists' => 'Karyawan yang dipilih tidak ditemukan.',
+            'place.required' => 'Tempat penugasan wajib diisi.'
+        ]);
         DB::beginTransaction();
         try {
             $tasktemplate = TaskTemplate::find($request->task);
@@ -89,39 +107,59 @@ class AssignmentController extends Controller
                 ]);
             }
 
-            $assigner = Auth::user(); // User yang mengassign tugas
+            $assigner = Auth::user();
+            $assignDates = explode(',', $request->assign_date);
 
-            // Membuat TaskAssign baru
-            $taskassign = TaskAssign::create([
-                "task_template_id" => $request->task,
-                "assignee_id" => $request->type == "departement" ? $request->departement : $request->employee,
-                "assigner_id" => $assigner->id,
-                "assignee_type" => $request->type == "departement" ? "App\Models\Department" : "App\Models\Employee",
-                'assign_date' => $request->assign_date,
-                'place' => $request->place,
-            ]);
+            foreach ($assignDates as $assignDate) {
+                $assignDate = trim($assignDate);
 
-            DB::commit();
+                $taskassign = TaskAssign::create([
+                    "task_template_id" => $request->task,
+                    "assignee_id" => $request->type == "departement" ? $request->departement : $request->employee,
+                    "assigner_id" => $assigner->id,
+                    "assignee_type" => $request->type == "departement" ? "App\Models\Department" : "App\Models\Employee",
+                    'assign_date' => $assignDate, // Gunakan tanggal yang sudah diproses
+                    'place' => $request->place,
+                ]);
 
-            // Kirimkan notifikasi ke user yang terkait (Assignee adalah User)
-            if ($request->type == 'departement') {
-                // Jika ditugaskan ke departemen, kirimkan notifikasi kepada setiap karyawan di departemen
-                $employees = Employee::where('department_id', $request->departement)->get();
-                if ($employees->isEmpty()) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'status' => "Gagal",
-                        'message' => 'No employees found in the specified department.'
-                    ]);
-                }
+                // Jika type adalah departement
+                if ($request->type == 'departement') {
+                    $employees = Employee::where('department_id', $request->departement)->get();
+                    if ($employees->isEmpty()) {
+                        DB::rollBack();
+                        return response()->json([
+                            'success' => false,
+                            'status' => "Gagal",
+                            'message' => 'No employees found in the specified department.'
+                        ]);
+                    }
 
-                foreach ($employees as $employee) {
-                    // Mengirim notifikasi kepada User yang terhubung dengan Employee
-                    // $user = $employee->user;
-                    // if ($user) {
-                    //     $user->notify(new NotificationJobs($taskassign));
-                    // }
+                    foreach ($employees as $employee) {
+                        foreach ($tasktemplate->tasks as $task) {
+                            $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
+                            foreach ($taskdetail as $item) {
+                                if (is_object($item) && isset($item)) {
+                                    EmployeeTask::insert([
+                                        'task_assign_id' => $taskassign->id,
+                                        'task_detail_id' => $item->id,
+                                        'employee_id' => $employee->id
+                                    ]);
+                                } else {
+                                    DB::rollBack();
+                                    return response()->json([
+                                        'success' => false,
+                                        'status' => "Gagal",
+                                        'message' => 'Task detail not found for task ID ' . $task->id
+                                    ]);
+                                }
+                            }
+                        }
+                    }
+                } else { // Jika type adalah employee
+                    $user = User::where('employee_id', $request->employee)->first();
+                    if ($user) {
+                        $user->notify(new NotificationJobs($taskassign));
+                    }
 
                     foreach ($tasktemplate->tasks as $task) {
                         $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
@@ -130,7 +168,7 @@ class AssignmentController extends Controller
                                 EmployeeTask::insert([
                                     'task_assign_id' => $taskassign->id,
                                     'task_detail_id' => $item->id,
-                                    'employee_id' => $employee->id
+                                    'employee_id' => $request->employee
                                 ]);
                             } else {
                                 DB::rollBack();
@@ -143,33 +181,9 @@ class AssignmentController extends Controller
                         }
                     }
                 }
-            } else {
-                // Jika ditugaskan ke individu (employee)
-                $user = User::where('employee_id', $request->employee)->first(); // Menemukan user berdasarkan employee_id yang diberikan
-                if ($user) {
-                    $user->notify(new NotificationJobs($taskassign));
-                }
-
-                foreach ($tasktemplate->tasks as $task) {
-                    $taskdetail = TaskDetail::where('task_id', $task->task_id)->get();
-                    foreach ($taskdetail as $item) {
-                        if (is_object($item) && isset($item)) {
-                            EmployeeTask::insert([
-                                'task_assign_id' => $taskassign->id,
-                                'task_detail_id' => $item->id,
-                                'employee_id' => $request->employee
-                            ]);
-                        } else {
-                            DB::rollBack();
-                            return response()->json([
-                                'success' => false,
-                                'status' => "Gagal",
-                                'message' => 'Task detail not found for task ID ' . $task->id
-                            ]);
-                        }
-                    }
-                }
             }
+
+            DB::commit();
 
             activity()
                 ->causedBy(Auth::user())
@@ -189,17 +203,18 @@ class AssignmentController extends Controller
     }
 
 
+
     public function destroy($id)
     {
         try {
             $taskassign = TaskAssign::findOrFail($id);
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('deleted')
-            ->withProperties($taskassign->toArray())
-            ->log("Penugasan berhasil dihapus.");
-            
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($taskassign->toArray())
+                ->log("Penugasan berhasil dihapus.");
+
             $taskassign->delete();
 
             return response()->json([

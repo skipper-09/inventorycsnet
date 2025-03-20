@@ -187,7 +187,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="signature-container">
-                                            <label class="signature-label">Tanda Tangan Owner</label>
+                                            <label class="signature-label">Tanda Tangan Pengirim</label>
                                             <div class="signature-pad-wrapper">
                                                 <div class="signature-pad" id="ownerSignaturePad"></div>
                                                 <input type="hidden" name="owner_signature" id="ownerSignatureInput">

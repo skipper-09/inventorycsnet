@@ -15,8 +15,11 @@
 <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
 
-{{-- datepicker --}}
-<link href="{{ asset('assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+
+{{-- datepicker
+<link href="{{ asset('assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}" rel="stylesheet"> --}}
 @endpush
 @section('content')
 <div class="container-fluid">
@@ -52,7 +55,7 @@
                                     <select name="type" id="type"
                                         class="form-control select2form @error('type') is-invalid @enderror">
                                         <option value="">Pilih Tipe</option>
-                                        <option value="departement">Departement</option>
+                                        {{-- <option value="departement">Departement</option> --}}
                                         <option value="employee">Karyawan</option>
                                     </select>
                                     @error('type')
@@ -108,7 +111,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label w-100" for="assign_date">Tanggal Penugasan</label>
-                                   <input type="date" name="assign_date" class="form-control @error('assign_date') is-invalid @enderror"  />
+                                   <input type="date" id="dates" name="assign_date" class="form-control @error('assign_date') is-invalid @enderror"  />
                                     @error('assign_date')
                                     <div class="invalid-feedback">
                                         {{ $message }}
@@ -149,11 +152,18 @@
 <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 
-<!-- Bootstrap datepicker -->
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+{{-- <!-- Bootstrap datepicker -->
 <script src="{{ asset('assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
-<script src="{{ asset('assets/js/pages/form-datepicker.init.js') }}"></script>
+<script src="{{ asset('assets/js/pages/form-datepicker.init.js') }}"></script> --}}
 
 <script>
+    flatpickr("#dates", {
+        mode: "multiple",   
+        dateFormat: "Y-m-d", 
+    });
     $(document).ready(function() {
         // Set the initial state based on the preselected value, if any
         toggleOptions($('#type').val());

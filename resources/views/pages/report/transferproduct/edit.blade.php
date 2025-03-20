@@ -206,7 +206,7 @@
                                 <div class="row mb-3">
                                     <div class="col-md-6">
                                         <div class="signature-container">
-                                            <label class="signature-label">Tanda Tangan Owner</label>
+                                            <label class="signature-label">Tanda Tangan Pengirim</label>
                                             @if ($transfer->assign && $transfer->assign->owner_signature)
                                                 <div class="existing-signature mb-2">
                                                     <img src="{{ Storage::url($transfer->assign->owner_signature) }}"
