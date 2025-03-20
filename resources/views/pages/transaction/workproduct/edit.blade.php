@@ -10,14 +10,14 @@
     <link href="{{ asset('assets/libs/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css') }}" rel="stylesheet"
         type="text/css" />
 
-    {{-- Select2 --}}
+    {{-- select 2 --}}
     <link href="{{ asset('assets/libs/select2/css/select2.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 @endpush
 
 @section('content')
     <div class="container-fluid">
-        <!-- Start page title -->
+        <!-- start page title -->
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-flex align-items-center justify-content-between">
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <!-- End page title -->
+        <!-- end page title -->
     </div>
 
     <div class="container-fluid">
@@ -120,7 +120,8 @@
                                                                     @foreach ($product as $unit)
                                                                         <option value="{{ $unit->id }}"
                                                                             {{ $unit->id == $item->product_id ? 'selected' : '' }}
-                                                                            data-name="{{ $unit->name }}">
+                                                                            data-name="{{ $unit->name }}"
+                                                                            data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
                                                                             {{ $unit->name }}
                                                                         </option>
                                                                     @endforeach
@@ -147,8 +148,8 @@
                                                                     value="{{ $snModemValue }}">
                                                             </td>
                                                             <td>
-                                                                <input type="number" name="quantity[]" class="form-control"
-                                                                    value="{{ $item->quantity }}" min="1">
+                                                                <input type="text" name="quantity[]" class="form-control"
+                                                                    value="{{ $item->quantity }}" inputmode="numeric">
                                                             </td>
                                                             <td>
                                                                 <button type="button"
@@ -162,9 +163,9 @@
                                             </table>
                                         </div>
                                     </div>
-                                    <div class="mt-3">
-                                        <button class="btn btn-primary" type="submit">Submit</button>
-                                    </div>
+                                </div>
+                                <div>
+                                    <button class="btn btn-primary" type="submit">Submit</button>
                                 </div>
                             </form>
                         </div>
@@ -176,15 +177,69 @@
 @endsection
 
 @push('js')
+    <!-- Required datatable js -->
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs5/js/dataTables.bootstrap5.min.js') }}"></script>
+
+    <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
+    {{-- select 2 deifinition --}}
     <script src="{{ asset('assets/libs/select2/js/select2.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/form-select2.init.js') }}"></script>
 
     <script>
         $(document).ready(function() {
+            $('form').on('submit', function(e) {
+                const itemIds = [];
+                let isValid = true;
+                let alertMessage = '';
+
+                $('#myTable tbody tr').each(function() {
+                    const itemId = $(this).find('select[name="item_id[]"]').val();
+                    const quantity = $(this).find('input[name="quantity[]"]').val();
+                    const snModem = $(this).find('input[name="sn_modem[]"]').val();
+
+                    // Check if the item is selected
+                    if (itemId && itemId !== 'Pilih Barang') {
+                        itemIds.push(itemId);
+                    } else {
+                        isValid = false;
+                        alertMessage = 'Please select a product for all rows.';
+                    }
+
+                    // Check if quantity is filled
+                    if (!quantity || quantity.trim() === '') {
+                        isValid = false;
+                        alertMessage = 'Please enter a quantity for all rows.';
+                    }
+
+                    // Check if SN modem input should be filled (if applicable)
+                    const snModemContainer = $(this).find('.sn-modem-container');
+                    if (snModemContainer.css('visibility') === 'visible' && (!snModem || snModem
+                            .trim() === '')) {
+                        isValid = false;
+                        alertMessage = 'Please enter a serial number for the modem.';
+                    }
+                });
+
+                // Check for duplicates in the selected item_ids
+                const duplicates = itemIds.filter((item, index) => itemIds.indexOf(item) !== index);
+
+                if (duplicates.length > 0) {
+                    isValid = false;
+                    alertMessage =
+                        'Some products are selected more than once. Please select different products.';
+                }
+
+                // If validation failed, show an alert and prevent form submission
+                if (!isValid) {
+                    alert(alertMessage);
+                    e.preventDefault(); // Stop the form submission
+                    return false;
+                }
+            });
+
             let selectedItems = [];
 
             $('#addRow').click(function() {
@@ -192,58 +247,50 @@
                 const rowIndex = tableBody.children('tr').length + 1;
 
                 const newRow = `
-        <tr>
-            <th scope="row">${rowIndex}</th>
-            <td>
-                <select name="item_id[]" class="form-control select2form">
-                    <option selected>Pilih Barang</option>
-                    @foreach ($product as $unit)
-                        <option value="{{ $unit->id }}" data-name="{{ $unit->name }}">
-                            {{ $unit->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </td>
-            <td class="sn-modem-container" style="visibility: hidden;">
-                <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
-            </td>
-            <td>
-                <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
-            </td>
-            <td>
-                <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
-            </td>
-        </tr>`;
+    <tr>
+        <th scope="row">${rowIndex}</th>
+        <td>
+            <select name="item_id[]" class="form-control select2form">
+                <option selected>Pilih Barang</option>
+                @foreach ($product as $unit)
+                    <option value="{{ $unit->id }}" data-name="{{ $unit->name }}" data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
+                        {{ $unit->name }}
+                    </option>
+                @endforeach
+            </select>
+        </td>
+        <td class="sn-modem-container" style="visibility: hidden;">
+            <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
+        </td>
+        <td>
+            <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
+        </td>
+        <td>
+            <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+        </td>
+    </tr>`;
 
                 tableBody.append(newRow);
                 tableBody.find('.select2form').select2();
 
                 updateItemDropdown();
 
-                // Add event listener for item selection change
                 tableBody.find('select[name="item_id[]"]').last().on('change', function() {
-                    toggleSnModemInput($(this)); // Show or hide SN Modem input
-                    updateItemDropdown(); // Update dropdown options
+                    toggleSnModemInput($(this));
+                    updateItemDropdown();
                 });
 
-                // Initial toggle for SN Modem visibility based on the current selection
                 toggleSnModemInput(tableBody.find('select[name="item_id[]"]').last());
-
-                updateRowNumbers(); // Update row numbers
+                updateRowNumbers();
             });
 
-            // Fungsi untuk menampilkan atau menyembunyikan input SN Modem
             function toggleSnModemInput(selectElement) {
                 const selectedOption = selectElement.find('option:selected');
-                const selectedText = selectedOption.data('name');
-
-                if (!selectedText) {
-                    return;
-                }
+                const isModem = selectedOption.data('is-modem') === true;
 
                 const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
 
-                if (selectedText.toLowerCase() === 'modem') {
+                if (isModem) {
                     snModemInputField.css('visibility', 'visible');
                 } else {
                     snModemInputField.css('visibility', 'hidden').find('input').val('');
@@ -266,7 +313,6 @@
                 });
             }
 
-            // Update dropdown item yang digunakan
             function updateItemDropdown() {
                 const usedItems = [];
 
@@ -300,32 +346,14 @@
                 });
             }
 
-            // Cek visibilitas SN Modem pada data yang ada saat halaman dimuat
+            // Initialize toggle visibility for existing rows
             $('#myTable tbody tr').each(function() {
                 const selectElement = $(this).find('select[name="item_id[]"]');
-                toggleSnModemInput(
-                    selectElement); // Update visibilitas berdasarkan pilihan barang saat halaman dimuat
+                toggleSnModemInput(selectElement);
             });
 
-            $('#submitButton').click(function(e) {
-                const itemIds = [];
-
-                // Collect all selected item_ids from the rows
-                $('#myTable tbody tr').each(function() {
-                    const itemId = $(this).find('select[name="item_id[]"]').val();
-                    if (itemId && itemId !== 'Pilih Barang') {
-                        itemIds.push(itemId);
-                    }
-                });
-
-                // Check for duplicates in the selected item_ids
-                const duplicates = itemIds.filter((item, index) => itemIds.indexOf(item) !== index);
-
-                if (duplicates.length > 0) {
-                    e.preventDefault(); // Prevent form submission if duplicates found
-                    alert('Some products are selected more than once. Please select different products.');
-                }
-            });
+            // Initial item dropdown update
+            updateItemDropdown();
         });
     </script>
 @endpush

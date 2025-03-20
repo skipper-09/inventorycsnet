@@ -186,7 +186,8 @@
                                                                     @foreach ($product as $unit)
                                                                         <option value="{{ $unit->id }}"
                                                                             {{ $unit->id == $item->product_id ? 'selected' : '' }}
-                                                                            data-name="{{ $unit->name }}">
+                                                                            data-name="{{ $unit->name }}"
+                                                                            data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
                                                                             {{ $unit->name }}
                                                                         </option>
                                                                     @endforeach
@@ -210,6 +211,7 @@
                                                                 @endphp
                                                                 <input type="text" name="sn_modem[]"
                                                                     class="form-control" value="{{ $snModemValue }}">
+                                                            </td>
                                                             </td>
                                                             <td>
                                                                 <input type="text" name="quantity[]"
@@ -334,6 +336,51 @@
                 }
             });
 
+            // Get Location functionality
+            $('#get-location-btn').click(function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        var latitude = position.coords.latitude;
+                        var longitude = position.coords.longitude;
+
+                        $('#latitude').val(latitude);
+                        $('#longitude').val(longitude);
+                    }, function(error) {
+                        console.log(error.message);
+                    });
+                } else {
+                    // alert('Geolocation is not supported by this browser.');
+                }
+            });
+
+            // Function to show or hide SN Modem input field based on the selected product
+            function toggleSnModemInput(selectElement) {
+                const selectedOption = selectElement.find('option:selected');
+                const isModem = selectedOption.data('is-modem') === true || selectedOption.data('is-modem') ===
+                    'true';
+
+                const snModemContainer = selectElement.closest('tr').find('.sn-modem-container');
+
+                if (isModem) {
+                    snModemContainer.css('visibility', 'visible');
+                    snModemContainer.find('input').prop('disabled', false);
+                } else {
+                    snModemContainer.css('visibility', 'hidden');
+                    snModemContainer.find('input').prop('disabled', true).val('');
+                }
+            }
+
+            // Check SN Modem visibility for existing rows when page loads
+            $('#myTable tbody tr').each(function() {
+                const selectElement = $(this).find('select[name="item_id[]"]');
+                toggleSnModemInput(selectElement);
+
+                // Add change event for each existing select
+                selectElement.on('change', function() {
+                    toggleSnModemInput($(this));
+                });
+            });
+
 
             let selectedItems = [];
 
@@ -348,14 +395,14 @@
                 <select name="item_id[]" class="form-control select2form">
                     <option selected>Pilih Barang</option>
                     @foreach ($product as $unit)
-                        <option value="{{ $unit->id }}" data-name="{{ $unit->name }}">
+                        <option value="{{ $unit->id }}" data-name="{{ $unit->name }}" data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
                             {{ $unit->name }}
                         </option>
                     @endforeach
                 </select>
             </td>
             <td class="sn-modem-container" style="visibility: hidden;">
-                <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
+                <input type="text" name="sn_modem[]" class="form-control" value="">
             </td>
             <td>
                 <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
@@ -372,35 +419,16 @@
 
                 // Add event listener for item selection change
                 tableBody.find('select[name="item_id[]"]').last().on('change', function() {
-                    toggleSnModemInput($(this)); // Show or hide SN Modem input
-                    updateItemDropdown(); // Update dropdown options
+                    toggleSnModemInput($(this));
+                    updateItemDropdown();
                 });
 
-                // Initial toggle for SN Modem visibility based on the current selection
                 toggleSnModemInput(tableBody.find('select[name="item_id[]"]').last());
 
                 updateRowNumbers(); // Update row numbers
             });
 
-            // Fungsi untuk menampilkan atau menyembunyikan input SN Modem
-            function toggleSnModemInput(selectElement) {
-                const selectedOption = selectElement.find('option:selected');
-                const selectedText = selectedOption.data('name');
-
-                if (!selectedText) {
-                    return;
-                }
-
-                const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
-
-                if (selectedText.toLowerCase() === 'modem') {
-                    snModemInputField.css('visibility', 'visible');
-                } else {
-                    snModemInputField.css('visibility', 'hidden').find('input').val('');
-                }
-            }
-
-            // Hapus baris
+            // Delete row
             $('#myTable').on('click', '.delete-btn', function() {
                 const itemId = $(this).closest('tr').find('select[name="item_id[]"]').val();
                 selectedItems = selectedItems.filter(item => item !== itemId);
@@ -409,14 +437,14 @@
                 updateItemDropdown();
             });
 
-            // Update nomor urut baris
+            // Update row numbers
             function updateRowNumbers() {
                 $('#myTable tbody tr').each(function(index) {
                     $(this).find('th').text(index + 1);
                 });
             }
 
-            // Update dropdown item yang digunakan
+            // Update dropdown with used items
             function updateItemDropdown() {
                 const usedItems = [];
 
@@ -450,13 +478,8 @@
                 });
             }
 
-            // Cek visibilitas SN Modem pada data yang ada saat halaman dimuat
-            $('#myTable tbody tr').each(function() {
-                const selectElement = $(this).find('select[name="item_id[]"]');
-                toggleSnModemInput(
-                    selectElement); // Update visibilitas berdasarkan pilihan barang saat halaman dimuat
-            });
 
+            // Validation before submitting
             $('#submitButton').click(function(e) {
                 const itemIds = [];
 
@@ -476,8 +499,6 @@
                     alert('Some products are selected more than once. Please select different products.');
                 }
             });
-
-
         });
     </script>
 @endpush
