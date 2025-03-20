@@ -61,11 +61,11 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Jam Masuk</label>
-                                    <p>{{ $attendance->workSchedule->shift->start_time ?? 'N/A' }}</p>
+                                    <p>{{ $attendance->workSchedule->shift->shift_start ?? 'N/A' }}</p>
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-bold">Jam Keluar</label>
-                                    <p>{{ $attendance->workSchedule->shift->end_time ?? 'N/A' }}</p>
+                                    <p>{{ $attendance->workSchedule->shift->shift_end ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>

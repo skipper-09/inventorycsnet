@@ -16,7 +16,7 @@ class RoleSeeder extends Seeder
     {
         $developer = Role::create(['name' => 'Developer']);
         // $teknisi = Role::create(['name' => 'Teknisi']);
-        // $admin = Role::create(['name' => 'Administrator']);
+        $admin = Role::create(['name' => 'Administrator']);
         // $odp = Role::create(['name' => 'ODP']);
         // $listrik = Role::create(['name' => 'Listrik']);
         $employee = Role::create(['name' => 'Employee']);
@@ -24,6 +24,10 @@ class RoleSeeder extends Seeder
         $allpermission = Permission::all();
         
         $developer->givePermissionTo([
+            $allpermission
+        ]);
+
+        $admin->givePermissionTo([
             $allpermission
         ]);
 

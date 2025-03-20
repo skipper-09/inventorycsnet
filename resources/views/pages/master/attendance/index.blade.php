@@ -72,11 +72,14 @@
                                     <option value="no_checkout">Belum Checkout</option>
                                 </select>
                             </div>
-                            <!-- Filter Buttons -->
-                            {{-- <div class="col-12 mt-3">
-                                <button id="btn_filter" class="btn btn-primary">Filter</button>
-                                <button id="btn_reset" class="btn btn-secondary ms-2">Reset</button>
-                            </div> --}}
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end">
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#modal8">
+                                        <i class="fas fa-file-excel me-1"></i> Export Excel
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
@@ -100,6 +103,45 @@
                     </div> <!-- end card body-->
                 </div> <!-- end card -->
             </div><!-- end col-->
+        </div>
+    </div>
+
+    <!-- Modal Export Excel -->
+    <div class="modal fade" id="modal8" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportModalLabel">Export Attendance Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ route('attendance.export') }}" method="GET">
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date">
+                        </div>
+                        <div class="mb-3">
+                            <label for="employee_id" class="form-label">Employee</label>
+                            <select class="form-select" id="employee_id" name="employee_id">
+                                <option value="">All Employees</option>
+                                @foreach ($employees as $employee)
+                                    <option value="{{ $employee->id }}">{{ $employee->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-file-excel me-1"></i> Export
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

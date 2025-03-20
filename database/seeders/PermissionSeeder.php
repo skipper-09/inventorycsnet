@@ -104,6 +104,7 @@ class PermissionSeeder extends Seeder
             'create-attendance',
             'update-attendance',
             'delete-attendance',
+            'export-attendance',
             //leave report
             'read-leave-report',
             'create-leave-report',

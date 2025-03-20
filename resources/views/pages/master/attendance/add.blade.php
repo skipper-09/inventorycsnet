@@ -402,12 +402,12 @@
                         if (response.success && response.data.length > 0) {
                             response.data.forEach(function(schedule) {
                                 const shiftInfo = schedule.shift ?
-                                    `${schedule.shift.name} (${schedule.shift.start_time} - ${schedule.shift.end_time})` :
+                                    `${schedule.shift.name} (${schedule.shift.shift_start} - ${schedule.shift.shift_end})` :
                                     'Tidak Ada Informasi Shift';
                                 $('#work_schedule_id').append(
                                     `<option value="${schedule.id}" 
-                             data-start="${schedule.shift ? schedule.shift.start_time : ''}" 
-                             data-end="${schedule.shift ? schedule.shift.end_time : ''}">${shiftInfo}</option>`
+                             data-start="${schedule.shift ? schedule.shift.shift_start : ''}" 
+                             data-end="${schedule.shift ? schedule.shift.shift_end : ''}">${shiftInfo}</option>`
                                 );
                             });
 

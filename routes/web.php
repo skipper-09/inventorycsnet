@@ -353,6 +353,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::get('/edit/{id}', [AttendanceController::class, 'show'])->name('attendance.edit')->middleware('can:update-attendance');
             Route::put('/update/{id}', [AttendanceController::class, 'update'])->name('attendance.update');
             Route::delete('/delete/{id}', [AttendanceController::class, 'destroy'])->name('attendance.delete')->middleware('can:delete-attendance');
+            Route::get('/export', [AttendanceController::class, 'exportAttendance'])->name('attendance.export')->middleware('can:export-attendance');
         });
     });
 

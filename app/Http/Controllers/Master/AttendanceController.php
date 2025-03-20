@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\AttendanceReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Employee;
@@ -14,6 +15,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AttendanceController extends Controller
 {
@@ -259,6 +261,9 @@ class AttendanceController extends Controller
                 ->where('schedule_date', $date)
                 ->get();
 
+
+            // Log::info('AttendanceController@getEmployeeSchedules: ' . $schedules);    
+
             return response()->json([
                 'success' => true,
                 'data' => $schedules
@@ -493,13 +498,71 @@ class AttendanceController extends Controller
         }
     }
 
-    public function report()
+    public function exportAttendance(Request $request)
     {
-        $data = [
-            "title" => "Laporan Absensi",
-            "employees" => Employee::orderBy('name')->get(),
-        ];
+        $query = Attendance::with(['employee', 'workSchedule.shift'])
+            ->orderByDesc('created_at');
 
-        return view("pages.master.attendance.report", $data);
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request->start_date)->startOfDay();
+            $endDate = Carbon::parse($request->end_date)->endOfDay();
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        if ($request->filled('employee_id')) {
+            $query->where('employee_id', $request->employee_id);
+        }
+
+        // if ($request->filled('status')) {
+        //     switch ($request->status) {
+        //         case 'late':
+        //             $query->where('clock_in_status', 'late');
+        //             break;
+        //         case 'early':
+        //             $query->where('clock_out_status', 'early');
+        //             break;
+        //         case 'normal':
+        //             $query->where('clock_in_status', '!=', 'late')
+        //                 ->where(function ($q) {
+        //                     $q->whereNull('clock_out')
+        //                         ->orWhere('clock_out_status', '!=', 'early');
+        //                 });
+        //             break;
+        //         case 'no_checkout':
+        //             $query->whereNull('clock_out');
+        //             break;
+        //     }
+        // }
+
+        $data = $query->get();
+
+        $filename = 'attendance_report';
+
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDateFormat = Carbon::parse($request->start_date)->format('d_M_Y');
+            $endDateFormat = Carbon::parse($request->end_date)->format('d_M_Y');
+            $filename .= '_' . $startDateFormat . '_to_' . $endDateFormat;
+        }
+
+        if ($request->filled('employee_id')) {
+            $employee = Employee::find($request->employee_id);
+            if ($employee) {
+                $filename .= '_' . str_replace(' ', '_', $employee->name);
+            }
+        }
+
+        $filename .= '.xlsx';
+
+        return Excel::download(new AttendanceReportExport($data), $filename);
     }
+
+    // public function report()
+    // {
+    //     $data = [
+    //         "title" => "Laporan Absensi",
+    //         "employees" => Employee::orderBy('name')->get(),
+    //     ];
+
+    //     return view("pages.master.attendance.report", $data);
+    // }
 }
