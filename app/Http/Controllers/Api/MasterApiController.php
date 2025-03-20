@@ -24,7 +24,7 @@ class MasterApiController extends Controller
     public function GetTechnition(){
         $data =  User::with('employee.position')
         ->whereHas('employee.position', function ($query) {
-            $query->where('name', 'Technitian');
+            $query->where('name', 'Technician');
         })
         ->orderByDesc('created_at')
         ->get();

@@ -22,8 +22,11 @@ class PositionSeeder extends Seeder
             ['name' => 'HR Specialist'],
             ['name' => 'Accountant'],
             ['name' => 'Marketing Specialist'],
-            ['name' => 'Technitian'],
+            ['name' => 'Technician'],
             ['name' => 'Operator'],
+            ['name' => 'NOC Support'],
+            ['name' => 'NOC'],
+            ['name' => 'Customer Service'],
         ];
 
         foreach ($positions as $position) {

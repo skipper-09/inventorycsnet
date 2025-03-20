@@ -132,7 +132,7 @@ class TransferProductController extends Controller
             'product' => Product::all(),
             'technitians' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()
@@ -250,7 +250,7 @@ class TransferProductController extends Controller
             'product' => Product::all(),
             'technitians' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()

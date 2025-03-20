@@ -103,7 +103,7 @@ class CustomerController extends Controller
             'product' => $products,
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()
@@ -132,7 +132,7 @@ class CustomerController extends Controller
             'product' => $products,
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()
@@ -161,7 +161,7 @@ class CustomerController extends Controller
             'product' => $products,
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()
@@ -292,7 +292,7 @@ class CustomerController extends Controller
             'product' => $products,
             'technitian' => User::with('employee.position', 'roles')
                 ->whereHas('employee.position', function ($query) {
-                    $query->where('name', 'Technitian');  // Filter by position name
+                    $query->where('name', 'Technician');  // Filter by position name
                 })
                 ->orderByDesc('id')
                 ->get()

@@ -231,7 +231,7 @@
                                             @if ($transfer->assign && $transfer->assign->technitian_signature)
                                                 <div class="existing-signature mb-2">
                                                     <img src="{{ Storage::url($transfer->assign->technitian_signature) }}"
-                                                        alt="Technitian Signature" class="img-fluid">
+                                                        alt="Technician Signature" class="img-fluid">
                                                 </div>
                                             @endif
                                             <div class="signature-pad-wrapper">
