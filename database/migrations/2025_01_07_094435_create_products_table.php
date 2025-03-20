@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('unit_id');
             $table->string('name');
             $table->longText('description');
+            $table->boolean('is_modem')->default(false);
             $table->timestamps();
             $table->foreign('unit_id')->references('id')->on('unit_products')->cascadeOnDelete()->cascadeOnUpdate();
         });

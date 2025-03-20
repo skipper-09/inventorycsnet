@@ -98,13 +98,22 @@ class WorkProductController extends Controller
             'title' => 'Laporan ODP Bisnis',
             'branch' => Branch::all(),
             'product' => $products,
-            'technitian' => User::with('roles')
+            'technitian' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->whereIn('name', ['Technician Odp', 'Technician Backbone']);
+                })
                 ->whereHas('roles', function ($query) {
-                    $query->where('name', 'Listrik')
-                        ->orWhere('name', 'ODP');
+                    $query->whereIn('name', ['Employee', 'Technician']);
                 })
                 ->orderByDesc('id')
                 ->get(),
+            // 'technitian' => User::with('roles')
+            //     ->whereHas('roles', function ($query) {
+            //         $query->where('name', 'Listrik')
+            //             ->orWhere('name', 'ODP');
+            //     })
+            //     ->orderByDesc('id')
+            //     ->get(),
         ];
 
         return view('pages.transaction.workproduct.add', $data);
@@ -113,7 +122,7 @@ class WorkProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string',
             'branch_id' => 'required|integer|exists:branches,id',
             'technitian' => 'required',
         ], [
@@ -198,10 +207,12 @@ class WorkProductController extends Controller
             'transaction' => $transaction,
             'branch' => Branch::all(),
             'product' => $products,
-            'technitian' => User::with('roles')
+            'technitian' => User::with('employee.position', 'roles')
+                ->whereHas('employee.position', function ($query) {
+                    $query->whereIn('name', ['Technician Odp', 'Technician Backbone']);
+                })
                 ->whereHas('roles', function ($query) {
-                    $query->where('name', 'Listrik')
-                        ->orWhere('name', 'ODP');
+                    $query->whereIn('name', ['Employee', 'Technician']);
                 })
                 ->orderByDesc('id')
                 ->get(),
@@ -213,7 +224,7 @@ class WorkProductController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string',
             'branch_id' => 'required|integer|exists:branches,id',
             'technitian' => 'required',
         ], [

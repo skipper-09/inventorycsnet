@@ -42,13 +42,16 @@
                             <h3 class="card-title">{{ $title }}</h3>
                             <div class="card-addon">
                                 <div class="d-flex">
-                                    <a href="{{ route('customer.add.psb') }}" class="btn {{ request()->routeIs('customer.add.psb') ? 'btn-primary' : 'btn-outline-primary' }} me-2">Pemasangan Baru</a>
-                                    <a href="{{ route('customer.add.repair') }}" class="btn {{ request()->routeIs('customer.add.repair') ? 'btn-primary' : 'btn-outline-primary' }}">Perbaikan</a>
+                                    <a href="{{ route('customer.add.psb') }}"
+                                        class="btn {{ request()->routeIs('customer.add.psb') ? 'btn-primary' : 'btn-outline-primary' }} me-2">Pemasangan
+                                        Baru</a>
+                                    <a href="{{ route('customer.add.repair') }}"
+                                        class="btn {{ request()->routeIs('customer.add.repair') ? 'btn-primary' : 'btn-outline-primary' }}">Perbaikan</a>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            @if(request()->routeIs('customer.add.psb'))
+                            @if (request()->routeIs('customer.add.psb'))
                                 @include('pages.report.customer.psbform')
                             @elseif(request()->routeIs('customer.add.repair'))
                                 @include('pages.report.customer.repairform')
@@ -212,28 +215,28 @@
                 const rowIndex = tableBody.children('tr').length + 1;
 
                 const newRow = `
-    <tr>
-        <th scope="row">${rowIndex}</th>
-        <td>
-            <select name="item_id[]" class="form-control select2form">
-                <option selected>Pilih Barang</option>
-                @foreach ($product as $unit)
-                    <option value="{{ $unit->id }}" data-name="{{ $unit->name }}">
-                        {{ $unit->name }}
-                    </option>
-                @endforeach
-            </select>
-        </td>
-        <td class="sn-modem-container" style="visibility: hidden;">
-            <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
-        </td>
-        <td>
-            <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
-        </td>
-        <td>
-            <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
-        </td>
-    </tr>`;
+                <tr>
+                    <th scope="row">${rowIndex}</th>
+                    <td>
+                        <select name="item_id[]" class="form-control select2form">
+                            <option selected>Pilih Barang</option>
+                            @foreach ($product as $unit)
+                                <option value="{{ $unit->id }}" data-name="{{ $unit->name }}" data-is-modem="{{ $unit->is_modem ? 'true' : 'false' }}">
+                                    {{ $unit->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </td>
+                    <td class="sn-modem-container" style="visibility: hidden;">
+                        <input type="text" name="sn_modem[]" class="form-control" value="">&nbsp;
+                    </td>
+                    <td>
+                        <input type="text" name="quantity[]" class="form-control" inputmode="numeric">
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm delete-btn">Delete</button>
+                    </td>
+                </tr>`;
 
                 tableBody.append(newRow);
                 tableBody.find('.select2form').select2();
@@ -251,15 +254,11 @@
 
             function toggleSnModemInput(selectElement) {
                 const selectedOption = selectElement.find('option:selected');
-                const selectedText = selectedOption.data('name');
-
-                if (!selectedText) {
-                    return;
-                }
+                const isModel = selectedOption.data('is-modem') === true;
 
                 const snModemInputField = selectElement.closest('tr').find('.sn-modem-container');
 
-                if (selectedText.toLowerCase() === 'modem') {
+                if (isModel) {
                     snModemInputField.css('visibility', 'visible');
                 } else {
                     snModemInputField.css('visibility', 'hidden').find('input').val('');
