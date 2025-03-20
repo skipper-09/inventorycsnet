@@ -315,7 +315,7 @@ class AttendanceController extends Controller
             activity()
                 ->causedBy(Auth::check() ? Auth::user() : null)
                 ->performedOn($attendance)
-                ->event('clock_in')
+                ->event('created')
                 ->withProperties($attendance->toArray())
                 ->log("Clock In Berhasil");
 
@@ -466,7 +466,7 @@ class AttendanceController extends Controller
             activity()
                 ->causedBy(Auth::check() ? Auth::user() : null)
                 ->performedOn($attendance)
-                ->event('clock_out')
+                ->event('created')
                 ->withProperties($attendance->toArray())
                 ->log("Clock Out Berhasil");
 
@@ -638,7 +638,7 @@ class AttendanceController extends Controller
             activity()
                 ->causedBy($user)
                 ->performedOn($note)  // Fixed: Use the note object instead of the attendance
-                ->event('add_attendance_notes')
+                ->event('created')
                 ->withProperties($note->toArray())
                 ->log("Menambahkan catatan kehadiran");
 
