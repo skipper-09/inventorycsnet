@@ -18,11 +18,11 @@
                         <input class="form-control" type="text" name="name" id="name"
                             placeholder="Nama Departemen">
                     </div>
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label class="form-label" for="location">Lokasi</label>
                         <input class="form-control" type="text" name="location" id="location"
                             placeholder="Lokasi">
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>

@@ -50,7 +50,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
-                                    <th>Lokasi</th>
+                                    {{-- <th>Lokasi</th> --}}
                                     @canany(['update-department', 'delete-department'])
                                         <th>Action</th>
                                     @endcanany

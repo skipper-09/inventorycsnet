@@ -10,7 +10,7 @@ class Department extends Model
     
     protected $fillable = [
         "name",
-        "location",
+        // "location",
     ];
 
     public function employees()

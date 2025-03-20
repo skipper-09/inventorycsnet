@@ -44,7 +44,7 @@ class DepartmentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
+            // 'location' => 'required|string|max:255',
         ]);
 
         try {
@@ -83,7 +83,7 @@ class DepartmentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
+            // 'location' => 'required|string|max:255',
         ]);
 
         try {

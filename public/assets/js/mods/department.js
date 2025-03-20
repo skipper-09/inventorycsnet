@@ -38,7 +38,7 @@ $(document).ready(function () {
                 success: function (response) {
                     if (response.department) {
                         $("#addDepartmentForm #name").val(response.department.name);
-                        $("#addDepartmentForm #location").val(response.department.location);
+                        // $("#addDepartmentForm #location").val(response.department.location);
                     }
                 },
                 error: function (xhr, status, error) {
@@ -64,10 +64,10 @@ $(document).ready(function () {
             data: "name",
             name: "name",
         },
-        {
-            data: "location",
-            name: "location",
-        }
+        // {
+        //     data: "location",
+        //     name: "location",
+        // }
     ];
 
     // add action with permission and not permission
