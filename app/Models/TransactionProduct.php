@@ -9,7 +9,8 @@ class TransactionProduct extends Model
     protected $fillable = [
         'transaction_id',
         'product_id',
-        'quantity'
+        'quantity',
+        'sn_modem'
     ];
 
     protected $primaryKey = 'id';

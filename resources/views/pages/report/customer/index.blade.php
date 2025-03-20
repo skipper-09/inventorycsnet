@@ -51,7 +51,7 @@
                                     <th>Cabang</th>
                                     <th>Jalur</th>
                                     <th>Odp</th>
-                                    <th>SN Modem</th>
+                                    {{-- <th>SN Modem</th> --}}
                                     <th>Tujuan</th>
                                     <th>Tgl</th>
                                     <th>Dibuat</th>

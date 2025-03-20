@@ -21,7 +21,7 @@ return new class extends Migration
             $table->longText('address');
             $table->string('latitude');
             $table->string('longitude');
-            $table->string('sn_modem')->nullable();
+            // $table->string('sn_modem')->nullable();
             $table->timestamps();
             $table->foreign('branch_id')->references('id')->on('branches')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('zone_id')->references('id')->on('zone_odps')->cascadeOnDelete()->cascadeOnUpdate();

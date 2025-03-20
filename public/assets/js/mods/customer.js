@@ -75,10 +75,10 @@ $(document).ready(function () {
             data: "odp_id",
             name: "odp_id",
         },
-        {
-            data: "sn_modem",
-            name: "sn_modem",
-        },
+        // {
+        //     data: "sn_modem",
+        //     name: "sn_modem",
+        // },
         {
             data: "purpose",
             name: "purpose",

@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     protected $fillable = [
-        'branch_id','zone_id','odp_id','name','phone','address','latitude','longitude','sn_modem'
+        'branch_id','zone_id','odp_id','name','phone','address','latitude','longitude'
+        // ,'sn_modem'
     ];
     protected $primaryKey = 'id';
 

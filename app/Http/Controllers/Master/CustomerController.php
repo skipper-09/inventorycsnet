@@ -64,22 +64,24 @@ class CustomerController extends Controller
                 $result = 'Perbaikan';
             }
             return $result;
-        })->editColumn('sn_modem', function ($data) {
-            $snModemArray = json_decode($data->sn_modem);
-            $snModemArray = array_filter($snModemArray, function ($value) {
-                return !empty($value);
-            });
+        })
+        // ->editColumn('sn_modem', function ($data) {
+        //     $snModemArray = json_decode($data->sn_modem);
+        //     $snModemArray = array_filter($snModemArray, function ($value) {
+        //         return !empty($value);
+        //     });
 
-            if (count($snModemArray) > 0) {
-                return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
-            }
+        //     if (count($snModemArray) > 0) {
+        //         return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
+        //     }
 
-            return '<span class="text-uppercase">No Modem</span>';
-        })->editColumn('created_at', function ($data) {
+        //     return '<span class="text-uppercase">No Modem</span>';
+        // })
+        ->editColumn('created_at', function ($data) {
             return $data->created_at->format('d M Y H:i');
         })->addColumn('owner', function ($data) {
             return $data->transaction->userTransaction->name;
-        })->rawColumns(['action', 'branch', "zone", "sn_modem", 'purpose', 'created_at', 'owner'])->make(true);
+        })->rawColumns(['action', 'branch', "zone", 'purpose', 'created_at', 'owner'])->make(true);
     }
 
 
@@ -220,7 +222,7 @@ class CustomerController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'odp_id' => $request->odp_id,
-                'sn_modem' => json_encode($request->sn_modem),
+                // 'sn_modem' => json_encode($request->sn_modem),
             ]);
 
             $trancsation = Transaction::create([
@@ -235,7 +237,8 @@ class CustomerController extends Controller
                 TransactionProduct::create([
                     'transaction_id' => $trancsation->id,
                     'product_id' => $item,
-                    'quantity' => $request->quantity[$index]
+                    'quantity' => $request->quantity[$index],
+                    'sn_modem' => $request->sn_modem[$index],
                 ]);
             }
             foreach ($request->tecnition as $index => $teknisi) {
@@ -339,7 +342,7 @@ class CustomerController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'odp_id' => $request->odp_id,
-                'sn_modem' => json_encode($request->sn_modem),
+                // 'sn_modem' => json_encode($request->sn_modem),
             ]);
 
 
@@ -362,7 +365,8 @@ class CustomerController extends Controller
                         TransactionProduct::create([
                             'transaction_id' => $transaction->id,
                             'product_id' => $item,
-                            'quantity' => $request->quantity[$index]
+                            'quantity' => $request->quantity[$index],
+                            'sn_modem' => $request->sn_modem[$index],
                         ]);
                     }
                 }
