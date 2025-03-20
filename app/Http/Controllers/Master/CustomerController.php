@@ -25,7 +25,7 @@ class CustomerController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Customer',
+            'title' => 'Laporan Retail',
         ];
         return view('pages.report.customer.index', $data);
     }
@@ -97,7 +97,7 @@ class CustomerController extends Controller
         }
 
         $data = [
-            'title' => 'Customer',
+            'title' => 'Laporan Retail',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
             'product' => $products,
@@ -125,7 +125,7 @@ class CustomerController extends Controller
         }
 
         $data = [
-            'title' => 'Customer',
+            'title' => 'Laporan Retail (PSB)',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
             'type' => 'psb',
@@ -154,7 +154,7 @@ class CustomerController extends Controller
         }
 
         $data = [
-            'title' => 'Customer',
+            'title' => 'Laporan Retail (Perbaikan)',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
             'type' => 'repair',
@@ -285,7 +285,7 @@ class CustomerController extends Controller
         }
         $customer = Customer::findOrFail($id);
         $data = [
-            'title' => 'Customer',
+            'title' => 'Laporan Retail',
             "zone" => ZoneOdp::all(),
             'branch' => Branch::all(),
             'customer' => $customer,
@@ -380,12 +380,12 @@ class CustomerController extends Controller
                 activity()
                     ->causedBy(Auth::user())
                     ->event('updated')
-                    ->log("Perbaikan Pelanggan berhasil diperbarui");
+                    ->log("Perbaikan Retail berhasil diperbarui");
 
                 activity('repair')
                     ->causedBy(Auth::user())
                     ->event('updated')
-                    ->log("Detail Perbaikan Pelanggan diperbarui");
+                    ->log("Detail Perbaikan Retail diperbarui");
             }
 
             DB::commit();
@@ -417,7 +417,7 @@ class CustomerController extends Controller
 
         // dd($customer);
         $data = [
-            'title' => 'Detail Customer',
+            'title' => 'Detail Laporan Retail',
             'customer' => $customer
         ];
 
@@ -463,7 +463,7 @@ class CustomerController extends Controller
                 ->causedBy(Auth::user())
                 ->event('deleted')
                 ->withProperties($customer->toArray())
-                ->log("Data Pelanggan berhasil dihapus.");
+                ->log("Data Laporan Retail berhasil dihapus.");
 
             DB::commit();
 

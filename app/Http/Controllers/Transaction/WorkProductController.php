@@ -22,7 +22,7 @@ class WorkProductController extends Controller
     public function index()
     {
         $data = [
-            'title' => 'Pengeluaran Barang'
+            'title' => 'Laporan ODP Bisnis'
         ];
         return view('pages.transaction.workproduct.index', $data);
     }
@@ -72,7 +72,7 @@ class WorkProductController extends Controller
         $transaction = $work->transaction->first();
 
         $data = [
-            'title' => 'Pengeluaran Barang',
+            'title' => 'Laporan ODP Bisnis',
             'work' => $work,
             'transaction' => $transaction
         ];
@@ -95,7 +95,7 @@ class WorkProductController extends Controller
         }
 
         $data = [
-            'title' => 'Pengeluaran Barang',
+            'title' => 'Laporan ODP Bisnis',
             'branch' => Branch::all(),
             'product' => $products,
             'technitian' => User::with('roles')
@@ -194,7 +194,7 @@ class WorkProductController extends Controller
             ->findOrFail($id);
 
         $data = [
-            'title' => 'Pengeluaran Barang',
+            'title' => 'Laporan ODP Bisnis',
             'transaction' => $transaction,
             'branch' => Branch::all(),
             'product' => $products,

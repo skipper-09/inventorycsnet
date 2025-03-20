@@ -191,8 +191,12 @@
                             @endcan
                             @can('read-customer')
                                 <li><a href="{{ route('customer') }}"><i
-                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Pelanggan</a></li>
+                                            class="mdi mdi-checkbox-blank-circle align-middle"></i>Laporan Retail</a></li>
                             @endcan
+                            @can('read-work-product')
+                            <li><a href="{{ route('workproduct') }}"><i
+                                        class="mdi mdi-checkbox-blank-circle align-middle"></i>Laporan ODP / Bisnis</a></li>
+                        @endcan
                             @can('read-activity-report')
                                 <li><a href="{{ route('activityreport') }}"><i
                                             class="mdi mdi-checkbox-blank-circle align-middle"></i>Aktivitas</a></li>
