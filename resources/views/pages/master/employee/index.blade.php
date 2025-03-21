@@ -43,6 +43,28 @@
                         </div>
                     @endcan
                     <div class="card-body">
+                        <div class="row mb-3 d-flex align-items-center">
+                            <div class="col-md-4">
+                                <!-- Filter Position (Select2) -->
+                                <label for="filter-position" class="form-label">Filter Jabatan</label>
+                                <select class="form-select select2" id="position_id" style="width: 100%">
+                                    <option value="">Semua Jabatan</option>
+                                    @foreach ($positions as $position)
+                                        <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <!-- Filter Department (Select2) -->
+                                <label for="filter-department" class="form-label">Filter Departemen</label>
+                                <select class="form-select select2" id="department_id" style="width: 100%">
+                                    <option value="">Semua Departemen</option>
+                                    @foreach ($departments as $department)
+                                        <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>                        
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('employee.getdata') }}"
@@ -53,7 +75,7 @@
                                     <th>Nama</th>
                                     <th>Jabatan</th>
                                     <th>Departemen</th>
-                                    @canany(['read-employee','update-employee', 'delete-employee'])
+                                    @canany(['read-employee', 'update-employee', 'delete-employee'])
                                         <th>Action</th>
                                     @endcanany
                                 </tr>

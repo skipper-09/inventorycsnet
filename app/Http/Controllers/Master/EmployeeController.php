@@ -29,9 +29,9 @@ class EmployeeController extends Controller
         return view('pages.master.employee.index', $data);
     }
 
-    public function getData()
+    public function getData(Request $request)
     {
-        $data = Employee::with([
+        $query = Employee::with([
             'department',
             'position',
             'user.roles',
@@ -39,7 +39,20 @@ class EmployeeController extends Controller
             'deductions',
             'salaries',
             'leaves'
-        ])->orderByDesc('id')->get();
+        ])->orderByDesc('id');
+        
+
+        // Filter by position
+        if ($request->filled('position_id')) {
+            $query->whereDate('position_id', $request->input('position_id'));
+        }
+
+        // Filter by department
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->input('department_id'));
+        }
+
+        $data = $query->get();
 
         return DataTables::of($data)
             ->addIndexColumn()
