@@ -106,14 +106,106 @@ class AssigmentDataController extends Controller
     }
 
 
+    // public function update($id, Request $request)
+    // {
+    //     $request->validate([
+    //         'before_image' => 'required|string',
+    //         'after_image' => 'required|string',
+    //     ], [
+    //         'before_image.required' => 'Gambar sebelum harus dilengkapi.',
+    //         'after_image.required' => 'Gambar sesudah harus dilengkapi.',
+    //     ]);
+
+    //     DB::beginTransaction();
+    //     try {
+    //         $taskreport = TaskReport::create([
+    //             'employee_task_id' => $id,
+    //             'report_content' => $request->report_content,
+    //         ]);
+
+    //         $oldTaskReport = $taskreport->toArray();
+
+    //         // Handle before image
+    //         $filebefore = '';
+    //         if ($request->input('before_image')) {
+    //             $imageData = $request->input('before_image');
+    //             $imageData = str_replace('data:image/png;base64,', '', $imageData);
+    //             $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
+    //             $imageData = str_replace(' ', '+', $imageData);
+    //             $image = base64_decode($imageData);
+    //             $filebefore = 'report_' . rand(0, 999999999) . '.png';
+
+    //             Storage::disk('public')->put('report/' . $filebefore, $image);
+    //         }
+
+    //         // Handle after image
+    //         $fileafter = '';
+    //         if ($request->input('after_image')) {
+    //             $imageData = $request->input('after_image');
+    //             $imageData = str_replace('data:image/png;base64,', '', $imageData);
+    //             $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
+    //             $imageData = str_replace(' ', '+', $imageData);
+    //             $image = base64_decode($imageData);
+    //             $fileafter = 'report_' . rand(0, 999999999) . '.png';
+
+    //             Storage::disk('public')->put('report/' . $fileafter, $image);
+    //         }
+
+    //         ReportImage::insert([
+    //             [
+    //                 "report_task_id" => $taskreport->id,
+    //                 "report_type" => 'before',
+    //                 "image" => $filebefore,
+    //             ],
+    //             [
+    //                 "report_task_id" => $taskreport->id,
+    //                 "report_type" => 'after',
+    //                 "image" => $fileafter,
+    //             ],
+    //         ]);
+
+    //         // Update the task status to completed
+    //         EmployeeTask::find($id)->update(['status' => 'in_review']);
+
+    //         activity()
+    //         ->causedBy(Auth::user())
+    //         ->event('updated')
+    //         ->withProperties([
+    //             'old' => $oldTaskReport,
+    //             'new' => $taskreport->toArray()
+    //         ])
+    //         ->log("Data Assignment berhasil diperbarui.");
+
+    //         DB::commit();
+    //         return redirect()->route('assigmentdata');
+    //     } catch (Exception $e) {
+    //         DB::rollBack();
+    //         Log::error($e->getMessage());
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'status' => "Gagal",
+    //             'message' => 'An error occurred: ' . $e->getMessage()
+    //         ]);
+    //     }
+    // }
+
     public function update($id, Request $request)
     {
         $request->validate([
-            'before_image' => 'required|string',
-            'after_image' => 'required|string',
+            'before_image' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'after_image' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'report_content' => 'required|string',
         ], [
             'before_image.required' => 'Gambar sebelum harus dilengkapi.',
+            'before_image.image' => 'File harus berupa gambar.',
+            'before_image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif.',
+            // 'before_image.max' => 'Ukuran gambar maksimal 2MB.',
             'after_image.required' => 'Gambar sesudah harus dilengkapi.',
+            'after_image.image' => 'File harus berupa gambar.',
+            'after_image.mimes' => 'Format gambar harus jpeg, png, jpg, atau gif.',
+            // 'after_image.max' => 'Ukuran gambar maksimal 2MB.',
+            'report_content.required' => 'Konten laporan harus diisi.',
         ]);
 
         DB::beginTransaction();
@@ -127,28 +219,18 @@ class AssigmentDataController extends Controller
 
             // Handle before image
             $filebefore = '';
-            if ($request->input('before_image')) {
-                $imageData = $request->input('before_image');
-                $imageData = str_replace('data:image/png;base64,', '', $imageData);
-                $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
-                $imageData = str_replace(' ', '+', $imageData);
-                $image = base64_decode($imageData);
-                $filebefore = 'report_' . rand(0, 999999999) . '.png';
-
-                Storage::disk('public')->put('report/' . $filebefore, $image);
+            if ($request->hasFile('before_image')) {
+                $file = $request->file('before_image');
+                $filebefore = 'report_' . time() . '_' . rand(0, 999999) . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('report', $filebefore, 'public');
             }
 
             // Handle after image
             $fileafter = '';
-            if ($request->input('after_image')) {
-                $imageData = $request->input('after_image');
-                $imageData = str_replace('data:image/png;base64,', '', $imageData);
-                $imageData = str_replace('data:image/jpg;base64,', '', $imageData);
-                $imageData = str_replace(' ', '+', $imageData);
-                $image = base64_decode($imageData);
-                $fileafter = 'report_' . rand(0, 999999999) . '.png';
-
-                Storage::disk('public')->put('report/' . $fileafter, $image);
+            if ($request->hasFile('after_image')) {
+                $file = $request->file('after_image');
+                $fileafter = 'report_' . time() . '_' . rand(0, 999999) . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('report', $fileafter, 'public');
             }
 
             ReportImage::insert([
@@ -168,13 +250,13 @@ class AssigmentDataController extends Controller
             EmployeeTask::find($id)->update(['status' => 'in_review']);
 
             activity()
-            ->causedBy(Auth::user())
-            ->event('updated')
-            ->withProperties([
-                'old' => $oldTaskReport,
-                'new' => $taskreport->toArray()
-            ])
-            ->log("Data Assignment berhasil diperbarui.");
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->withProperties([
+                    'old' => $oldTaskReport,
+                    'new' => $taskreport->toArray()
+                ])
+                ->log("Data Assignment berhasil diperbarui.");
 
             DB::commit();
             return redirect()->route('assigmentdata');
@@ -189,8 +271,6 @@ class AssigmentDataController extends Controller
             ]);
         }
     }
-
-
 
     public function Detail($assignid)
     {
