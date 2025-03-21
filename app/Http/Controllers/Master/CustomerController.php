@@ -40,7 +40,7 @@ class CustomerController extends Controller
         }
 
         $data = $query->get();
-        
+
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
@@ -72,23 +72,23 @@ class CustomerController extends Controller
             }
             return $result;
         })
-        // ->editColumn('sn_modem', function ($data) {
-        //     $snModemArray = json_decode($data->sn_modem);
-        //     $snModemArray = array_filter($snModemArray, function ($value) {
-        //         return !empty($value);
-        //     });
+            // ->editColumn('sn_modem', function ($data) {
+            //     $snModemArray = json_decode($data->sn_modem);
+            //     $snModemArray = array_filter($snModemArray, function ($value) {
+            //         return !empty($value);
+            //     });
 
-        //     if (count($snModemArray) > 0) {
-        //         return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
-        //     }
+            //     if (count($snModemArray) > 0) {
+            //         return '<span class="text-uppercase">' . implode(', ', $snModemArray) . '</span>';
+            //     }
 
-        //     return '<span class="text-uppercase">No Modem</span>';
-        // })
-        ->editColumn('created_at', function ($data) {
-            return $data->created_at->format('d M Y H:i');
-        })->addColumn('owner', function ($data) {
-            return $data->transaction->userTransaction->name;
-        })->rawColumns(['action', 'branch', "zone", 'purpose', 'created_at', 'owner'])->make(true);
+            //     return '<span class="text-uppercase">No Modem</span>';
+            // })
+            ->editColumn('created_at', function ($data) {
+                return $data->created_at->format('d M Y H:i');
+            })->addColumn('owner', function ($data) {
+                return $data->transaction->userTransaction->name;
+            })->rawColumns(['action', 'branch', "zone", 'purpose', 'created_at', 'owner'])->make(true);
     }
 
 
@@ -232,7 +232,7 @@ class CustomerController extends Controller
                 // 'sn_modem' => json_encode($request->sn_modem),
             ]);
 
-            $trancsation = Transaction::create([
+            $transaction = Transaction::create([
                 'branch_id' => $request->branch_id,
                 'customer_id' => $customer->id,
                 'type' => 'out',
@@ -242,7 +242,7 @@ class CustomerController extends Controller
 
             foreach ($request->item_id as $index => $item) {
                 TransactionProduct::create([
-                    'transaction_id' => $trancsation->id,
+                    'transaction_id' => $transaction->id,
                     'product_id' => $item,
                     'quantity' => $request->quantity[$index],
                     'sn_modem' => $request->sn_modem[$index],
@@ -250,30 +250,59 @@ class CustomerController extends Controller
             }
             foreach ($request->tecnition as $index => $teknisi) {
                 TransactionTechnition::create([
-                    'transaction_id' => $trancsation->id,
+                    'transaction_id' => $transaction->id,
                     'user_id' => $teknisi
                 ]);
             }
 
+            // Fixed activity logging with proper subject binding and properties
             if ($request->type === 'psb') {
                 activity()
                     ->causedBy(Auth::user())
                     ->event('created')
+                    ->performedOn($transaction)  // Bind the model
+                    ->withProperties([          // Add properties for context
+                        'customer_name' => $customer->name,
+                        'customer_id' => $customer->id,
+                        'transaction_id' => $transaction->id,
+                        'type' => 'psb'
+                    ])
                     ->log("Pembangunan Sambungan Baru (PSB) berhasil dibuat");
 
                 activity('psb')
                     ->causedBy(Auth::user())
                     ->event('created')
+                    ->performedOn($customer)    // Bind customer model
+                    ->withProperties([
+                        'transaction_id' => $transaction->id,
+                        'items' => $request->item_id,
+                        'purpose' => $request->purpose,
+                        'address' => $customer->address
+                    ])
                     ->log("Detail Pembangunan Sambungan Baru (PSB)");
             } else if ($request->type === 'repair') {
                 activity()
                     ->causedBy(Auth::user())
                     ->event('created')
+                    ->performedOn($transaction)
+                    ->withProperties([
+                        'customer_name' => $customer->name,
+                        'customer_id' => $customer->id,
+                        'transaction_id' => $transaction->id,
+                        'type' => 'repair'
+                    ])
                     ->log("Perbaikan Pelanggan berhasil dilakukan");
 
                 activity('repair')
                     ->causedBy(Auth::user())
                     ->event('created')
+                    ->performedOn($customer)
+                    ->withProperties([
+                        'transaction_id' => $transaction->id,
+                        'items' => $request->item_id,
+                        'purpose' => $request->purpose,
+                        'address' => $customer->address
+                    ])
                     ->log("Detail Perbaikan Pelanggan");
             }
 
@@ -389,25 +418,54 @@ class CustomerController extends Controller
                 }
             }
 
+            // Log aktivitas ketika update (Pembangunan Sambungan Baru / PSB) atau Repair dilakukan
             if ($request->type === 'psb') {
                 activity()
                     ->causedBy(Auth::user())
-                    ->event('updated')
+                    ->event('updated')  // Menggunakan event 'updated'
+                    ->performedOn($transaction)  // Mengikat model transaksi
+                    ->withProperties([          // Menambahkan properti untuk konteks
+                        'customer_name' => $customer->name,
+                        'customer_id' => $customer->id,
+                        'transaction_id' => $transaction->id,
+                        'type' => 'psb'
+                    ])
                     ->log("Pembangunan Sambungan Baru (PSB) berhasil diperbarui");
 
                 activity('psb')
                     ->causedBy(Auth::user())
-                    ->event('updated')
+                    ->event('updated')  // Menggunakan event 'updated'
+                    ->performedOn($customer)  // Mengikat model customer
+                    ->withProperties([
+                        'transaction_id' => $transaction->id,
+                        'items' => $request->item_id,
+                        'purpose' => $request->purpose,
+                        'address' => $customer->address
+                    ])
                     ->log("Detail Pembangunan Sambungan Baru (PSB) diperbarui");
             } elseif ($request->type === 'repair') {
                 activity()
                     ->causedBy(Auth::user())
-                    ->event('updated')
+                    ->event('updated')  // Menggunakan event 'updated'
+                    ->performedOn($transaction)
+                    ->withProperties([
+                        'customer_name' => $customer->name,
+                        'customer_id' => $customer->id,
+                        'transaction_id' => $transaction->id,
+                        'type' => 'repair'
+                    ])
                     ->log("Perbaikan Retail berhasil diperbarui");
 
                 activity('repair')
                     ->causedBy(Auth::user())
-                    ->event('updated')
+                    ->event('updated')  // Menggunakan event 'updated'
+                    ->performedOn($customer)
+                    ->withProperties([
+                        'transaction_id' => $transaction->id,
+                        'items' => $request->item_id,
+                        'purpose' => $request->purpose,
+                        'address' => $customer->address
+                    ])
                     ->log("Detail Perbaikan Retail diperbarui");
             }
 
