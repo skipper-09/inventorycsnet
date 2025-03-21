@@ -19,26 +19,24 @@ use Illuminate\Validation\ValidationException;
 
 class WorkScheduleController extends Controller
 {
-    public function getShifts()
-    {
-        // Fetch all shifts
-        $shifts = Shift::all();
-        return response()->json($shifts);
-    }
-
     public function index()
     {
         $data = [
             "title" => "Jadwal Kerja Karyawan",
             "employees" => Employee::all(),
             "Departement" => Department::select('id', 'name')->whereHas('employees')->get(),
-            'shift' => Shift::select(['id','name'])->get(),
+            'shift' => Shift::all(),
         ];
 
         return view("pages.master.workschedule.index", $data);
     }
 
-
+    public function getShifts()
+    {
+        // Fetch all shifts
+        $shifts = Shift::all();
+        return response()->json($shifts);
+    }
 
     public function getEmployeeEvents($employeeId, Request $request)
     {
@@ -51,12 +49,6 @@ class WorkScheduleController extends Controller
             $shiftStart = optional($event->shift)->shift_start;
             $shiftEnd = optional($event->shift)->shift_end;
             $shiftName = optional($event->shift)->name;
-
-            // if (!$shiftStart || !$shiftEnd) {
-            //     $shiftStart = '08:00:00';  
-            //     $shiftEnd = '17:00:00';    
-            //     $shiftName = 'Default Shift';
-            // }
 
             return [
                 'title' => $event->status == 'offday' ? 'offday' : 'Jadwal Kerja' . ' (' . $shiftName . ')',
@@ -71,9 +63,6 @@ class WorkScheduleController extends Controller
 
         return response()->json($formattedEvents);
     }
-
-
-
 
     public function createSchedule(Request $request)
     {
@@ -148,10 +137,6 @@ class WorkScheduleController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            // EmployeHoliday::create([
-            //     'employee_id' => $validated['employee_id'],
-            //     'day_off' => Carbon::parse($validated['date']),
-            // ]);
             DB::commit();
             return response()->json(['success' => true, 'schedule' => $schedule]);
         } catch (Exception $e) {
@@ -164,8 +149,6 @@ class WorkScheduleController extends Controller
         }
 
     }
-
-
 
     public function createBulkOffday(Request $request)
     {
@@ -192,10 +175,6 @@ class WorkScheduleController extends Controller
                     'status' => $status,
                     'shift_id' => null,
                 ]);
-                // EmployeHoliday::create([
-                //     'employee_id' => $employeeId,
-                //     'day_off' => $date,
-                // ]);
             }
 
             DB::commit();
@@ -210,14 +189,9 @@ class WorkScheduleController extends Controller
         }
     }
 
-
-
-
-
-
     public function createGroupSchedule(Request $request)
     {
-        $dateRange = $request->date; 
+        $dateRange = $request->date;
         $dates = explode(' - ', $dateRange);
         $startDate = $dates[0];
         $endDate = $dates[1];
@@ -234,12 +208,12 @@ class WorkScheduleController extends Controller
             'shift_id.required_if' => 'Shift harus dipilih jika statusnya adalah "work".',
             'shift_id.exists' => 'Shift yang dipilih tidak valid.',
         ]);
-        
-        $employee = Employee::where('department_id',$request->departement_id)->get();
+
+        $employee = Employee::where('department_id', $request->departement_id)->get();
 
         foreach ($employee as $item) {
             for ($date = Carbon::parse($startDate); $date->lte(Carbon::parse($endDate)); $date->addDay()) {
-                 WorkSchedule::updateOrCreate([
+                WorkSchedule::updateOrCreate([
                     'employee_id' => $item->id,
                     'schedule_date' => $date,
                 ], [
@@ -249,7 +223,6 @@ class WorkScheduleController extends Controller
             }
         }
 
-
         return response()->json([
             'success' => true,
             'status' => "Berhasil",
@@ -257,18 +230,158 @@ class WorkScheduleController extends Controller
         ]);
     }
 
+    public function setWeekdayOffdaysForMonth(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'year' => 'required|integer',
+            'month' => 'required|integer|between:1,12',
+            'weekday' => 'required|integer|between:0,6', // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+        ]);
 
+        DB::beginTransaction();
+        try {
+            $employeeId = $validated['employee_id'];
+            $year = $validated['year'];
+            $month = $validated['month'];
+            $weekday = (int) $validated['weekday']; // Konversi ke integer
 
+            // Mapping weekday number to name (for response message)
+            $weekdayNames = [
+                0 => 'Minggu',
+                1 => 'Senin',
+                2 => 'Selasa',
+                3 => 'Rabu',
+                4 => 'Kamis',
+                5 => 'Jumat',
+                6 => 'Sabtu'
+            ];
 
+            // Get the first day of the month
+            $date = Carbon::createFromDate($year, $month, 1);
 
+            // Get the last day of the month
+            $lastDay = $date->copy()->endOfMonth();
 
+            $targetDates = [];
 
+            // Loop through the month and find all days matching the requested weekday
+            for ($currentDate = $date; $currentDate->lte($lastDay); $currentDate->addDay()) {
+                Log::info('Processing date:', ['date' => $currentDate->format('Y-m-d'), 'dayOfWeek' => $currentDate->dayOfWeek]);
 
+                if ($currentDate->dayOfWeek === $weekday) { // Sekarang $weekday adalah integer
+                    $formattedDate = $currentDate->format('Y-m-d');
+                    $targetDates[] = $formattedDate;
 
+                    WorkSchedule::updateOrCreate([
+                        'employee_id' => $employeeId,
+                        'schedule_date' => $formattedDate,
+                    ], [
+                        'status' => 'offday',
+                        'shift_id' => null,
+                    ]);
+                }
+            }
 
+            // Jika tidak ada tanggal yang sesuai
+            if (empty($targetDates)) {
+                Log::info('No matching dates found for weekday:', ['weekday' => $weekday]);
+                DB::commit();
+                return response()->json([
+                    'success' => true,
+                    'status' => 'Berhasil',
+                    'message' => 'Tidak ada hari ' . $weekdayNames[$weekday] . ' di bulan ini.',
+                    'target_dates' => []
+                ]);
+            }
 
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'status' => 'Berhasil',
+                'message' => 'Jadwal libur untuk hari ' . $weekdayNames[$weekday] . ' berhasil dibuat',
+                'target_dates' => $targetDates
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to set weekday offdays: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'status' => 'Gagal',
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
+    public function deleteSchedule(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'date' => 'required|date',
+        ]);
 
+        DB::beginTransaction();
+        try {
+            $employeeId = $validated['employee_id'];
+            $date = Carbon::parse($validated['date']);
+
+            // Find and delete the schedule
+            $deleted = WorkSchedule::where('employee_id', $employeeId)
+                ->where('schedule_date', $date)
+                ->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'status' => 'Berhasil',
+                'message' => 'Jadwal berhasil dihapus'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete schedule: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'status' => 'Gagal',
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deleteBulkSchedule(Request $request)
+    {
+        $validated = $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $employeeId = $validated['employee_id'];
+            $startDate = Carbon::parse($validated['start_date']);
+            $endDate = Carbon::parse($validated['end_date']);
+
+            // Delete schedules in the date range
+            $deleted = WorkSchedule::where('employee_id', $employeeId)
+                ->whereBetween('schedule_date', [$startDate, $endDate])
+                ->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'status' => 'Berhasil',
+                'message' => 'Jadwal berhasil dihapus'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to delete bulk schedules: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'status' => 'Gagal',
+                'message' => 'An error occurred: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     // public function getData()
     // {
