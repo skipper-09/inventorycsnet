@@ -27,14 +27,19 @@ class WorkProductController extends Controller
         return view('pages.transaction.workproduct.index', $data);
     }
 
-    public function getData()
+    public function getData(Request $request)
     {
-        $data = Work::with(['transaction.userTransaction', 'transaction.branch'])
+        $query = Work::with(['transaction.userTransaction', 'transaction.branch'])
             ->whereHas('transaction', function ($query) {
                 $query->where('purpose', 'other');
             })
-            ->orderByDesc('id')
-            ->get();
+            ->orderByDesc('created_at');
+
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
+        }
+
+        $data = $query->get();
 
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
@@ -137,7 +142,7 @@ class WorkProductController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $work = Work::create([
                 'name' => $request->name,
             ]);

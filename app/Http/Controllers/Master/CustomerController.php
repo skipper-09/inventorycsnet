@@ -31,9 +31,16 @@ class CustomerController extends Controller
     }
 
 
-    public function getData()
+    public function getData(Request $request)
     {
-        $data = Customer::with('transaction', 'zone', 'branch')->orderByDesc('id')->get();
+        $query = Customer::with('transaction', 'zone', 'branch')->orderByDesc('created_at');
+
+        if ($request->filled('created_at')) {
+            $query->whereDate('created_at', $request->input('created_at'));
+        }
+
+        $data = $query->get();
+        
         return DataTables::of($data)->addIndexColumn()->addColumn('action', function ($data) {
             $userauth = User::with('roles')->where('id', Auth::id())->first();
             $button = '';
