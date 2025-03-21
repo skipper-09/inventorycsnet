@@ -86,6 +86,8 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         Route::prefix('produk')->group(function () {
             Route::get('', [ProductController::class, 'index'])->name('produk')->middleware('can:read-product');
             Route::get('getdata', [ProductController::class, 'getData'])->name('produk.getdata');
+            Route::get('export', [ProductController::class, 'export'])->name('produk.export');
+            Route::post('import', [ProductController::class, 'import'])->name('produk.import');
             Route::post('store', [ProductController::class, 'store'])->name('produk.store');
             Route::get('/edit/{id}', [ProductController::class, 'show'])->name('produk.edit')->middleware('can:update-product');
             Route::put('/update/{id}', [ProductController::class, 'update'])->name('produk.update');

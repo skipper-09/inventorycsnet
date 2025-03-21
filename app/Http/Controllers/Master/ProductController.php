@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\ProductExport;
 use App\Http\Controllers\Controller;
+use App\Imports\ProductImport;
 use App\Models\Product;
 use App\Models\UnitProduct;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
@@ -166,4 +169,31 @@ class ProductController extends Controller
             ]);
         }
     }
+
+
+    public function export()
+    {
+        return Excel::download(new ProductExport, 'products.csv');
+    }
+
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,csv|max:10240',
+        ]);
+
+        $file = $request->file('file');
+
+        Excel::import(new ProductImport, $file);
+
+        return response()->json([
+            'success' => true,
+            'status' => 'Success',
+            'message' => 'Products imported successfully!',
+        ]);
+    }
+
+
+
 }
