@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
@@ -71,7 +72,8 @@ class EmployeeController extends Controller
             'title' => 'Karyawan',
             'departments' => Department::all(),
             'positions' => Position::all(),
-            'roles' => Role::all()
+            'company'=> Company::all(),
+            'roles' => Role::where('name', '!=', 'Developer')->get(),
         ];
         return view('pages.master.employee.add', $data);
     }
@@ -90,7 +92,7 @@ class EmployeeController extends Controller
             'nik' => 'required|string|unique:employees,nik',
             'identity_card' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             // User credentials
-            'picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'picture' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:8',
             'role' => 'required|exists:roles,name',
@@ -114,7 +116,7 @@ class EmployeeController extends Controller
             "identity_card.file" => "Kartu identitas harus berupa file.",
             "identity_card.mimes" => "Format kartu identitas tidak valid.",
             "identity_card.max" => "Ukuran kartu identitas maksimal 2MB.",
-            "picture.required" => "Foto harus diupload.",
+            // "picture.required" => "Foto harus diupload.",
             "picture.image" => "Foto harus berupa gambar.",
             "picture.mimes" => "Format gambar tidak valid.",
             "picture.max" => "Ukuran gambar tidak boleh lebih dari 2MB.",
@@ -149,6 +151,7 @@ class EmployeeController extends Controller
             $employee = Employee::create([
                 'department_id' => $request->department_id,
                 'position_id' => $request->position_id,
+                'company_id' => $request->company_id,
                 'name' => $request->name,
                 'address' => $request->address,
                 'phone' => $request->phone,
@@ -211,7 +214,8 @@ class EmployeeController extends Controller
             "title" => "Karyawan",
             "departments" => Department::all(),
             "positions" => Position::all(),
-            "roles" => Role::all(),
+            "company"=> Company::all(),
+            "roles" => Role::where('name', '!=', 'Developer')->get(),
             "employee" => Employee::with([
                 'department',
                 'position',
@@ -318,6 +322,7 @@ class EmployeeController extends Controller
             $employee->update([
                 'department_id' => $request->department_id,
                 'position_id' => $request->position_id,
+                'company_id' => $request->company_id,
                 'name' => $request->name,
                 'address' => $request->address,
                 'phone' => $request->phone,

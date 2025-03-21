@@ -129,6 +129,22 @@
                                         <h5 class="mb-4">Informasi Kepegawaian</h5>
 
                                         <div class="mb-3">
+                                            <label class="form-label required">Perusahaan</label>
+                                            <select name="company_id"
+                                                class="form-control select2form @error('company_id') is-invalid @enderror">
+                                                <option value="">Pilih Perusahaan</option>
+                                                @foreach ($company as $item)
+                                                    <option value="{{ $item->id }}"
+                                                        {{ old('company_id') == $item->id ? 'selected' : '' }}>
+                                                        {{ $item->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('company_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="mb-3">
                                             <label class="form-label required">Departemen</label>
                                             <select name="department_id"
                                                 class="form-control select2form @error('department_id') is-invalid @enderror">
