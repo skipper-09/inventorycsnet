@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\DepartmentWorkScheduleExport;
 use App\Exports\WorkScheduleExport;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
@@ -26,6 +27,7 @@ class WorkScheduleController extends Controller
         $data = [
             "title" => "Jadwal Kerja Karyawan",
             "employees" => Employee::all(),
+            "departments" => Department::all(),
             "Departement" => Department::select('id', 'name')->whereHas('employees')->get(),
             'shift' => Shift::all(),
         ];
@@ -410,8 +412,48 @@ class WorkScheduleController extends Controller
 
         // return (new WorkScheduleExport($schedules, $employee, $startDate, $endDate))
         //     ->download($fileName);
-        
+
         return Excel::download(new WorkScheduleExport($schedules, $employee, $startDate, $endDate), $fileName);
+    }
+
+    public function exportDepartmentSchedule($departmentId, $format, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+
+        // Get department details
+        $department = Department::findOrFail($departmentId);
+
+        // Get all employees in the department
+        $employees = Employee::where('department_id', $departmentId)->get();
+
+        if ($employees->isEmpty()) {
+            return response()->json(['error' => 'No employees found in this department'], 404);
+        }
+
+        // Get employee IDs
+        $employeeIds = $employees->pluck('id')->toArray();
+
+        // Get work schedules for all employees in the department within the date range
+        $schedules = WorkSchedule::with(['shift', 'employee'])
+            ->whereIn('employee_id', $employeeIds)
+            ->whereBetween('schedule_date', [$startDate, $endDate])
+            ->orderBy('schedule_date')
+            ->orderBy('employee_id')
+            ->get();
+
+        $fileName = "jadwal_kerja_departemen_{$department->name}_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}.xlsx";
+
+        // return (new DepartmentWorkScheduleExport($schedules, $department, $employees, $startDate, $endDate))
+        //     ->download($fileName);
+
+        return Excel::download(new DepartmentWorkScheduleExport($schedules, $department, $employees, $startDate, $endDate), $fileName);
     }
 
     // public function getData()
