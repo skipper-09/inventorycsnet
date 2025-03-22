@@ -193,12 +193,15 @@ class TransferProductController extends Controller
             // Hubungkan Assign dengan Transaction
             $transfer->update(['assign_id' => $assign->id]);
 
+            $fromBranch = Branch::find($request->from_branch);
+            $toBranch = Branch::find($request->to_branch);
+
             activity()
                 ->causedBy(Auth::user())
                 ->performedOn($transfer)
                 ->event('created')
                 ->withProperties($transfer->toArray())
-                ->log("Pemindahan Barang berhasil dari {$request->from_branch} ke {$request->to_branch}.");
+                ->log("Pemindahan Barang berhasil dari {$fromBranch->name} ke {$toBranch->name}.");
 
             DB::commit();
 
@@ -284,6 +287,10 @@ class TransferProductController extends Controller
 
             $oldTransfer = $transfer->toArray();
 
+            // Get branch names for logging
+            $fromBranch = Branch::find($request->from_branch);
+            $toBranch = Branch::find($request->to_branch);
+
             // Update transfer details
             $transfer->update([
                 'branch_id' => $request->from_branch,
@@ -342,15 +349,21 @@ class TransferProductController extends Controller
                 $transfer->update(['assign_id' => $assign->id]);
             }
 
+            // Reload the transfer to get the updated data
+            $transfer = $transfer->fresh();
+
             activity()
                 ->causedBy(Auth::user())
                 ->performedOn($transfer)
                 ->event('updated')
                 ->withProperties([
-                    'old' => $oldTransfer,
-                    'new' => $transfer
+                    'old_from_branch' => Branch::find($oldTransfer['branch_id'])->name ?? 'Unknown',
+                    'old_to_branch' => Branch::find($oldTransfer['to_branch'])->name ?? 'Unknown',
+                    'new_from_branch' => $fromBranch->name,
+                    'new_to_branch' => $toBranch->name,
+                    'transfer_id' => $transfer->id
                 ])
-                ->log("Pemindahan Barang berhasil diupdate.");
+                ->log("Pemindahan Barang berhasil diupdate dari {$fromBranch->name} ke {$toBranch->name}.");
 
             DB::commit();
 
