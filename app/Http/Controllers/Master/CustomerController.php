@@ -288,13 +288,12 @@ class CustomerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('customer')->with('success', 'Data berhasil disimpan.');
+            return redirect()->route('customer')->with('Success!', 'Data berhasil disimpan.');
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            return redirect()->route('customer')->with([
+                'status' => 'Error!',
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -431,14 +430,13 @@ class CustomerController extends Controller
 
             DB::commit();
 
-            return redirect()->route('customer')->with('success', 'Customer data updated successfully.');
+            return redirect()->route('customer')->with('Success!', 'Customer data updated successfully.');
         } catch (Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'success' => false,
-                'status' => "Gagal",
-                'message' => 'An error occurred: ' . $e->getMessage()
+            return redirect()->route('customer')->with([
+                'status' => 'Error!',
+                'message' => $e->getMessage()
             ]);
         }
     }
@@ -522,10 +520,11 @@ class CustomerController extends Controller
             }
 
             return response()->json([
+                'status' => 'error',
                 'success' => false,
-                'status' => "Failed",
-                'message' => 'An error occurred: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Data Gagal dihapus!',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }
