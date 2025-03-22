@@ -355,13 +355,13 @@
                                                                     <i class="fas fa-eye"></i>
                                                                 </button>
                                                             </div>
-                                                            <small class="text-muted">Minimal 8 karakter, harus mengandung
-                                                                huruf besar, huruf kecil, dan angka</small>
                                                             @error('password')
                                                                 <div class="invalid-feedback">
                                                                     {{ $message }}
                                                                 </div>
                                                             @enderror
+                                                            <small class="text-muted">Minimal 8 karakter, harus mengandung
+                                                                huruf besar, huruf kecil, dan angka</small>
                                                         </div>
                                                     </div>
 

@@ -83,9 +83,6 @@ class ProfileController extends Controller
                 'string',
                 'min:8',
                 'confirmed',
-                'regex:/[A-Z]/',
-                'regex:/[a-z]/',
-                'regex:/[0-9]/',
             ];
         }
 
