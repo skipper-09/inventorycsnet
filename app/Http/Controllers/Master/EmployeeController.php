@@ -43,9 +43,9 @@ class EmployeeController extends Controller
         
 
         // Filter by position
-        if ($request->filled('position_id')) {
-            $query->whereDate('position_id', $request->input('position_id'));
-        }
+        // if ($request->filled('position_id')) {
+        //     $query->whereDate('position_id', $request->input('position_id'));
+        // }
 
         // Filter by department
         if ($request->filled('department_id')) {

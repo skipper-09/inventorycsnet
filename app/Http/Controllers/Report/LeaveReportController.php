@@ -34,18 +34,26 @@ class LeaveReportController extends Controller
         return view('pages.report.leave.index', $data);
     }
 
-    public function getData()
+    public function getData(Request $request)
     {
         $currentUser = Auth::user();
         $currentUserRole = $currentUser->roles->first()?->name;
 
         // Mengambil data cuti dengan relasi employee
-        $query = Leave::with('employee')->orderByDesc('id');
+        $query = Leave::with('employee')->orderByDesc('created_at');
 
         // Apply role-based filtering
         if ($currentUserRole === 'Employee') {
-            // Jika role adalah 'Employee', hanya data cuti yang milik employee yang sedang login
-            $query->where('employee_id', $currentUser->employee_id);  // Menggunakan employee_id milik user yang sedang login
+            $query->where('employee_id', $currentUser->employee_id);
+        }
+
+        // Apply additional filters if provided
+        if ($request->filled('created_at')) {
+            $query->where('created_at', $request->input('created_at'));
+        }
+
+        if ($request->filled('year')) {
+            $query->where('year', $request->input('year'));
         }
 
         $data = $query->get();
@@ -53,21 +61,25 @@ class LeaveReportController extends Controller
         // Mengembalikan data dengan DataTables
         return DataTables::of($data)
             ->addIndexColumn()
-            ->addColumn('action', function ($data) {
-                $userauth = User::with('roles')->where('id', Auth::id())->first();
-                $currentUser = Auth::user();
-                $currentUserRole = $currentUser->roles->first()?->name;
+            ->addColumn('action', function ($data) use ($currentUserRole) {
                 $button = '';
-                if ($userauth->can('update-leave-report')) {
+                // Check if the user can update the leave report
+                if (Auth::user()->can('update-leave-report')) {
                     if ($currentUserRole !== 'Employee' || ($currentUserRole === 'Employee' && $data->status !== 'approved')) {
-                        $button .= ' <button class="btn btn-sm btn-success" data-id=' . $data->id . ' data-type="edit" data-route="' . route('leavereport.edit', ['id' => $data->id]) . '" data-proses="' . route('leavereport.update', ['id' => $data->id]) . '" data-bs-toggle="modal" data-bs-target="#modal8"
-                                data-action="edit" data-title="Cuti" data-toggle="tooltip" data-placement="bottom" title="Edit Data"><i
-                                                                class="fas fa-pen "></i></button>';
+                        $button .= ' <button class="btn btn-sm btn-success" data-id="' . $data->id . '" data-type="edit" 
+                            data-route="' . route('leavereport.edit', ['id' => $data->id]) . '" 
+                            data-proses="' . route('leavereport.update', ['id' => $data->id]) . '" 
+                            data-bs-toggle="modal" data-bs-target="#modal8" data-action="edit" data-title="Cuti" 
+                            data-toggle="tooltip" data-placement="bottom" title="Edit Data">
+                            <i class="fas fa-pen"></i></button>';
                     }
                 }
-                if ($userauth->can('delete-leave-report')) {
-                    $button .= ' <button class="btn btn-sm btn-danger action" data-id=' . $data->id . ' data-type="delete" data-route="' . route('leavereport.delete', ['id' => $data->id]) . '" data-toggle="tooltip" data-placement="bottom" title="Delete Data"><i
-                                                        class="fas fa-trash "></i></button>';
+                // Check if the user can delete the leave report
+                if (Auth::user()->can('delete-leave-report')) {
+                    $button .= ' <button class="btn btn-sm btn-danger action" data-id="' . $data->id . '" data-type="delete" 
+                            data-route="' . route('leavereport.delete', ['id' => $data->id]) . '" 
+                            data-toggle="tooltip" data-placement="bottom" title="Delete Data">
+                            <i class="fas fa-trash"></i></button>';
                 }
                 return '<div class="d-flex gap-2">' . $button . '</div>';
             })
@@ -89,6 +101,7 @@ class LeaveReportController extends Controller
             ->rawColumns(['action', 'name', 'position', 'start_date', 'end_date', 'status'])
             ->make(true);
     }
+
 
     public function show($id)
     {
@@ -151,7 +164,7 @@ class LeaveReportController extends Controller
 
                 if ($leave->status == 'approved') {
                     for ($date = Carbon::parse($request->start_date); $date->lte(Carbon::parse($request->end_date)); $date->addDay()) {
-                       WorkSchedule::updateOrCreate([
+                        WorkSchedule::updateOrCreate([
                             'employee_id' => $request->employee_id,
                             'schedule_date' => $date,
                         ], [
@@ -170,7 +183,7 @@ class LeaveReportController extends Controller
                 ->withProperties($leave->toArray())
                 ->log("Laporan Cuti berhasil dibuat.");
 
-                DB::commit();
+            DB::commit();
             return response()->json([
                 'success' => true,
                 'status' => 'Success',
@@ -252,7 +265,7 @@ class LeaveReportController extends Controller
 
                 if ($leave->status == 'approved') {
                     for ($date = Carbon::parse($request->start_date); $date->lte(Carbon::parse($request->end_date)); $date->addDay()) {
-                       WorkSchedule::updateOrCreate([
+                        WorkSchedule::updateOrCreate([
                             'employee_id' => $request->employee_id,
                             'schedule_date' => $date,
                         ], [

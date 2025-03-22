@@ -46,15 +46,16 @@ $(document).ready(function () {
     }
     
     // Add reset button aligned with the filters
-    $(".row.mb-3.d-flex.align-items-center").append(
-        '<div class="col-md-4">' +
-        '<label class="form-label" style="visibility: hidden;">Hidden Label</label>' +
-        '<div><button id="reset-filters" class="btn btn-primary">Reset Filter</button></div>' +
-        '</div>'
-    );
+    // $(".row.mb-3.d-flex.align-items-center").append(
+    //     '<div class="col-md-4">' +
+    //     '<label class="form-label" style="visibility: hidden;">Hidden Label</label>' +
+    //     '<div><button id="reset-filters" class="btn btn-primary">Reset Filter</button></div>' +
+    //     '</div>'
+    // );
 
     // Initialize Select2 before DataTable
-    $("#position_id, #department_id").select2();
+    // $("#position_id, #department_id").select2();
+    $("#department_id").select2();
 
     // Initialize datatable with variable assignment
     var table = $("#scroll-sidebar-datatable").DataTable({
@@ -75,7 +76,7 @@ $(document).ready(function () {
         ajax: {
             url: route,
             data: function (d) {
-                d.position_id = $("#position_id").val(); // Filter position
+                // d.position_id = $("#position_id").val(); // Filter position
                 d.department_id = $("#department_id").val(); // Filter department
             },
         },
@@ -83,9 +84,9 @@ $(document).ready(function () {
     });
 
     // Reload table data when position filter changes
-    $("#position_id").on("change", function () {
-        table.ajax.reload();
-    });
+    // $("#position_id").on("change", function () {
+    //     table.ajax.reload();
+    // });
     
     // Reload table data when department filter changes
     $("#department_id").on("change", function () {
@@ -93,15 +94,15 @@ $(document).ready(function () {
     });
     
     // Reset filters on button click
-    $(document).on("click", "#reset-filters", function() {
-        // Clear Select2 values properly
-        $("#position_id, #department_id").each(function() {
-            $(this).val("").trigger("change");
-        });
+    // $(document).on("click", "#reset-filters", function() {
+    //     // Clear Select2 values properly
+    //     $("#position_id, #department_id").each(function() {
+    //         $(this).val("").trigger("change");
+    //     });
         
-        // Reload the table
-        table.ajax.reload();
+    //     // Reload the table
+    //     table.ajax.reload();
         
-        return false; // Prevent default button behavior
-    });
+    //     return false; // Prevent default button behavior
+    // });
 });

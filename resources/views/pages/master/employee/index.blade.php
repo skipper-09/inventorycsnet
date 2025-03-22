@@ -43,8 +43,8 @@
                         </div>
                     @endcan
                     <div class="card-body">
-                        <div class="row mb-3 d-flex align-items-center">
-                            <div class="col-md-4">
+                        <div class="row mb-5 d-flex align-items-center">
+                            {{-- <div class="col-md-4">
                                 <!-- Filter Position (Select2) -->
                                 <label for="filter-position" class="form-label">Filter Jabatan</label>
                                 <select class="form-select select2" id="position_id" style="width: 100%">
@@ -53,7 +53,7 @@
                                         <option value="{{ $position->id }}">{{ $position->name }}</option>
                                     @endforeach
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="col-md-4">
                                 <!-- Filter Department (Select2) -->
                                 <label for="filter-department" class="form-label">Filter Departemen</label>

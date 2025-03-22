@@ -133,6 +133,8 @@ $(document).ready(function () {
         });
     }
 
+    $("#year").select2();
+
     var table = $("#scroll-sidebar-datatable").DataTable({
         scrollY: "350px",
         scrollCollapse: !0,
@@ -148,7 +150,13 @@ $(document).ready(function () {
         },
         processing: true,
         serverSide: true,
-        ajax: route,
+        ajax: {
+            url: route,
+            data: function (d) {
+                d.created_at = $("#created_at").val();
+                d.year = $("#year").val();
+            },
+        },
         columns: columns,
     });
 
@@ -208,6 +216,32 @@ $(document).ready(function () {
                 }
             },
         });
+    });
+
+    var filterChanged = false;
+
+    $("#year").on("change", function () {
+        table.ajax.reload();
+    });
+
+    $("#year").on("change", function () {
+        if (!filterChanged) {
+            filterChanged = true;
+            // Reset the created_at filter when year filter changes
+            $("#created_at").val("").trigger("change");
+            table.ajax.reload(null, false);  // Reload table with new filters
+            filterChanged = false;
+        }
+    });
+
+    $("#created_at").on("change", function () {
+        if (!filterChanged) {
+            filterChanged = true;
+            // Reset the year filter when created_at filter changes
+            $("#year").val("").trigger("change");
+            table.ajax.reload(null, false);  // Reload table with new filters
+            filterChanged = false;
+        }
     });
 });
 

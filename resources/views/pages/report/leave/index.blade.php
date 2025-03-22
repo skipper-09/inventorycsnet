@@ -48,6 +48,27 @@
                         </div>
                     @endcan
                     <div class="card-body">
+                        <div class="row mb-3">
+                            <!-- Filter by Date -->
+                            <div class="col-md-4">
+                                <label class="form-label" for="created_at">
+                                    Filter Tanggal
+                                </label>
+                                <input type="date" id="created_at" class="form-control" />
+                            </div>
+                            <!-- Filter by Year -->
+                            <div class="col-md-4">
+                                <label class="form-label" for="year">
+                                    Filter Tahun
+                                </label>
+                                <select id="year" class="form-select select2">
+                                    <option value="">-- Pilih Tahun --</option>
+                                    @for ($i = date('Y'); $i >= 2021; $i--)
+                                        <option value="{{ $i }}">{{ $i }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
                         <table id="scroll-sidebar-datatable"
                             class="table dt-responsive nowrap w-100 table-hover table-striped"
                             data-route="{{ route('leavereport.getdata') }}"
