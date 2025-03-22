@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Exports\WorkScheduleExport;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\EmployeHoliday;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\Facades\DataTables;
 use Exception;
 use Carbon\Carbon;
@@ -381,6 +383,35 @@ class WorkScheduleController extends Controller
                 'message' => 'An error occurred: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function exportSchedule($employeeId, $format, Request $request)
+    {
+        // Validate request
+        $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        $startDate = Carbon::parse($request->start_date);
+        $endDate = Carbon::parse($request->end_date);
+
+        // Get employee details
+        $employee = Employee::findOrFail($employeeId);
+
+        // Get work schedules for the employee within the date range
+        $schedules = WorkSchedule::with('shift')
+            ->where('employee_id', $employeeId)
+            ->whereBetween('schedule_date', [$startDate, $endDate])
+            ->orderBy('schedule_date')
+            ->get();
+
+        $fileName = "jadwal_kerja_{$employee->name}_{$startDate->format('Ymd')}_{$endDate->format('Ymd')}.xlsx";
+
+        // return (new WorkScheduleExport($schedules, $employee, $startDate, $endDate))
+        //     ->download($fileName);
+        
+        return Excel::download(new WorkScheduleExport($schedules, $employee, $startDate, $endDate), $fileName);
     }
 
     // public function getData()

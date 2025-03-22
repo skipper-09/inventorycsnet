@@ -1065,7 +1065,7 @@
 
         function exportSchedule(format, startDate, endDate) {
             const url =
-                `/admin/master/workschedule/export-schedule/${selectedEmployeeId}/${format}?start_date=${startDate}&end_date=${endDate}`;
+                `/admin/master/workschedule/export/${selectedEmployeeId}/${format}?start_date=${startDate}&end_date=${endDate}`;
             window.open(url, '_blank');
         }
 

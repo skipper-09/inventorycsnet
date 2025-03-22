@@ -338,6 +338,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
             Route::post('/set-weekday-offdays', [WorkScheduleController::class, 'setWeekdayOffdaysForMonth']);
             Route::post('/delete-schedule', [WorkScheduleController::class, 'deleteSchedule']);
             Route::post('/delete-bulk-schedule', [WorkScheduleController::class, 'deleteBulkSchedule']);
+            Route::get('/export/{employeeId}/{format}', [WorkScheduleController::class, 'exportSchedule']);
 
             // Route::get('getdata', [WorkScheduleController::class, 'getData'])->name('workschedule.getdata');
             // // Route::get('/details/{id}', [WorkScheduleController::class, 'details'])->name('workschedule.details')->middleware('can:read-workschedule');
