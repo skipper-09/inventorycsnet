@@ -17,6 +17,7 @@ use App\Models\ZoneOdp;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 
@@ -255,55 +256,34 @@ class CustomerController extends Controller
                 ]);
             }
 
-            // Fixed activity logging with proper subject binding and properties
-            if ($request->type === 'psb') {
-                activity()
-                    ->causedBy(Auth::user())
-                    ->event('created')
-                    ->performedOn($transaction)  // Bind the model
-                    ->withProperties([          // Add properties for context
-                        'customer_name' => $customer->name,
-                        'customer_id' => $customer->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'psb'
-                    ])
-                    ->log("Pembangunan Sambungan Baru (PSB) berhasil dibuat");
-
-                activity('psb')
-                    ->causedBy(Auth::user())
-                    ->event('created')
-                    ->performedOn($customer)    // Bind customer model
-                    ->withProperties([
-                        'transaction_id' => $transaction->id,
-                        'items' => $request->item_id,
-                        'purpose' => $request->purpose,
-                        'address' => $customer->address
-                    ])
-                    ->log("Detail Pembangunan Sambungan Baru (PSB)");
-            } else if ($request->type === 'repair') {
-                activity()
-                    ->causedBy(Auth::user())
-                    ->event('created')
-                    ->performedOn($transaction)
-                    ->withProperties([
-                        'customer_name' => $customer->name,
-                        'customer_id' => $customer->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'repair'
-                    ])
-                    ->log("Perbaikan Pelanggan berhasil dilakukan");
-
-                activity('repair')
-                    ->causedBy(Auth::user())
-                    ->event('created')
-                    ->performedOn($customer)
-                    ->withProperties([
-                        'transaction_id' => $transaction->id,
-                        'items' => $request->item_id,
-                        'purpose' => $request->purpose,
-                        'address' => $customer->address
-                    ])
-                    ->log("Detail Perbaikan Pelanggan");
+            try {
+                if ($request->type == 'psb') {
+                    activity('psb')
+                        ->causedBy(Auth::user())
+                        ->event('created')
+                        ->performedOn($customer)
+                        ->withProperties([
+                            'transaction_id' => $transaction->id,
+                            'items' => $request->item_id,
+                            'purpose' => $request->purpose,
+                            'address' => $customer->address
+                        ])
+                        ->log("Detail Pembangunan Sambungan Baru (PSB)");
+                } else {
+                    activity('repair')
+                        ->causedBy(Auth::user())
+                        ->event('created')
+                        ->performedOn($customer)
+                        ->withProperties([
+                            'transaction_id' => $transaction->id,
+                            'items' => $request->item_id,
+                            'purpose' => $request->purpose,
+                            'address' => $customer->address
+                        ])
+                        ->log("Perbaikan Pelanggan berhasil dilakukan");
+                }
+            } catch (Exception $e) {
+                Log::error('Activity logging error: ' . $e->getMessage());
             }
 
             DB::commit();
@@ -351,8 +331,6 @@ class CustomerController extends Controller
         return view('pages.report.customer.edit', $data);
     }
 
-
-
     public function update(Request $request, $id)
     {
         // Validate incoming data
@@ -398,11 +376,14 @@ class CustomerController extends Controller
 
                 foreach ($request->item_id as $index => $item) {
                     if (isset($request->quantity[$index])) {
+                        // Check if sn_modem index exists to avoid "Undefined array key" error
+                        $snModem = isset($request->sn_modem[$index]) ? $request->sn_modem[$index] : null;
+
                         TransactionProduct::create([
                             'transaction_id' => $transaction->id,
                             'product_id' => $item,
                             'quantity' => $request->quantity[$index],
-                            'sn_modem' => $request->sn_modem[$index],
+                            'sn_modem' => $snModem,
                         ]);
                     }
                 }
@@ -410,63 +391,42 @@ class CustomerController extends Controller
 
             if (is_array($request->tecnition)) {
                 TransactionTechnition::where('transaction_id', $transaction->id)->delete();
-                foreach ($request->tecnition as $index => $teknisi) {
+                foreach ($request->tecnition as $tecnisi) {
                     TransactionTechnition::create([
                         'transaction_id' => $transaction->id,
-                        'user_id' => $teknisi
+                        'user_id' => $tecnisi
                     ]);
                 }
             }
 
-            // Log aktivitas ketika update (Pembangunan Sambungan Baru / PSB) atau Repair dilakukan
-            if ($request->type === 'psb') {
-                activity()
-                    ->causedBy(Auth::user())
-                    ->event('updated')  // Menggunakan event 'updated'
-                    ->performedOn($transaction)  // Mengikat model transaksi
-                    ->withProperties([          // Menambahkan properti untuk konteks
-                        'customer_name' => $customer->name,
-                        'customer_id' => $customer->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'psb'
-                    ])
-                    ->log("Pembangunan Sambungan Baru (PSB) berhasil diperbarui");
-
-                activity('psb')
-                    ->causedBy(Auth::user())
-                    ->event('updated')  // Menggunakan event 'updated'
-                    ->performedOn($customer)  // Mengikat model customer
-                    ->withProperties([
-                        'transaction_id' => $transaction->id,
-                        'items' => $request->item_id,
-                        'purpose' => $request->purpose,
-                        'address' => $customer->address
-                    ])
-                    ->log("Detail Pembangunan Sambungan Baru (PSB) diperbarui");
-            } elseif ($request->type === 'repair') {
-                activity()
-                    ->causedBy(Auth::user())
-                    ->event('updated')  // Menggunakan event 'updated'
-                    ->performedOn($transaction)
-                    ->withProperties([
-                        'customer_name' => $customer->name,
-                        'customer_id' => $customer->id,
-                        'transaction_id' => $transaction->id,
-                        'type' => 'repair'
-                    ])
-                    ->log("Perbaikan Retail berhasil diperbarui");
-
-                activity('repair')
-                    ->causedBy(Auth::user())
-                    ->event('updated')  // Menggunakan event 'updated'
-                    ->performedOn($customer)
-                    ->withProperties([
-                        'transaction_id' => $transaction->id,
-                        'items' => $request->item_id,
-                        'purpose' => $request->purpose,
-                        'address' => $customer->address
-                    ])
-                    ->log("Detail Perbaikan Retail diperbarui");
+            try {
+                if ($request->purpose == 'psb') {
+                    activity('psb')
+                        ->causedBy(Auth::user())
+                        ->event('updated')
+                        ->performedOn($customer)
+                        ->withProperties([
+                            'transaction_id' => $transaction->id,
+                            'items' => $request->item_id ?? [],
+                            'purpose' => $request->purpose,
+                            'address' => $customer->address
+                        ])
+                        ->log("Detail Pembangunan Sambungan Baru (PSB)");
+                } else {
+                    activity('repair')
+                        ->causedBy(Auth::user())
+                        ->event('updated')
+                        ->performedOn($customer)
+                        ->withProperties([
+                            'transaction_id' => $transaction->id,
+                            'items' => $request->item_id ?? [],
+                            'purpose' => $request->purpose,
+                            'address' => $customer->address
+                        ])
+                        ->log("Perbaikan Pelanggan berhasil dilakukan");
+                }
+            } catch (Exception $e) {
+                Log::error('Activity logging error: ' . $e->getMessage());
             }
 
             DB::commit();

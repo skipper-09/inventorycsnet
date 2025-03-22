@@ -271,8 +271,6 @@ class WorkScheduleController extends Controller
 
             // Loop through the month and find all days matching the requested weekday
             for ($currentDate = $date; $currentDate->lte($lastDay); $currentDate->addDay()) {
-                Log::info('Processing date:', ['date' => $currentDate->format('Y-m-d'), 'dayOfWeek' => $currentDate->dayOfWeek]);
-
                 if ($currentDate->dayOfWeek === $weekday) { // Sekarang $weekday adalah integer
                     $formattedDate = $currentDate->format('Y-m-d');
                     $targetDates[] = $formattedDate;
@@ -289,7 +287,6 @@ class WorkScheduleController extends Controller
 
             // Jika tidak ada tanggal yang sesuai
             if (empty($targetDates)) {
-                Log::info('No matching dates found for weekday:', ['weekday' => $weekday]);
                 DB::commit();
                 return response()->json([
                     'success' => true,

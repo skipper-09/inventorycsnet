@@ -1,6 +1,8 @@
 <form action="{{ route('customer.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="row">
+        <input type="hidden" name="type" value="{{ $type ?? 'repair' }}">
+
         <div class="mb-3">
             <label class="form-label w-100" for="branch_id">Piih Cabang</label>
             <select name="branch_id" id="branch_id"

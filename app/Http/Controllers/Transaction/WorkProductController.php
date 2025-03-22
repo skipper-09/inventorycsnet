@@ -171,6 +171,17 @@ class WorkProductController extends Controller
                 ]);
             }
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('created')
+                ->performedOn($work)
+                ->withProperties([
+                    'transaction_id' => $transaction->id,
+                    'items' => $request->item_id ?? [],
+                    'purpose' => $request->purpose
+                ])
+                ->log("Berhasil menambahkan data laporan ODP Bisnis");
+
             DB::commit();
 
             return redirect()->route('workproduct')->with([
@@ -283,6 +294,17 @@ class WorkProductController extends Controller
                 ]);
             }
 
+            activity()
+                ->causedBy(Auth::user())
+                ->event('updated')
+                ->performedOn($transaction->WorkTransaction)
+                ->withProperties([
+                    'transaction_id' => $transaction->id,
+                    'items' => $request->item_id ?? [],
+                    'purpose' => $request->purpose
+                ])
+                ->log("Berhasil update data laporan ODP Bisnis");
+
             DB::commit();
 
             return redirect()->route('workproduct')->with([
@@ -333,6 +355,13 @@ class WorkProductController extends Controller
 
             // Delete the work record
             $work->delete();
+
+            activity()
+                ->causedBy(Auth::user())
+                ->event('deleted')
+                ->withProperties($work->toArray())
+                ->log("Data Laporan ODP Bisnis berhasil dihapus.");
+
 
             DB::commit();
 
