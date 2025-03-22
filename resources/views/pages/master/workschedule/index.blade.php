@@ -193,8 +193,11 @@
 
             <div class="col-md-9">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5>Jadwal Kerja Karyawan</h5>
+                        <button id="export-department-btn" class="btn btn-info">
+                            <i class="bx bx-export"></i> Export Department Schedule
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="calendar-legend">
@@ -373,6 +376,86 @@
             </div>
         </div>
     </div>
+
+    <!-- Export Department Modal -->
+    <div class="modal fade" id="exportDepartmentModal" tabindex="-1" role="dialog"
+        aria-labelledby="exportDepartmentModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportDepartmentModalLabel">Export Jadwal Departemen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="exportDepartmentForm">
+                        <div class="mb-3">
+                            <label for="export-department-select">Departemen</label>
+                            <select class="form-control" id="export-department-select" required>
+                                <option value="">Pilih Departemen</option>
+                                @foreach ($departments as $department)
+                                    <option value="{{ $department->id }}">{{ $department->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="export-period-type">Tipe Periode</label>
+                            <select class="form-control" id="export-period-type">
+                                <option value="custom">Kustom Tanggal</option>
+                                <option value="month">Bulanan</option>
+                                <option value="year">Tahunan</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom Date Range Fields -->
+                        <div id="export-custom-date-fields">
+                            <div class="mb-3">
+                                <label for="export-date-range">
+                                    Jangka Waktu
+                                </label>
+                                <input type="text" class="form-control" id="export-date-range" required>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Period Field -->
+                        <div id="export-monthly-field" style="display: none;">
+                            <div class="mb-3">
+                                <label for="export-month-picker">Tahun dan Bulan</label>
+                                <input type="month" class="form-control" id="export-month-picker">
+                            </div>
+                        </div>
+
+                        <!-- Yearly Period Field -->
+                        <div id="export-yearly-field" style="display: none;">
+                            <div class="mb-3">
+                                <label for="export-year-picker">Tahun</label>
+                                <select class="form-control" id="export-year-picker">
+                                    <!-- Will be populated via JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- <div class="mb-3">
+                            <label for="export-format-select">Export Format</label>
+                            <select class="form-control" id="export-format-select">
+                                <option value="xlsx">Excel (XLSX)</option>
+                                <option value="csv">CSV</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div> --}}
+
+                        <!-- Hidden fields to store the actual dates -->
+                        <input type="hidden" id="export-start-date">
+                        <input type="hidden" id="export-end-date">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="export-department-submit">Export</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('js')
@@ -403,6 +486,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize the calendar
             initializeCalendar();
+
+            initExportDepartmentModal();
+
+            // $('#exportDepartmentModal').on('shown.bs.modal', function() {
+            //     // Reinitialize select2 when modal is shown
+            //     $('#export-department-select').select2('destroy');
+            //     initSelect2();
+            // });
 
             // Initialize daterangepickers
             $('#schedule-date-range').daterangepicker({
@@ -548,6 +639,16 @@
                 exportSchedule('excel', startDate, endDate);
             });
 
+            $('#export-excel-btn').on('click', function() {
+                if (!selectedEmployeeId) return;
+
+                const currentDate = moment();
+                const startDate = moment(currentDate).startOf('month').format('YYYY-MM-DD');
+                const endDate = moment(currentDate).endOf('month').format('YYYY-MM-DD');
+
+                exportSchedule('excel', startDate, endDate);
+            });
+
             // Clear Month
             $('#clear-month-btn').on('click', function() {
                 if (!selectedEmployeeId) return;
@@ -593,6 +694,95 @@
 
                 setWeekdayOffdays(selectedEmployeeId, year, month, weekday);
                 $('#weekdayOffdayModal').modal('hide');
+            });
+
+            // Export Department button event
+            $('#export-department-btn').on('click', function() {
+                $('#exportDepartmentModal').modal('show');
+            });
+
+            // Export Department submit button
+            $('#export-department-submit').on('click', function() {
+                const departmentId = $('#export-department-select').val();
+                const periodType = $('#export-period-type').val();
+                // Set format directly to xlsx without reading from select
+                const format = 'xlsx';
+                let startDate, endDate;
+
+                if (!departmentId) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select a department'
+                    });
+                    return;
+                }
+
+                if (periodType === 'custom') {
+                    const dateRange = $('#export-date-range').val();
+                    const dates = dateRange.split(' - ');
+                    startDate = dates[0];
+                    endDate = dates.length > 1 ? dates[1] : startDate;
+                } else if (periodType === 'month') {
+                    const monthValue = $('#export-month-picker').val(); // Format: "YYYY-MM"
+                    if (monthValue) {
+                        const [year, month] = monthValue.split('-').map(Number);
+                        // First day of selected month
+                        startDate = moment(new Date(year, month - 1, 1)).format('YYYY-MM-DD');
+                        // Last day of selected month
+                        endDate = moment(new Date(year, month, 0)).format('YYYY-MM-DD');
+                    }
+                } else if (periodType === 'year') {
+                    const year = $('#export-year-picker').val();
+                    if (year) {
+                        // First day of selected year
+                        startDate = moment(new Date(year, 0, 1)).format('YYYY-MM-DD');
+                        // Last day of selected year
+                        endDate = moment(new Date(year, 11, 31)).format('YYYY-MM-DD');
+                    }
+                }
+
+                if (!startDate || !endDate) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select valid dates'
+                    });
+                    return;
+                }
+
+                // Call the export function
+                exportDepartmentSchedule(departmentId, format, startDate, endDate);
+
+                // Close the modal
+                $('#exportDepartmentModal').modal('hide');
+            });
+
+            // Add these handlers for period type changes
+            $('#export-period-type').on('change', function() {
+                const periodType = $(this).val();
+
+                // Hide all period fields first
+                $('#export-custom-date-fields, #export-monthly-field, #export-yearly-field').hide();
+
+                // Show the appropriate fields based on selection
+                if (periodType === 'custom') {
+                    $('#export-custom-date-fields').show();
+                } else if (periodType === 'month') {
+                    $('#export-monthly-field').show();
+                    updateExportDatesFromMonth();
+                } else if (periodType === 'year') {
+                    $('#export-yearly-field').show();
+                    updateExportDatesFromYear();
+                }
+            });
+
+            $('#export-month-picker').on('change', function() {
+                updateExportDatesFromMonth();
+            });
+
+            $('#export-year-picker').on('change', function() {
+                updateExportDatesFromYear();
             });
         });
 
@@ -1065,7 +1255,13 @@
 
         function exportSchedule(format, startDate, endDate) {
             const url =
-                `/admin/master/workschedule/export-schedule/${selectedEmployeeId}/${format}?start_date=${startDate}&end_date=${endDate}`;
+                `/admin/master/workschedule/export/${selectedEmployeeId}/${format}?start_date=${startDate}&end_date=${endDate}`;
+            window.open(url, '_blank');
+        }
+
+        function exportDepartmentSchedule(departmentId, format, startDate, endDate) {
+            const url =
+                `/admin/master/workschedule/export-department/${departmentId}/${format}?start_date=${startDate}&end_date=${endDate}`;
             window.open(url, '_blank');
         }
 
@@ -1175,6 +1371,96 @@
             $('#export-excel-btn').prop('disabled', !isEmployeeSelected);
             $('#clear-month-btn').prop('disabled', !isEmployeeSelected);
             $('#set-weekday-offday-btn').prop('disabled', !isEmployeeSelected); // Add this line
+        }
+
+        // Helper functions for date updates
+        function updateExportDatesFromMonth() {
+            const monthValue = $('#export-month-picker').val(); // Format: "YYYY-MM"
+            if (monthValue) {
+                const [year, month] = monthValue.split('-').map(Number);
+
+                // First day of selected month
+                const firstDay = new Date(year, month - 1, 1);
+
+                // Last day of selected month
+                const lastDay = new Date(year, month, 0);
+
+                $('#export-start-date').val(moment(firstDay).format('YYYY-MM-DD'));
+                $('#export-end-date').val(moment(lastDay).format('YYYY-MM-DD'));
+            }
+        }
+
+        function updateExportDatesFromYear() {
+            const year = $('#export-year-picker').val();
+            if (year) {
+                // First day of selected year
+                const firstDay = new Date(year, 0, 1);
+
+                // Last day of selected year
+                const lastDay = new Date(year, 11, 31);
+
+                $('#export-start-date').val(moment(firstDay).format('YYYY-MM-DD'));
+                $('#export-end-date').val(moment(lastDay).format('YYYY-MM-DD'));
+            }
+        }
+
+        function populateExportYearOptions() {
+            const select = $('#export-year-picker');
+            const currentYear = new Date().getFullYear();
+
+            // Add options for the last 5 years and next 2 years
+            for (let year = currentYear - 5; year <= currentYear + 2; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (year === currentYear) {
+                    option.selected = true;
+                }
+                select.append(option);
+            }
+        }
+
+        // function initSelect2() {
+        //     $('#export-department-select').select2({
+        //         dropdownParent: $('#exportDepartmentModal'),
+        //         width: '100%'
+        //     });
+        // }
+
+        // Call this in your DOMContentLoaded handler to initialize
+        function initExportDepartmentModal() {
+            // Reset the form when modal is shown
+            $('#exportDepartmentModal').on('show.bs.modal', function() {
+                $('#export-department-select').val('').trigger('change');
+                $('#export-period-type').val('custom').trigger('change');
+            });
+            // initSelect2();
+
+            // Initialize the daterangepicker for export
+            $('#export-date-range').daterangepicker({
+                singleDatePicker: false,
+                showDropdowns: true,
+                minYear: 2020,
+                maxYear: parseInt(moment().format('YYYY'), 10) + 2,
+                locale: {
+                    format: 'YYYY-MM-DD'
+                }
+            });
+
+            // Set default dates to current month
+            const today = moment();
+            $('#export-date-range').data('daterangepicker').setStartDate(moment(today).startOf('month').format(
+                'YYYY-MM-DD'));
+            $('#export-date-range').data('daterangepicker').setEndDate(moment(today).endOf('month').format('YYYY-MM-DD'));
+
+            // Set default month picker to current month
+            $('#export-month-picker').val(moment().format('YYYY-MM'));
+
+            // Populate year options
+            populateExportYearOptions();
+
+            // Set period type change handling
+            $('#export-period-type').trigger('change');
         }
 
         // Handle calendar navigation to reload events
